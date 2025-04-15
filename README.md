@@ -1,54 +1,87 @@
-# React + TypeScript + Vite
+# 🚀 Bienvenido al proyecto: **Previmed** - React (Vite) + TypeScript
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto fue creado con dos objetivos principales:
 
-Currently, two official plugins are available:
+1. ✅ Cumplir con el proyecto requerido por el **SENA**.
+2. 🧠 Aplicar los conocimientos adquiridos en un proyecto real para la empresa **Previmed** (prestadora de servicios de salud).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🎯 Función principal
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Gestionar de forma más **efectiva** y **dinámica** los distintos tipos de movimientos internos que se generan en la empresa **Previmed**.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🧱 Tecnologías utilizadas
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+- ⚛️ **React** (con Vite)
+- 🟦 **TypeScript**
+- 💅 **TailwindCSS** (si aplica, agrégalo)
+- 📦 **npm** para gestión de dependencias
+
+---
+## 📦 Requisitos previos
+Asegúrate de tener instaladas las siguientes herramientas:
+
+- Node.js (versio: >= 22.14.0) // Para verificar que lo tienes en tu maquina ingresa al cmd y escribe node -v, de lo contrario instalalas rapido. 😡
+- npm // Para verificar que lo tienes en tu maquina ingresa al cmd y escribe npm -v, de lo contrario instalalas rapido. 😡
+
+## Proceso de instalación 💥💥💥
+
+git clone https://github.com/IngAlim2023/Previmed_web.git
+
+## Instalación de dependencias 🎒🎒🎒
+
+en la terminal del proyecto npm i o en su defecto npm install
+
+## Ejecución del proyecto 🏃🏃🏃
+npm run dev
+
+
+## 🚫🚫🚫 Convenios IMPORTANTES PARA MANEJO DEL PROYECTO CON EL OBJETIVO DE IMPEDIR CONFLICTOS EN EL REPOSITORIO 
+
+1. 📦 Instalación de nuevas librerías:
+
+ * Avisar al grupo antes de instalar nuevas dependencias.
+
+ * Hacer git push inmediatamente después de instalar, para que el package.json y package-lock.json estén actualizados.
+
+ * Los demás deben ejecutar npm install para mantener sincronizado el entorno.
+
+2. 🧭 Modificaciones en App.tsx (ruteo):
+
+ * Avisar al grupo antes de hacer cambios en las rutas.
+
+ * Una vez realizados los cambios, hacer push y notificar al grupo para que todos actualicen el archivo común.
+
+
+
+##  🚧🚧🚧 Estructura del proyecto
+
+src/
+├── assets/
+├── components/
+│   ├── navegation/
+│   ├── administrador/
+│   ├── pacientes/
+│   │   ├── titulares/
+│   │   └── beneficiarios/
+│   └── login/
+├── pages/
+│   ├── navegation/
+│   ├── administrador/
+│   ├── pacientes/
+│   │   ├── titulares/
+│   │   └── beneficiarios/
+│   └── login/
+├── App.tsx
+└── main.tsx
+
+
+## 📣 Contacto
+Para cualquier duda o problema técnico, comunícate por el grupo de WhatsApp del equipo 👥
+
+
+# ¡Gracias por aportar al proyecto Previmed! 💚
