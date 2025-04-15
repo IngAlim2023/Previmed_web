@@ -18,7 +18,7 @@ Gestionar de forma más **efectiva** y **dinámica** los distintos tipos de movi
 
 - ⚛️ **React** (con Vite)
 - 🟦 **TypeScript**
-- 💅 **TailwindCSS** (si aplica, agrégalo)
+- 💅 **TailwindCSS**
 - 📦 **npm** para gestión de dependencias
 
 ---
@@ -65,6 +65,7 @@ Para cualquier duda o problema técnico, comunícate por el grupo de WhatsApp de
 
 🚧🚧🚧 Estructura del proyecto
 
+```bash
 src/
 ├── assets/
 ├── components/
