@@ -57,8 +57,13 @@ npm run dev
  * Una vez realizados los cambios, hacer push y notificar al grupo para que todos actualicen el archivo común.
 
 
+## 📣 Contacto
+Para cualquier duda o problema técnico, comunícate por el grupo de WhatsApp del equipo 👥
 
-##  🚧🚧🚧 Estructura del proyecto
+
+# ¡Gracias por aportar al proyecto Previmed! 💚
+
+🚧🚧🚧 Estructura del proyecto
 
 src/
 ├── assets/
@@ -78,10 +83,3 @@ src/
 │   └── login/
 ├── App.tsx
 └── main.tsx
-
-
-## 📣 Contacto
-Para cualquier duda o problema técnico, comunícate por el grupo de WhatsApp del equipo 👥
-
-
-# ¡Gracias por aportar al proyecto Previmed! 💚
