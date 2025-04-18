@@ -1,11 +1,17 @@
+import { useNavigate } from "react-router-dom";
+
 export const Home: React.FC = () => {
+  const navigate = useNavigate();
   return (
-    <>
-      <header id="header" className="fixed top-0 w-full bg-white shadow z-50">
+    <div>
+      <header
+        id="header"
+        className="fixed w-full rounded-full bg-sky-50 shadow-2xl z-50"
+      >
         <div className="container mx-auto px-4 xl:px-8 flex items-center justify-between h-20">
           <a href="landing.html" className="flex items-center mr-auto xl:mr-0">
             <img
-              src="/ruta/relativa/PREVIMED_Full_Color.png"
+              src="/assets/PREVIMED_Full_Color.png"
               alt="Imagen previmed"
               className="h-10"
             />
@@ -15,36 +21,54 @@ export const Home: React.FC = () => {
             id="navmenu"
             className="hidden xl:flex space-x-6 text-sm font-medium"
           >
-            <a href="#hero" className="text-blue-600 hover:text-blue-800">
+            <a
+              href="#hero"
+              className="font-normal text-lg text-gray-500 hover:text-blue-600"
+            >
               Inicio
             </a>
-            <a href="#about" className="hover:text-blue-800">
+            <a
+              href="#about"
+              className="font-normal text-lg text-gray-600 hover:text-blue-600"
+            >
               Sobre nosotros
             </a>
-            <a href="#features" className="hover:text-blue-800">
+            <a
+              href="#features"
+              className="font-normal text-lg text-gray-600 hover:text-blue-600"
+            >
               Zonas de cobertura
             </a>
-            <a href="#app-movil" className="hover:text-blue-800">
+            <a
+              href="#app-movil"
+              className="font-normal text-lg text-gray-600 hover:text-blue-600"
+            >
               App móvil
             </a>
-            <a href="#services" className="hover:text-blue-800">
+            <a
+              href="#services"
+              className="font-normal text-lg text-gray-600 hover:text-blue-600"
+            >
               Servicios
             </a>
-            <a href="#pricing" className="hover:text-blue-800">
+            <a
+              href="#pricing"
+              className="font-normal text-lg text-gray-600 hover:text-blue-600"
+            >
               Planes
             </a>
-            <a href="#contact" className="hover:text-blue-800">
+            <a
+              href="#contact"
+              className="font-normal text-lg text-gray-600 hover:text-blue-600"
+            >
               Contactos
             </a>
           </nav>
 
-          <button className="xl:hidden text-gray-700 text-2xl focus:outline-none">
-            <i className="bi bi-list"></i>
-          </button>
-
           <a
             href="login.html"
-            className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+            className="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-sm font-medium"
+            onClick={()=> navigate("/login")}
           >
             Iniciar sesión
           </a>
@@ -53,55 +77,47 @@ export const Home: React.FC = () => {
 
       <section
         id="hero"
-        className="bg-white py-20"
+        className="bg-gradient-to-br from-blue-100 via-blue-50 to-withe py-20"
         data-aos="fade-up"
         data-aos-delay="100"
       >
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center">
             {/* Contenido de texto */}
-            <div className="lg:w-1/2">
-              <div
-                className="hero-content"
-                data-aos="fade-up"
-                data-aos-delay="200"
-              >
-                <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
-                  Previmed <br />
-                  <span className="text-blue-600">Tu médico en casa</span>
-                </h1>
-                <p className="text-lg mb-4 md:mb-5">
-                  Somos una empresa de servicios de medicina general
-                  domiciliaria, que brinda a su familia la tranquilidad y la
-                  comodidad de tener "un médico en casa".
-                  <br />
-                  <br />
-                  Contamos con profesionales altamente calificados y
-                  comprometidos con un excelente servicio, porque sabemos que el
-                  bienestar de sus seres queridos depende de su salud.
-                </p>
-              </div>
+            <div
+              className="lg:w-1/2 items-center"
+              data-aos="fade-up"
+              data-aos-delay="200"
+            >
+              <h1 className="text-6xl mb-4 text-gray-800">
+                Previmed <br />
+                <span className="text-blue-600">Tu médico en casa</span>
+              </h1>
+              <p className="text-lg text-gray-800">
+                Somos una empresa de servicios de medicina general domiciliaria,
+                que brinda a su familia la tranquilidad y la comodidad de tener
+                "un médico en casa".
+                <br />
+                <br />
+                Contamos con profesionales altamente calificados y comprometidos
+                con un excelente servicio, porque sabemos que el bienestar de
+                sus seres queridos depende de su salud.
+              </p>
             </div>
 
-            {/* Imagen del héroe */}
-            <div className="lg:w-1/2 mt-8 lg:mt-0">
-              <div
-                className="hero-image"
-                data-aos="zoom-out"
-                data-aos-delay="300"
-              >
-                <img
-                  src="assets/img/doctor.png"
-                  alt="Hero Image"
-                  className="w-full h-auto"
-                />
-              </div>
+            {/* Imagen del médico */}
+            <div className="lg:w-1/2 mt-0">
+              <img
+                src="/public/doctor.png"
+                alt="Hero Image"
+                className="w-2xl h-auto"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      <section id="about" className="py-20 bg-white">
+      <section id="about" className="py-2 bg-white">
         <div
           className="max-w-7xl mx-auto px-4"
           data-aos="fade-up"
@@ -117,17 +133,17 @@ export const Home: React.FC = () => {
               <span className="text-sm font-medium uppercase text-blue-600">
                 Más sobre nosotros
               </span>
-              <h2 className="text-3xl font-bold text-gray-800 mt-2">
+              <h2 className="text-3xl font-semibold text-gray-800 mt-2">
                 Conoce más sobre Previmed
               </h2>
-              <p className="text-gray-600 mt-4">
+              <p className="text-gray-800">
                 Somos una compañia que busca el mayor reconocimiento a nivel
                 nacional en medicina general domiciliaria, por integralidad en
                 la prestacion del servicio.
               </p>
 
               {/* Lista de características */}
-              <ul className="mt-6 space-y-3 text-gray-700">
+              <ul className="mt-4 space-y-3 text-gray-800">
                 {[
                   "Nuestro servicio de médico en casa le garantiza optima respuesta.",
                   "Llevamos profesionales altamente capacitados a la puerta de su casa para atender sus necesidades en salud.",
@@ -147,21 +163,21 @@ export const Home: React.FC = () => {
               <div className="mt-8 flex flex-col gap-6 md:flex-row items-start md:items-center">
                 <div className="flex items-center gap-4">
                   <img
-                    src=""
+                    src="/public/doctor.png"
                     alt="CEO Profile"
-                    className="w-16 h-16 rounded-full object-cover bg-gray-200"
+                    className="w-18 h-18 rounded-full object-cover bg-gray-200"
                   />
                   <div>
                     <h4 className="text-lg font-semibold text-gray-800">
                       Alberto Lasso
                     </h4>
-                    <p className="text-gray-500 text-sm">CEO & Fundador</p>
+                    <p className="text-gray-800 text-sm">CEO & Fundador</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   <i className="bi bi-telephone-fill text-blue-600 text-xl"></i>
                   <div>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-800">
                       Llama en cualquier momento
                     </p>
                     <p className="text-gray-800 font-medium">+57 123 456 789</p>
@@ -172,23 +188,16 @@ export const Home: React.FC = () => {
 
             {/* Imagen */}
             <div
-              className="w-full xl:w-6/12 relative"
+              className="w-full xl:w-6/12 relative p-12"
               data-aos="fade-up"
               data-aos-delay="300"
             >
-              <div className="relative">
-                <img
-                  src="assets/img/medico_casa.jpg"
-                  alt="Business Meeting"
-                  className="rounded-xl shadow-md"
-                />
-                <img
-                  src="assets/img/servicio_24h.jpg"
-                  alt="Team Discussion"
-                  className="absolute bottom-[-40px] right-[-40px] w-48 rounded-xl shadow-md hidden md:block"
-                />
-              </div>
-              <div className="absolute top-4 left-4 bg-blue-600 text-white px-4 py-2 rounded-xl shadow-lg">
+              <img
+                src="/public/medico_domicilio.jpg"
+                alt="Business Meeting"
+                className="rounded-xl shadow-md w-full"
+              />
+              <div className="absolute top-16 left-0 bg-blue-600 text-white px-4 py-2 rounded-xl shadow-lg">
                 <h3 className="text-xl font-bold leading-none">
                   10+ <span className="text-sm font-light">Años</span>
                 </h3>
@@ -208,7 +217,7 @@ export const Home: React.FC = () => {
           <h2 className="text-3xl font-bold text-gray-800">
             Zonas de cobertura
           </h2>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-800 mt-2">
             Zonas de cobertura en la que podrás adquirir el servicio de Previmed
           </p>
         </div>
@@ -222,13 +231,13 @@ export const Home: React.FC = () => {
                 src="https://www.google.com/maps/embed?pb=!1m10!1m8!1m3!1d249.1337882594045!2d-76.58515796380323!3d2.4602716912055502!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2sco!4v1733854798372!5m2!1ses!2sco"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                className="w-full h-full rounded-lg shadow-md border"
+                className="w-full h-full rounded-lg shadow-xl border"
               ></iframe>
             </div>
 
             {/* Lista de zonas */}
             <div className="w-full lg:w-1/3">
-              <div className="bg-white rounded-lg shadow-md overflow-y-auto max-h-[500px] border">
+              <div className="bg-white rounded-lg shadow-md overflow-y-auto max-h-[460px] border">
                 <ul className="divide-y divide-gray-200 text-gray-800">
                   {[
                     "El Cadillal",
@@ -658,7 +667,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      <footer id="footer" className="bg-gray-100 text-gray-800 py-10">
+      <footer id="footer" className="bg-sky-50 text-gray-800 py-10">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col lg:flex-row gap-10">
             {/* Sección izquierda */}
@@ -721,6 +730,6 @@ export const Home: React.FC = () => {
           </div>
         </div>
       </footer>
-    </>
+    </div>
   );
 };
