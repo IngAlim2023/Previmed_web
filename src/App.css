@@ -1,1 +1,9 @@
 @import "tailwindcss";
+@theme {
+    --color-lgreen: #20C997;
+    --color-lblue:#00C9FF;
+}
+
+#root{
+    width: 100%;
+}
