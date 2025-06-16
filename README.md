@@ -58,7 +58,7 @@ npm run dev
 
 3. Ahora estamos trabajando con git Flow  🚫🚫🚫
  
- * Ahora tenemos dos ramas importantes: 
+ * Ahora tenemos dos ramas importantes (En estas ramas no se trabaja directamente): 
 
  ** master
  ** develop
@@ -74,7 +74,7 @@ npm run dev
  
  ** git push origin feacture/mi_feature
 
- // una ve terminada nuestra feature
+ // una vez terminada nuestra feature
 
  ** git push origin feature/mi_feature (no sin antes hacer el add . y el commit)
 
