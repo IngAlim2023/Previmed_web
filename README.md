@@ -56,6 +56,34 @@ npm run dev
 
  * Una vez realizados los cambios, hacer push y notificar al grupo para que todos actualicen el archivo común.
 
+3. Ahora estamos trabajando con git Flow  🚫🚫🚫
+ 
+ * Ahora tenemos dos ramas importantes: 
+
+ ** master
+ ** develop
+
+ * Ubicate en la rama develop y crea tu feature de la siguiente mas
+ ** git checkout develop
+
+ //Creamos nuestra rama para la feature:
+ 
+ ** git checkout -b feature/mi_feature
+
+ //Lanzamos nuestra feature a github
+ 
+ ** git push origin feacture/mi_feature
+
+ // una ve terminada nuestra feature
+
+ ** git push origin feature/mi_feature (no sin antes hacer el add . y el commit)
+
+ // generamos nuestro pull request con nuestro cambios
+
+ ** escribe el Whatsapp para que rebicen tus cambios
+
+ // Ten paciencia esto demora un poco.
+
 
 ## 📣 Contacto
 Para cualquier duda o problema técnico, comunícate por el grupo de WhatsApp del equipo 👥
