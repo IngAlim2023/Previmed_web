@@ -6,6 +6,7 @@ import SideBar from './components/navegation/SideBar';
 import Login from './pages/login/Login';  
 import Dashboard from './pages/dashboard/Dashboard';  
 import HomeMedico from './pages/medicos/HomeMedico';
+import {Toaster} from 'react-hot-toast';
 
 function App() {  
   return (  
@@ -15,7 +16,8 @@ function App() {
         <Route path='/login' element={<Login />} />  
         <Route path='/dashboard' element={<Dashboard />} /> 
         <Route path='/homemedico' element={<HomeMedico />} />
-      </Routes>  
+      </Routes>
+      <Toaster/>
     </Router>  
   );  
 }  
