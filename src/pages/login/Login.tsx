@@ -1,77 +1,138 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import logo from '../../assets/logo.png';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
+// Interfaz para tipar las credenciales del usuario
+interface UsuarioCredenciales {
+  documento: string;
+  contrasena: string;
+}
 
 const Login: React.FC = () => {
-  const [documento, setDocumento] = useState('');
-  const [contrasena, setContrasena] = useState('');
+  // Estados para manejar los campos del formulario
+  const [documento, setDocumento] = useState<string>('');
+  const [contrasena, setContrasena] = useState<string>('');
+  
+  // Hook para navegación programática
   const navigate = useNavigate();
 
-  // Datos temporales pra ver si loguea
-  const usuarioTemporal = {
+  // Constantes de validación
+  const LONGITUD_MIN_CONTRASENA = 6;
+  const LONGITUD_MAX_CONTRASENA = 20;
+
+  // Datos temporales para autenticación
+  const usuarioTemporal: UsuarioCredenciales = {
     documento: '123456789',
     contrasena: '123456789',
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // Función para validar las credenciales ingresadas
+  const validarCredenciales = (): boolean => {
+    // Verificar campos vacíos
+    if (!documento.trim() || !contrasena.trim()) {
+      toast.error('Todos los campos son obligatorios');
+      return false;
+    }
+
+    // Verificar longitud de contraseña
+    if (contrasena.length < LONGITUD_MIN_CONTRASENA || contrasena.length > LONGITUD_MAX_CONTRASENA) {
+      toast.error(`La contraseña debe tener entre ${LONGITUD_MIN_CONTRASENA} y ${LONGITUD_MAX_CONTRASENA} caracteres`);
+      return false;
+    }
+
+    return true;
+  };
+
+  // Función para autenticar usuario
+  const autenticarUsuario = (): boolean => {
+    return documento === usuarioTemporal.documento && contrasena === usuarioTemporal.contrasena;
+  };
+
+  // Manejador del envío del formulario
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
 
-    if (!documento || !contrasena) {
-      toast.error('Todos los campos son obligatorios');
+    // Validar credenciales antes de proceder
+    if (!validarCredenciales()) {
       return;
     }
 
-    if (contrasena.length < 6 || contrasena.length > 20) {
-      toast.error('La contraseña debe tener entre 6 y 20 caracteres');
-      return;
-    }
-
-    if (
-      documento === usuarioTemporal.documento &&
-      contrasena === usuarioTemporal.contrasena
-    ) {
-      // Redirigir al home del médico
-      navigate('/homemedico');
+    // Intentar autenticar usuario
+    if (autenticarUsuario()) {
+      toast.success('¡Inicio de sesión exitoso!');
+      // Redirigir al dashboard del médico después de un pequeño delay
+      setTimeout(() => {
+        navigate('/homemedico');
+      }, 1000);
     } else {
-      toast.error('Credenciales incorrectas');
+      toast.error('Credenciales incorrectas. Verifique su documento y contraseña');
     }
+  };
+
+  // Manejadores de cambio para los inputs (con sanitización básica)
+  const handleDocumentoChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const valor = e.target.value.replace(/\D/g, ''); // Solo números
+    setDocumento(valor);
+  };
+
+  const handleContrasenaChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    setContrasena(e.target.value);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <ToastContainer position="top-right" autoClose={3000} />
+      {/* <Toaster */}
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+        {/* Logo de la aplicación */}
         <div className="flex justify-center mb-6">
-          <img src={logo} alt="logo previmed" className="h-22" />
+          <img 
+            src={logo} 
+            alt="Logo Previmed" 
+            className="h-22 object-contain" 
+          />
         </div>
+        
+        {/* Mensaje de bienvenida */}
         <div className="text-left mb-8">
           <h2 className="text-2xl font-semibold text-lgreen">Hola</h2>
           <p className="text-gray-600">Bienvenido a Previmed</p>
         </div>
+        
+        {/* Formulario de login */}
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <input
-            type="number"
-            placeholder="Número de documento"
-            required
-            value={documento}
-            onChange={(e) => setDocumento(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            required
-            minLength={6}
-            maxLength={20}
-            value={contrasena}
-            onChange={(e) => setContrasena(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-          />
+          {/* Campo de documento */}
+          <div>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="Número de documento"
+              required
+              value={documento}
+              onChange={handleDocumentoChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              maxLength={15}
+            />
+          </div>
+          
+          {/* Campo de contraseña */}
+          <div>
+            <input
+              type="password"
+              placeholder="Contraseña"
+              required
+              minLength={LONGITUD_MIN_CONTRASENA}
+              maxLength={LONGITUD_MAX_CONTRASENA}
+              value={contrasena}
+              onChange={handleContrasenaChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+            />
+          </div>
+          
+          {/* Botón de envío */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-lgreen to-lblue text-white py-2 rounded-md hover:bg-green-700 transition-colors"
+            className="w-full bg-gradient-to-r from-lgreen to-lblue text-white py-2 rounded-md hover:from-green-700 hover:to-blue-700 transition-all duration-200 font-medium"
           >
             INGRESAR
           </button>
