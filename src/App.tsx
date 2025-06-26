@@ -6,6 +6,7 @@ import Login from './pages/login/Login';
 import Dashboard from './pages/dashboard/Dashboard';  
 import HomeMedico from './pages/medicos/HomeMedico';
 import {Toaster} from 'react-hot-toast';
+import VisitasMedico from './pages/medicos/VisitasMedico';
 
 function App() {  
   return (  
@@ -15,6 +16,7 @@ function App() {
         <Route path='/login' element={<Login />} />  
         <Route path='/dashboard' element={<Dashboard />} /> 
         <Route path='/homemedico' element={<HomeMedico />} />
+        <Route path='/medico/visitas' element={<VisitasMedico />} />
       </Routes>
       <Toaster/>
     </Router>  
