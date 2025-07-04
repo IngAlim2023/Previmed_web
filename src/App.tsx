@@ -17,7 +17,7 @@ import BeneficiariosPaciente from './pages/paciente/BeneficiariosPaciente';
 import PagosAsesor from './pages/asesor/PagosAsesor';
 import PacientesAsesor from './pages/asesor/PacientesAsesor';
 import VisitasAdmin from './pages/administrador/VisitasAdmin';
-import Planes from './pages/general/Planes';
+import Planes from './components/landing/Planes';
 import PlanesAdmin from './pages/administrador/PlanesAdmin';
 import BarriosAdmin from './pages/administrador/BarriosAdmin';
 import PacientesAdmin from './pages/administrador/PacientesAdmin';
