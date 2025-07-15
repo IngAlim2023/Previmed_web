@@ -63,7 +63,7 @@ const Login: React.FC = () => {
       toast.success('¡Inicio de sesión exitoso!');
       // Redirigir al dashboard del médico después de un pequeño delay
       setTimeout(() => {
-        navigate('/homemedico');
+        navigate('/home/medico');
       }, 1000);
     } else {
       toast.error('Credenciales incorrectas. Verifique su documento y contraseña');

@@ -8,7 +8,7 @@ const SideBarMedico: React.FC = () => {
 
   // Aquí se definen las opciones del menú de la barra lateral
   const navItems = [
-    { path: "/homemedico", label: "Inicio" },
+    { path: "/home/medico", label: "Inicio" },
     { path: "/medico/visitas", label: "Visitas" },
     { path: "/medico/historial", label: "Historial" },
     { path: "/", label: "Salir" }
