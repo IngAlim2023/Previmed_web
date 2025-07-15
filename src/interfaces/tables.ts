@@ -10,3 +10,19 @@ export interface DataDocumento{
 }
 
 //Termina Table Documento
+
+//Comienza Table EPS
+
+export interface ColumnEps{
+  name:string,
+  selector?: (row:any) =>string,
+  cell?:(row:any) => any,
+  sortable?: boolean;
+}
+
+export interface DataEps{
+  ideps: number,
+  nombre_eps:string
+}
+
+//Termina Table EPS
