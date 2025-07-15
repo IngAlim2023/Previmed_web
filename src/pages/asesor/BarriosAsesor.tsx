@@ -1,12 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { IoSearchOutline } from 'react-icons/io5';
-
-/* ─────────  Datos de prueba  ────────── */
-interface Barrio {
-  id: number;
-  nombre: string;
-  ciudad: string;
-}
+import { Barrio } from '../../interfaces/Barrio';
 
 const BARRIOS: Barrio[] = [
   { id: 1, nombre: 'El Cadillal', ciudad: 'Popayán' },
