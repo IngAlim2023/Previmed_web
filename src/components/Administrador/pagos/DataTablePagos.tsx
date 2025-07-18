@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import toast from "react-hot-toast";
 import { ColDataTablePagos, PagoInterface } from "../../../interfaces/Pagos";
-import { FaEye, FaTrash } from "react-icons/fa6";
-import { FaEdit } from "react-icons/fa";
 import FormularioPagos from "./FormularioPagos";
 import DetallesPago from "./DetallesPago";
 import AlertDelete from "../../generales/AlertDelete";
-import AlertUpdate from "../../generales/AlertUpdate";
+import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
+import BtnLeer from "../../botones/BtnLeer";
+import BtnEditar from "../../botones/BtnEditar";
+import BtnEliminar from "../../botones/BtnEliminar";
+import BtnAgregar from "../../botones/BtnAgregar";
 
 const DataTablePagos: React.FC = () => {
   useEffect(() => {
@@ -59,39 +61,46 @@ const DataTablePagos: React.FC = () => {
       name: "Acciones",
       cell: (row) => (
         <div className="flex gap-2 p-2 space-x-1">
-          <FaEye
-            className="text-gray-400 hover:text-green-500 transition-easy duration-600 cursor-pointer w-5 h-auto"
+          <div
             title="Ver detalles"
-            onClick={()=>{
-              setPago(row); 
-              setDetalles(true)}}
-          />
-          <FaEdit
-            className="text-gray-400 hover:text-blue-600 transition-easy duration-600 cursor-pointer w-5 h-auto"
+            onClick={() => {
+              setPago(row);
+              setDetalles(true);
+            }}
+          >
+            <BtnLeer />
+          </div>
+
+          <div
             title="Editar"
-            onClick={()=>{
-              setPago(row)
-              setForm(true)
+            onClick={() => {
+              setPago(row);
+              setForm(true);
             }}
-          />
-          <FaTrash
-            className="text-gray-400 hover:text-red-700 transition-easy duration-600 cursor-pointer w-5 h-auto"
+          >
+            <BtnEditar />
+          </div>
+
+          <div
             title="Eliminar"
-            onClick={()=>{
-              setPago(row)
-              setalert(true)
+            onClick={() => {
+              setPago(row);
+              setalert(true);
             }}
-          />
+          >
+            <BtnEliminar />
+          </div>
         </div>
       ),
       ignoreRowClick: false,
       allowOverflow: true,
       button: true,
+      minWidth:'180px'
     },
   ];
 
   //INFORMACIÓN QUE SE VA A RENDERIZAR
-  const info: PagoInterface[] = [
+  const pagos: PagoInterface[] = [
     {
       idPago: 1,
       noRecibo: 1001,
@@ -158,36 +167,55 @@ const DataTablePagos: React.FC = () => {
     },
   ];
 
+  const [buscarPago, setBuscarPago] = useState<string>('')
+
+  const pagosFiltrados:PagoInterface[] = pagos.filter((pago)=> 
+    pago.titular.toLowerCase().includes(buscarPago.toLowerCase()) ||
+    pago.noContrato.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
+    pago.noRecibo.toString().toLowerCase().includes(buscarPago.toLowerCase()) 
+  )
+
   return (
     <>
       <div className="min-h-screen flex items-center justify-center w-full px-4 py-8 bg-gray-100">
         <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg p-6 overflow-x-auto">
-
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800">
-              Pagos registrados
+            <h2 className="text-2xl font-semibold text-gray-800 flex items-center">
+              <HiOutlineDocumentCurrencyDollar className="w-10 h-auto text-blue-600 mr-4" />
+              Pagos 
             </h2>
-            <button
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
-              onClick={()=>setForm(true)}
-            >
-              + Agregar Pago
-            </button>
+
+            <input
+              type="text"
+              placeholder="Buscar.."
+              value={buscarPago}
+              onChange={(e) =>setBuscarPago(e.target.value)}
+              className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
+            />
+
+            <div onClick={() => setForm(true)}>
+              <BtnAgregar verText={true}/>
+              </div>
           </div>
 
           <DataTable
             columns={columns}
-            data={info}
+            data={pagosFiltrados}
             pagination
             highlightOnHover
             responsive
             striped
-            noDataComponent="No hay pagos registrados"
+            noDataComponent="Pagos no encontrados"
           />
         </div>
-      {form && <FormularioPagos pago={pago} setForm={setForm}/>}
-      {detalles && <DetallesPago pago={pago} setDetalles={setDetalles}/>}
-      {alert && <AlertDelete nombre={`Recibo N° ${pago?.noRecibo}`} setAlert={setalert}/>}
+        {form && <FormularioPagos pago={pago} setForm={setForm} />}
+        {detalles && <DetallesPago pago={pago} setDetalles={setDetalles} />}
+        {alert && (
+          <AlertDelete
+            nombre={`Recibo N° ${pago?.noRecibo}`}
+            setAlert={setalert}
+          />
+        )}
       </div>
     </>
   );

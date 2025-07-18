@@ -20,6 +20,8 @@ export interface ColDataTablePagos {
   ignoreRowClick?: boolean;
   allowOverflow?: boolean;
   button?: boolean;
+  maxWidth?:string;
+  minWidth?:string;
 }
 
 export interface PostPagoInterface {
