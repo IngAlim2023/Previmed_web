@@ -3,6 +3,15 @@ import { PagoInterface, PostPagoInterface } from "../../../interfaces/Pagos";
 import { ImCancelCircle } from "react-icons/im";
 import { MdImageSearch } from "react-icons/md";
 import toast from "react-hot-toast";
+import {
+  FaUser,
+  FaCalendarDay,
+  FaCalendarPlus,
+  FaCalendarCheck,
+  FaDollarSign,
+  FaCreditCard,
+} from "react-icons/fa";
+import { HiDocumentCurrencyDollar } from "react-icons/hi2";
 
 type prop = {
   pago?: PagoInterface;
@@ -51,17 +60,19 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 flex justify-center items-start overflow-y-auto z-50">
-        <div className="my-6 bg-white rounded-lg p-6 w-full max-w-2xl">
-          <div className="flex justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-700">
+      <div className="fixed inset-0 bg-black/80 flex justify-center items-center overflow-y-auto z-50">
+        <div className="my-6 bg-white rounded-lg p-6 max-w-6xl">
+
+          <div className="flex justify-between items-start mb-4">
+            <h2 className="text-2xl mb-8 font-bold text-gray-700 flex items-center gap-2">
+              <HiDocumentCurrencyDollar/>
               {pago
                 ? `Actualiza el pago ${pago.noRecibo}`
-                : "Formulario de registro"}
+                : "Registro de pago"}
             </h2>
             <ImCancelCircle
               title="Cancelar"
-              className="w-6 h-auto text-gray-500 hover:text-red-600 transition-all duration-500 cursor-pointer tran"
+              className="w-6 h-auto text-gray-500 hover:text-red-600 transition-all duration-500 cursor-pointer"
               onClick={() => setForm(false)}
             />
           </div>
@@ -74,7 +85,7 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
             <div>
               <label className="flex items-center  mb-1 font-medium text-gray-600">
                 Comprobante (imagen)
-                <MdImageSearch className="w-6 h-auto text-gray-600 ml-2" />
+                <MdImageSearch className="w-6 h-auto text-blue-900 ml-2" />
               </label>
               {pago?.imagen && (
                 <div className="my-2">
@@ -94,153 +105,156 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
               />
             </div>
 
-            {/* Titular */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-600">
-                Titular
-              </label>
-              <select
-                {...register("titular", {
-                  required: "El titular es obligatorio",
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
-              >
-                <option value="">-- Selecciona el titular --</option>
-                {titulares.map((value) => (
-                  <option key={value.id} value={value.id}>
-                    {value.nombre} {value.apellido}
-                  </option>
-                ))}
-              </select>
-              {errors.titular && (
-                <p className="text-red-500 text-sm">{errors.titular.message}</p>
-              )}
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-24">
+              {/* Titular */}
+              <div>
+                <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                  <FaUser className="text-blue-900"/> Titular
+                </label>
+                <select
+                  {...register("titular", {
+                    required: "El titular es obligatorio",
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- Selecciona el titular --</option>
+                  {titulares.map((value) => (
+                    <option key={value.id} value={value.id}>
+                      {value.nombre} {value.apellido}
+                    </option>
+                  ))}
+                </select>
+                {errors.titular && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.titular.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Fecha cobro */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-600">
-                Fecha de cobro
-              </label>
-              {/* El defaultValue es momentaneo */}
-              <input
-                type="date"
-                defaultValue={pago ? pago.fechaCobro : fechaHoy}
-                {...register("fechaCobro", {
-                  required: "La fecha de cobro es obligatoria",
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
-              />
-              {errors.fechaCobro && (
-                <p className="text-red-500 text-sm">
-                  {errors.fechaCobro.message}
-                </p>
-              )}
-            </div>
+              {/* Fecha cobro */}
+              <div>
+                <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                  <FaCalendarDay className="text-blue-900"/> Fecha de cobro
+                </label>
+                <input
+                  type="date"
+                  defaultValue={pago ? pago.fechaCobro : fechaHoy}
+                  {...register("fechaCobro", {
+                    required: "La fecha de cobro es obligatoria",
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {errors.fechaCobro && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.fechaCobro.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Fecha inicio */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-600">
-                Fecha de inicio
-              </label>
-              {/* El defaultValue es momentaneo */}
-              <input
-                type="date"
-                max={watch('fechaFin')}
-                defaultValue={pago ? pago.fechaInicio : ""}
-                {...register("fechaInicio", {
-                  required: "La fecha de inicio es obligatoria",
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
-              />
-              {errors.fechaInicio && (
-                <p className="text-red-500 text-sm">
-                  {errors.fechaInicio.message}
-                </p>
-              )}
-            </div>
+              {/* Fecha inicio */}
+              <div>
+                <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                  <FaCalendarPlus className="text-blue-900"/> Fecha de inicio
+                </label>
+                <input
+                  type="date"
+                  max={watch("fechaFin")}
+                  defaultValue={pago ? pago.fechaInicio : ""}
+                  {...register("fechaInicio", {
+                    required: "La fecha de inicio es obligatoria",
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {errors.fechaInicio && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.fechaInicio.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Fecha fin */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-600">
-                Fecha de fin
-              </label>
-              {/* El defaultValue es momentaneo */}
-              <input
-                type="date"
-                min={watch('fechaInicio')}
-                defaultValue={pago ? pago.fechaFin : ""}
-                {...register("fechaFin", {
-                  required: "La fecha de finalización es obligatoria",
-                  validate: (fechaFin) => {
-                    const fechaInicio = getValues("fechaInicio");
-                    return (
-                      new Date(fechaFin) >= new Date(fechaInicio) ||
-                      "La fecha de fin no puede ser menor que la fecha de inicio"
-                    );
-                  },
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
-              />
-              {errors.fechaFin && (
-                <p className="text-red-500 text-sm">
-                  {errors.fechaFin.message}
-                </p>
-              )}
-            </div>
+              {/* Fecha fin */}
+              <div>
+                <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                  <FaCalendarCheck className="text-blue-900"/> Fecha de fin
+                </label>
+                <input
+                  type="date"
+                  min={watch("fechaInicio")}
+                  defaultValue={pago ? pago.fechaFin : ""}
+                  {...register("fechaFin", {
+                    required: "La fecha de finalización es obligatoria",
+                    validate: (fechaFin) => {
+                      const fechaInicio = getValues("fechaInicio");
+                      return (
+                        new Date(fechaFin) >= new Date(fechaInicio) ||
+                        "La fecha de fin no puede ser menor que la fecha de inicio"
+                      );
+                    },
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {errors.fechaFin && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.fechaFin.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Forma de pago */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-600">
-                Forma de pago
-              </label>
-              <select
-                {...register("formaPago", {
-                  required: "La forma de pago es obligatoria",
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
-              >
-                <option value="">-- Selecciona la forma de pago --</option>
-                {formasPago.map((value) => (
-                  <option key={value.id} value={value.id}>
-                    {value.nombre}
-                  </option>
-                ))}
-              </select>
-              {errors.formaPago && (
-                <p className="text-red-500 text-sm">
-                  {errors.formaPago.message}
-                </p>
-              )}
-            </div>
+              {/* Forma de pago */}
+              <div>
+                <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                  <FaCreditCard className="text-blue-900"/> Forma de pago
+                </label>
+                <select
+                  {...register("formaPago", {
+                    required: "La forma de pago es obligatoria",
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">-- Selecciona la forma de pago --</option>
+                  {formasPago.map((value) => (
+                    <option key={value.id} value={value.id}>
+                      {value.nombre}
+                    </option>
+                  ))}
+                </select>
+                {errors.formaPago && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.formaPago.message}
+                  </p>
+                )}
+              </div>
 
-            {/* Monto */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-600">
-                Monto
-              </label>
-              <input
-                defaultValue={pago ? pago.monto : ""}
-                type="number"
-                {...register("monto", {
-                  required: "El monto es obligatorio",
-                  minLength: {
-                    value: 5,
-                    message: "El monto debe ser mayor a de 4 digitos",
-                  },
-                })}
-                className="w-full px-3 py-2 border border-gray-300 rounded"
-              />
-              {errors.monto && (
-                <p className="text-red-500 text-sm">{errors.monto.message}</p>
-              )}
+              {/* Monto */}
+              <div>
+                <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                  <FaDollarSign className="text-blue-900"/> Monto
+                </label>
+                <input
+                  type="number"
+                  defaultValue={pago ? pago.monto : ""}
+                  {...register("monto", {
+                    required: "El monto es obligatorio",
+                    minLength: {
+                      value: 5,
+                      message: "El monto debe ser mayor a 4 dígitos",
+                    },
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {errors.monto && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.monto.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Botón */}
-            <div className="pt-4">
+            <div className="flex justify-center  pt-4">
               <button
                 type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+                className="w-sm bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
               >
                 {pago ? "Actualizar" : "Guardar"}
               </button>
