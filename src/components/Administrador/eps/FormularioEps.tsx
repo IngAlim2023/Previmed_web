@@ -10,7 +10,7 @@ const FormularioEps: React.FC = () => {
     formState: { errors },
   } = useForm<HookFormEps>();
 
-  const onSubmit:SubmitHandler<HookFormEps> =(data) =>{
+  const onSubmit:SubmitHandler<HookFormEps> = async (data) =>{
     return console.log(data);
   }
   return (<div className="min-h-screen flex items-center justify-center">
