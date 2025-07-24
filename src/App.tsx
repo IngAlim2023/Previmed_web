@@ -1,5 +1,4 @@
- 
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';  
+ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';  
 import './App.css';  
 import {Home} from './pages/home/Home';  
 import Login from './pages/login/Login';  
@@ -32,6 +31,7 @@ import EstadosCivilesAdmin from './pages/administrador/EstadosCivilesAdmin';
 import GenerosAdmin from './pages/administrador/GenerosAdmin';
 import RolesAdmin from './pages/administrador/RolesAdmin';
 import HistorialVisitas from './pages/general/HistorialVisitas';
+import ContratosAsesor from './pages/asesor/ContratosAsesor';
 
 function App() {  
   return (  
@@ -53,6 +53,7 @@ function App() {
         <Route path='/asesor/pacientes' element={<PacientesAsesor/>}/>
         <Route path='/asesor/planes' element={<Planes/>}/>
         <Route path='/asesor/solicitudes' element={<Solicitudes/>}/>
+        <Route path='/asesor/contratos' element={<ContratosAsesor/>}/>
 
         {/*RUTAS DEL ROL PACIENTE */}
         <Route path='/home/paciente' element={<HomePacientes/>}/>
