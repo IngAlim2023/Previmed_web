@@ -5,9 +5,9 @@ export interface PagoInterface {
   noContrato: number;
   titular: string;
   cobrador: string;
-  fechaCobro: Date;
-  fechaInicio: Date;
-  fechaFin: Date;
+  fechaCobro: Date | string;
+  fechaInicio: Date | string;
+  fechaFin: Date | string;
   formaPago: string;
   monto: number;
 }
@@ -27,9 +27,9 @@ export interface ColDataTablePagos {
 export interface PostPagoInterface {
   imagen?: string;
   titular: number;
-  fechaCobro: Date;
-  fechaInicio: Date;
-  fechaFin: Date;
+  fechaCobro: Date | string;
+  fechaInicio: Date | string;
+  fechaFin: Date | string;
   formaPago: number;
   monto: number;
 }

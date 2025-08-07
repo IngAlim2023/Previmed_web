@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import SideBarMedico from "../../components/medico/SideBarMedico"
+import SideBarMedico from "../../components/navegation/SideBarMedico"
 
 // Interfaz para la info del historial
 interface InfoHistorial {
