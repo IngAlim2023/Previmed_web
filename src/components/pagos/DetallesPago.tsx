@@ -1,20 +1,18 @@
-import { PagoInterface } from "../../interfaces/Pagos";
-
 type PropsDetalles = {
   setDetalles: (value: boolean) => void;
-  pago: PagoInterface;
+  pago: any;
 };
 
 const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
+  const {nombre, segundoNombre, apellido, segundoApellido} = pago.membresia.membresiaPaciente[0]?.paciente?.usuario;
   return (
     <>
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
         <div className="w-2/3 lg:w-1/2 bg-white shadow-md rounded-2xl overflow-hidden p-6 border border-gray-100">
           <div className="flex flex-col md:flex-row items-center gap-4">
-            {pago.imagen ? (
+            {pago.foto ? (
               <img
-                src={pago.imagen}
-                alt={`Recibo ${pago.noRecibo}`}
+                src={pago.foto}
                 className="w-full h-52 rounded-md object-contain md:col-auto"
               />
             ) : (
@@ -24,10 +22,10 @@ const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
             )}
             <div className="w-full text-center">
               <h2 className="text-xl font-bold text-gray-800 mb-1">
-                Recibo #{pago.noRecibo}
+                Recibo #{pago.idRegistro}
               </h2>
               <p className="text-sm text-gray-500">
-                Contrato: #{pago.noContrato}
+                Contrato: #{pago.membresia.numeroContrato}
               </p>
             </div>
           </div>
@@ -35,16 +33,12 @@ const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">Titular</p>
-              <p className="font-medium text-gray-700">{pago.titular}</p>
+              <p className="font-medium text-gray-700">{`${nombre} ${segundoNombre?segundoNombre:''} ${apellido} ${segundoApellido?segundoApellido:''}`}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Cobrador</p>
-              <p className="font-medium text-gray-700">{pago.cobrador}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Fecha de Cobro</p>
+              <p className="text-sm text-gray-500">Fecha de Pago</p>
               <p className="font-medium text-gray-700">
-                {new Date(pago.fechaCobro).toLocaleDateString()}
+                {new Date(pago.fechaInicio).toLocaleDateString()}
               </p>
             </div>
             <div>
@@ -56,7 +50,7 @@ const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
             </div>
             <div>
               <p className="text-sm text-gray-500">Forma de Pago</p>
-              <p className="font-medium text-gray-700">{pago.formaPago}</p>
+              <p className="font-medium text-gray-700">{pago.formaPago.tipoPago}</p>
             </div>
             <div>
               <p className="text-sm text-gray-500">Monto</p>

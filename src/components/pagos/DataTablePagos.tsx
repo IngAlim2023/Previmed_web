@@ -12,49 +12,66 @@ import BtnEliminar from "../botones/BtnEliminar";
 import BtnAgregar from "../botones/BtnAgregar";
 
 const DataTablePagos: React.FC = () => {
-  useEffect(() => {
-    //Aqui se resivirá el servicio que trae los pagos desde nuestro backend
-    const pagos = fetch("https://fakestoreapi.com/products", { method: "GET" });
+  const [pagos, setPagos] = useState<PagoInterface[]>([]);
+  const getPagos = async () => {
+    try {
+      const res = await fetch("http://localhost:3333/registros-pago");
+      const data = await res.json();
+      setPagos(data.data);
+      toast.success("Pagos cargados exitosamente", { id: "get-toast" });
+    } catch (error) {
+      toast.error("Error al cargar los pagos", { id: "get-toast" });
+    }
+  };
 
-    toast.promise(
-      pagos,
-      {
-        loading: "Cargando los pagos...",
-        success: "Pagos cargados exitosamente",
-        error: "Error al cargar los pagos",
-      },
-      {
-        id: "pagos-toast", // Este id es para evitar que el toast aparezca 2 veces
-      }
-    );
+  useEffect(() => {
+    toast.loading("Cargando los pagos...", { id: "get-toast" });
+    getPagos();
   }, []);
 
-  //ESTADO PARA MANEJAR LA APAREICION DEL FORMULARIO
-  const [form, setForm] = useState<boolean>(false);
-  const [detalles, setDetalles] = useState<boolean>(false);
-  const [alert, setalert] = useState<boolean>(false);
-  const [pago, setPago] = useState<PagoInterface>();
+  const eliminarPago = async (id: number) => {
+    try {
+      await fetch(`http://localhost:3333/registro-pago/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      toast.success("Pago eliminado correctamente", { id: "delete-toast" });
+      getPagos()
+    } catch (error) {
+      toast.success("Error al eliminar el registro de pago", {id: "delete-toast"});
+    }
+  };
+
+  const [form, setForm] = useState<boolean>(false); //estado para el formulario
+  const [detalles, setDetalles] = useState<boolean>(false); //estado para el modal de detalles
+  const [alert, setalert] = useState<boolean>(false); // estado para el modal de confirmacion antes de eliminar
+  const [pago, setPago] = useState<any>();
 
   //COLUMNAS DE LA TABLA
   const columns: ColDataTablePagos[] = [
     {
       name: "N° Recibo",
-      selector: (row) => row.noRecibo,
+      selector: (row) => row.idRegistro,
       sortable: true,
     },
     {
       name: "N° Contrato",
-      selector: (row) => row.noContrato,
+      selector: (row) => row.membresia.numeroContrato,
       sortable: true,
     },
     {
       name: "Titular",
-      selector: (row) => row.titular,
+      selector: (row) => {
+        const usuario = row.membresia.membresiaPaciente[0]?.paciente?.usuario;
+        console.log(row.membresia)
+        return `${usuario.nombre ?? ""} ${usuario.segundoNombre ?? ""} ${
+          usuario.apellido ?? ""} ${usuario.segundoApellido ?? ""}`.trim();
+      },
       sortable: true,
     },
     {
       name: "Fecha Cobro",
-      selector: (row) => row.fechaCobro,
+      selector: (row) => row.fechaInicio,
       sortable: true,
     },
     {
@@ -84,8 +101,7 @@ const DataTablePagos: React.FC = () => {
           <div
             title="Eliminar"
             onClick={() => {
-              setPago(row);
-              setalert(true);
+              eliminarPago(row.idRegistro);
             }}
           >
             <BtnEliminar />
@@ -93,86 +109,17 @@ const DataTablePagos: React.FC = () => {
         </div>
       ),
       ignoreRowClick: false,
-      allowOverflow: true,
       button: true,
-      minWidth:'180px'
+      minWidth: "180px",
     },
   ];
 
-  //INFORMACIÓN QUE SE VA A RENDERIZAR
-  const pagos: PagoInterface[] = [
-    {
-      idPago: 1,
-      noRecibo: 1001,
-      noContrato: 5001,
-      titular: "Luis Fernández",
-      cobrador: "Carlos Gómez",
-      fechaCobro: "2025-07-01",
-      fechaInicio: "2025-07-01",
-      fechaFin: "2025-07-31",
-      formaPago: "Efectivo",
-      monto: 50000,
-    },
-    {
-      idPago: 2,
-      imagen:
-        "https://i.pinimg.com/736x/42/d4/49/42d4497a0029456b16b9110cfed9b3a5.jpg",
-      noRecibo: 1002,
-      noContrato: 5002,
-      titular: "María Rodríguez",
-      cobrador: "Ana Torres",
-      fechaCobro: "2025-07-02",
-      fechaInicio: "2025-07-01",
-      fechaFin: "2025-07-31",
-      formaPago: "Transferencia",
-      monto: 60000,
-    },
-    {
-      idPago: 3,
-      noRecibo: 1003,
-      noContrato: 5003,
-      titular: "Jorge Pérez",
-      cobrador: "Carlos Gómez",
-      fechaCobro: "2025-07-03",
-      fechaInicio: "2025-07-01",
-      fechaFin: "2025-07-31",
-      formaPago: "Nequi",
-      monto: 55000,
-    },
-    {
-      idPago: 4,
-      imagen:
-        "https://i.pinimg.com/736x/42/d4/49/42d4497a0029456b16b9110cfed9b3a5.jpg",
-      noRecibo: 1004,
-      noContrato: 5004,
-      titular: "Sandra Morales",
-      cobrador: "Laura Méndez",
-      fechaCobro: "2025-07-04",
-      fechaInicio: "2025-07-01",
-      fechaFin: "2025-07-31",
-      formaPago: "Daviplata",
-      monto: 52000,
-    },
-    {
-      idPago: 5,
-      noRecibo: 1005,
-      noContrato: 5005,
-      titular: "Andrés Castro",
-      cobrador: "Ana Torres",
-      fechaCobro: "2025-07-05",
-      fechaInicio: "2025-07-01",
-      fechaFin: "2025-07-31",
-      formaPago: "Efectivo",
-      monto: 58000,
-    },
-  ];
+  const [buscarPago, setBuscarPago] = useState<string>("");
 
-  const [buscarPago, setBuscarPago] = useState<string>('')
-
-  const pagosFiltrados:PagoInterface[] = pagos.filter((pago)=> 
-    pago.titular.toLowerCase().includes(buscarPago.toLowerCase()) ||
-    pago.noContrato.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
-    pago.noRecibo.toString().toLowerCase().includes(buscarPago.toLowerCase()) 
+  const pagosFiltrados:any = pagos.filter((pago)=> 
+    pago.fechaPago.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
+    pago.monto.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
+    pago.idRegistro.toString().toLowerCase().includes(buscarPago.toLowerCase()) 
   )
 
   return (
@@ -182,20 +129,20 @@ const DataTablePagos: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-800 flex items-center">
               <HiOutlineDocumentCurrencyDollar className="w-10 h-auto text-blue-600 mr-4" />
-              Pagos 
+              Pagos
             </h2>
 
             <input
               type="text"
               placeholder="Buscar.."
               value={buscarPago}
-              onChange={(e) =>setBuscarPago(e.target.value)}
+              onChange={(e) => setBuscarPago(e.target.value)}
               className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
             />
 
             <div onClick={() => setForm(true)}>
-              <BtnAgregar verText={true}/>
-              </div>
+              <BtnAgregar verText={true} />
+            </div>
           </div>
 
           <DataTable
@@ -205,17 +152,11 @@ const DataTablePagos: React.FC = () => {
             highlightOnHover
             responsive
             striped
-            noDataComponent="Pagos no encontrados"
+            noDataComponent="NO HAY REGISTROS DE PAGO"
           />
         </div>
         {form && <FormularioPagos pago={pago} setForm={setForm} />}
         {detalles && <DetallesPago pago={pago} setDetalles={setDetalles} />}
-        {alert && (
-          <AlertDelete
-            nombre={`Recibo N° ${pago?.noRecibo}`}
-            setAlert={setalert}
-          />
-        )}
       </div>
     </>
   );
