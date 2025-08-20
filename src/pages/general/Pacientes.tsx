@@ -1,113 +1,158 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import BtnAgregar from '../../components/botones/BtnAgregar';
-import BtnLeer from '../../components/botones/BtnLeer';
-import FormPacientes from '../../components/pacientes/FormPacientes';
-import DetallesPaciente from '../../components/pacientes/DetallesPaciente';
-import { FaUserMd } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import { deletePaciente, readPacientes } from "../../services/pacientes";
+import DataTable, { TableColumn } from "react-data-table-component";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import toast from "react-hot-toast";
 
-export interface Paciente {
+interface Paciente {
   id: number;
-  nombre: string;
-  doctor: string;
-  direccion: string;
-  plan: string;
+  usuario: {
+    nombre: string;
+    apellido: string;
+    email: string;
+    numeroDocumento: string;
+  };
 }
 
 const Pacientes: React.FC = () => {
-  const { register, watch } = useForm();
-  const [pacientes, setPacientes] = useState<Paciente[]>([
-    { id: 1, nombre: 'Carlos Gómez', doctor: 'Dr. Pérez', direccion: 'Calle 123', plan: 'Básico' },
-    { id: 2, nombre: 'Ana Torres', doctor: 'Dra. Rivas', direccion: 'Carrera 5 #45-67', plan: 'Avanzado' },
-    { id: 3, nombre: 'Luis Ramírez', doctor: 'Dr. Quintero', direccion: 'Av. Las Palmas', plan: 'Premium' },
-  ]);
+  const [data, setData] = useState<Paciente[]>([]);
+  const [idDelete, setIdDelete] = useState<number>(0);
+  const [open, setOpen] = useState<boolean>(false)
+  const [accion, setAccion] = useState<boolean>(false)
 
-  const [modalAgregar, setModalAgregar] = useState(false);
-  const [modalVer, setModalVer] = useState(false);
-  const [pacienteSeleccionado, setPacienteSeleccionado] = useState<Paciente | null>(null);
-
-  const busqueda = watch('busqueda')?.toLowerCase() || '';
-  const pacientesFiltrados = pacientes.filter((p) => p.nombre.toLowerCase().includes(busqueda));
-
-  const handleAgregar = (nuevo: any) => {
-    const nuevoPaciente: Paciente = {
-      id: pacientes.length + 1,
-      nombre: nuevo.nombre,
-      doctor: '—',
-      direccion: '—',
-      plan: '—',
+  useEffect(() => {
+    const load = async () => {
+      const dat = await readPacientes();
+      setData(dat.data || []);
     };
-    setPacientes([...pacientes, nuevoPaciente]);
+    load();
+  }, [accion]);
+
+  const handleEdit = (row: Paciente) => {
+    console.log("Editar paciente", row);
+    // Aquí puedes navegar a una vista de edición o abrir un modal
   };
 
+  const handleDelete = async (row: Paciente) => {
+    setIdDelete(row.idPaciente);
+    setOpen(true);
+
+  };
+
+  
+  const columns: TableColumn<Paciente>[] = [
+    {
+      name: "Nombre",
+      selector: (row) => row.usuario.nombre,
+      sortable: true,
+    },
+    {
+      name: "Apellido",
+      selector: (row) => row.usuario.apellido,
+      sortable: true,
+    },
+    {
+      name: "Correo",
+      selector: (row) => row.usuario.email,
+      sortable: true,
+    },
+    {
+      name: "Documento",
+      selector: (row) => row.usuario.numeroDocumento,
+      sortable: true,
+    },
+    {
+      name: "Opciones",
+      cell: (row) => (
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleEdit(row)}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md flex items-center gap-1 transition"
+          >
+            <FaEdit /> Editar
+          </button>
+          <button
+            onClick={() => handleDelete(row)}
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1 transition"
+          >
+            <FaTrash /> Eliminar
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const deletePac = async () =>{
+    const res = await deletePaciente(idDelete);
+    setOpen(false);
+    setIdDelete(0);
+    if(res.message === "Error") return toast.error('No se puede eliminar el paciente por politicas de datos')
+    return toast.success('Paciente eliminado')
+  }
+
   return (
-    <div className="p-6 md:p-10 bg-white min-h-screen">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h2 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-          <FaUserMd className="text-blue-600" />
-          Gestión de Pacientes
-        </h2>
-        <div className="flex gap-2 mt-4 md:mt-0">
-          <input
-            type="text"
-            placeholder="Buscar paciente..."
-            {...register('busqueda')}
-            className="px-4 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm w-full md:w-64"
-          />
-          <div onClick={() => setModalAgregar(true)}>
-            <BtnAgregar verText={true} />
+    <div className="p-6 md:p-10 bg-gray-100 min-h-screen">
+      <div className="bg-white shadow-lg rounded-xl p-6">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-700">📋 Lista de Pacientes</h2>
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination
+          highlightOnHover
+          striped
+          responsive
+          customStyles={{
+            headCells: {
+              style: {
+                fontWeight: "bold",
+                fontSize: "14px",
+                backgroundColor: "#f3f4f6",
+              },
+            },
+            rows: {
+              style: {
+                fontSize: "14px",
+                minHeight: "60px",
+              },
+            },
+          }}
+        />
+      </div>
+      {open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          {/* Contenido del modal */}
+          <div className="bg-white rounded-2xl shadow-lg w-96 p-6 relative">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Eliminar paciente
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Este es un ejemplo de modal con Tailwind y React.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {setOpen(false);setIdDelete(0)}}
+                className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => deletePac()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Confirmar
+              </button>
+            </div>
+
+            {/* Botón cerrar (X) arriba a la derecha */}
+            <button
+              onClick={() => {setOpen(false);setIdDelete(0)}}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 animate-pulse"
+            >
+              ✕
+            </button>
           </div>
         </div>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg shadow border border-gray-200">
-        <table className="min-w-full bg-white text-sm">
-          <thead className="bg-blue-600 text-white">
-            <tr>
-              <th className="text-left p-3">Nombre</th>
-              <th className="text-left p-3">Doctor</th>
-              <th className="text-left p-3">Dirección</th>
-              <th className="text-left p-3">Plan</th>
-              <th className="text-left p-3">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pacientesFiltrados.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="p-4 text-center text-gray-500">
-                  No hay pacientes registrados.
-                </td>
-              </tr>
-            ) : (
-              pacientesFiltrados.map((p) => (
-                <tr key={p.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3">{p.nombre}</td>
-                  <td className="p-3">{p.doctor}</td>
-                  <td className="p-3">{p.direccion}</td>
-                  <td className="p-3">{p.plan}</td>
-                  <td className="p-3">
-                    <div onClick={() => { setPacienteSeleccionado(p); setModalVer(true); }}>
-                      <BtnLeer verText={true} />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <FormPacientes
-        isOpen={modalAgregar}
-        onClose={() => setModalAgregar(false)}
-        onSubmit={handleAgregar}
-      />
-
-      <DetallesPaciente
-        isOpen={modalVer}
-        onClose={() => setModalVer(false)}
-        paciente={pacienteSeleccionado}
-      />
+      )}
     </div>
   );
 };
