@@ -20,6 +20,7 @@ import HistorialVisitas from './pages/general/HistorialVisitas';
 import Contratos from './pages/general/Contratos';
 import FormasPago from './pages/administrador/FormasPago';
 import BeneficiosPlan from './pages/administrador/BeneficiosPlan';
+import FormularioPacientes from './pages/general/FormularioPacientes';
 
 function App() {  
   return (  
@@ -48,6 +49,7 @@ function App() {
         <Route path='/eps' element={<Eps/>}/>
         <Route path='/roles' element={<Roles/>}/>
         <Route path='/panel_control' element={<Roles/>}/>
+        <Route path='/formularioPacientes' element={<FormularioPacientes/>}/>
       </Routes>
       <Toaster/>
     </Router>  
