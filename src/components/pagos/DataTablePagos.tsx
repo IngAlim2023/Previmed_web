@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import toast from "react-hot-toast";
-import { ColDataTablePagos } from "../../interfaces/Pagos";
+import { ColDataTablePagos, PagoInterface } from "../../interfaces/Pagos";
 import FormularioPagos from "./FormularioPagos";
 import DetallesPago from "./DetallesPago";
 import AlertDelete from "../modales/AlertDelete";
@@ -12,23 +12,35 @@ import BtnEliminar from "../botones/BtnEliminar";
 import BtnAgregar from "../botones/BtnAgregar";
 
 const DataTablePagos: React.FC = () => {
-  const [pagos, setPagos] = useState([]);
+  const [pagos, setPagos] = useState<PagoInterface[]>([]);
+  const getPagos = async () => {
+    try {
+      const res = await fetch("http://localhost:3333/registros-pago");
+      const data = await res.json();
+      setPagos(data.data);
+      toast.success("Pagos cargados exitosamente", { id: "get-toast" });
+    } catch (error) {
+      toast.error("Error al cargar los pagos", { id: "get-toast" });
+    }
+  };
+
   useEffect(() => {
-    const fetchPagos = async () => {
-      try {
-        const res = await fetch("http://localhost:3333/registros-pago");
-        const data = await res.json();
-
-        toast.success("Pagos cargados exitosamente", { id: "pagos-toast" });
-        setPagos(data.data);
-      } catch (error) {
-        toast.error("Error al cargar los pagos", { id: "pagos-toast" });
-      }
-    };
-
-    toast.loading("Cargando los pagos...", { id: "pagos-toast" });
-    fetchPagos();
+    toast.loading("Cargando los pagos...", { id: "get-toast" });
+    getPagos();
   }, []);
+
+  const eliminarPago = async (id: number) => {
+    try {
+      await fetch(`http://localhost:3333/registro-pago/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+      toast.success("Pago eliminado correctamente", { id: "delete-toast" });
+      getPagos()
+    } catch (error) {
+      toast.success("Error al eliminar el registro de pago", {id: "delete-toast"});
+    }
+  };
 
   const [form, setForm] = useState<boolean>(false); //estado para el formulario
   const [detalles, setDetalles] = useState<boolean>(false); //estado para el modal de detalles
@@ -51,10 +63,9 @@ const DataTablePagos: React.FC = () => {
       name: "Titular",
       selector: (row) => {
         const usuario = row.membresia.membresiaPaciente[0]?.paciente?.usuario;
-        if (!usuario) return "";
+        console.log(row.membresia)
         return `${usuario.nombre ?? ""} ${usuario.segundoNombre ?? ""} ${
-          usuario.apellido ?? ""
-        } ${usuario.segundoApellido ?? ""}`.trim();
+          usuario.apellido ?? ""} ${usuario.segundoApellido ?? ""}`.trim();
       },
       sortable: true,
     },
@@ -90,8 +101,7 @@ const DataTablePagos: React.FC = () => {
           <div
             title="Eliminar"
             onClick={() => {
-              setPago(row);
-              setalert(true);
+              eliminarPago(row.idRegistro);
             }}
           >
             <BtnEliminar />
@@ -106,11 +116,11 @@ const DataTablePagos: React.FC = () => {
 
   const [buscarPago, setBuscarPago] = useState<string>("");
 
-  /*const pagosFiltrados:any = pagos.filter((pago)=> 
-    pago.fechaInicio.toLowerCase().includes(buscarPago.toLowerCase()) ||
-    pago.fechaInicio.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
-    pago.fechaInicio.toString().toLowerCase().includes(buscarPago.toLowerCase()) 
-  )*/
+  const pagosFiltrados:any = pagos.filter((pago)=> 
+    pago.fechaPago.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
+    pago.monto.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
+    pago.idRegistro.toString().toLowerCase().includes(buscarPago.toLowerCase()) 
+  )
 
   return (
     <>
@@ -137,7 +147,7 @@ const DataTablePagos: React.FC = () => {
 
           <DataTable
             columns={columns}
-            data={pagos}
+            data={pagosFiltrados}
             pagination
             highlightOnHover
             responsive
@@ -147,12 +157,6 @@ const DataTablePagos: React.FC = () => {
         </div>
         {form && <FormularioPagos pago={pago} setForm={setForm} />}
         {detalles && <DetallesPago pago={pago} setDetalles={setDetalles} />}
-        {alert && (
-          <AlertDelete
-            nombre={`Recibo N° ${pago?.idRegistro}`}
-            setAlert={setalert}
-          />
-        )}
       </div>
     </>
   );

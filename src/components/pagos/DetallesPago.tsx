@@ -33,14 +33,10 @@ const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-500">Titular</p>
-              <p className="font-medium text-gray-700">{`${nombre} ${segundoNombre} ${apellido} ${segundoApellido}`}</p>
+              <p className="font-medium text-gray-700">{`${nombre} ${segundoNombre?segundoNombre:''} ${apellido} ${segundoApellido?segundoApellido:''}`}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Cobrador</p>
-              <p className="font-medium text-gray-700">{`${nombre} ${segundoNombre} ${apellido} ${segundoApellido}`}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Fecha de Cobro</p>
+              <p className="text-sm text-gray-500">Fecha de Pago</p>
               <p className="font-medium text-gray-700">
                 {new Date(pago.fechaInicio).toLocaleDateString()}
               </p>

@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { PagoInterface, PostPagoInterface } from "../../../interfaces/Pagos";
+import { PagoInterface, PostPagoInterface } from "../../interfaces/Pagos";
 import { ImCancelCircle } from "react-icons/im";
 import { MdImageSearch } from "react-icons/md";
 import toast from "react-hot-toast";
@@ -30,16 +30,21 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
   const fecha = new Date(); //Instancia de la clase Date para manejar fechas
   const fechaHoy = fecha.toLocaleDateString("sv-SE"); //Se consigue la fecha actual
 
-  const registrarPago = (data: PostPagoInterface) => {
-    toast.success("Pago agregado correctamente");
+  const actualizarPago = (data: PostPagoInterface) => {
+    toast.success("Pago actualizado correctamente");
     console.log(data);
     setForm(false);
   };
 
-  const actualizarPago = (data: PostPagoInterface | PagoInterface) => {
-    toast.success("Pago actualizado correctamente");
-    console.log(data);
-    setForm(false);
+  const registrarPago = (data: PostPagoInterface) => {
+    fetch("http://localhost:3333/registro-pago", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data),
+    });
+    setForm(false)
   };
 
   const formasPago = [
@@ -61,14 +66,11 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
   return (
     <>
       <div className="fixed inset-0 bg-black/80 flex justify-center items-center overflow-y-auto z-50">
-        <div className="my-6 bg-white rounded-lg p-6 max-w-6xl">
-
+        <div className="my-6 bg-white rounded-lg p-6">
           <div className="flex justify-between items-start mb-4">
             <h2 className="text-2xl mb-8 font-bold text-gray-700 flex items-center gap-2">
-              <HiDocumentCurrencyDollar/>
-              {pago
-                ? `Actualiza el pago ${pago.noRecibo}`
-                : "Registro de pago"}
+              <HiDocumentCurrencyDollar />
+              {pago ? `Actualiza el pago ${pago.idRegistro}` : "Registro de pago"}
             </h2>
             <ImCancelCircle
               title="Cancelar"
@@ -79,19 +81,19 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
 
           <form
             onSubmit={handleSubmit(pago ? actualizarPago : registrarPago)}
-            className="space-y-4"
-          >
+            className="space-y-4">
+
             {/* Imagen */}
             <div>
               <label className="flex items-center  mb-1 font-medium text-gray-600">
                 Comprobante (imagen)
                 <MdImageSearch className="w-6 h-auto text-blue-900 ml-2" />
               </label>
-              {pago?.imagen && (
+              {pago?.foto && (
                 <div className="my-2">
                   <p className="text-sm text-gray-600 mb-1">Imagen actual:</p>
                   <img
-                    src={pago.imagen}
+                    src={pago.foto}
                     alt="Comprobante"
                     className="w-full md:w-2/3 lg:w-1/2 h:auto max:h-48 object-content rounded p-4"
                   />
@@ -100,7 +102,7 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
 
               <input
                 type="file"
-                {...register("imagen")}
+                {...register("foto")}
                 className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:border-0 file:text-md file:font-semibold file:bg-blue-50 file:hover:file:bg-blue-100 file:text-blue-600 file:cursor-pointer"
               />
             </div>
@@ -109,11 +111,11 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
               {/* Titular */}
               <div>
                 <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
-                  <FaUser className="text-blue-900"/> Titular
+                  <FaUser className="text-blue-900" /> Titular
                 </label>
                 <select
-                  {...register("titular", {
-                    required: "El titular es obligatorio",
+                  {...register("membresia_id", {
+                    required: "La membresia es obligatoria",
                   })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
@@ -124,9 +126,9 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
                     </option>
                   ))}
                 </select>
-                {errors.titular && (
+                {errors.membresia_id && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.titular.message}
+                    {errors.membresia_id.message}
                   </p>
                 )}
               </div>
@@ -134,19 +136,19 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
               {/* Fecha cobro */}
               <div>
                 <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
-                  <FaCalendarDay className="text-blue-900"/> Fecha de cobro
+                  <FaCalendarDay className="text-blue-900" /> Fecha de cobro
                 </label>
                 <input
                   type="date"
-                  defaultValue={pago ? pago.fechaCobro : fechaHoy}
-                  {...register("fechaCobro", {
+                  defaultValue={pago ? pago.fechaPago : fechaHoy}
+                  {...register("fecha_pago", {
                     required: "La fecha de cobro es obligatoria",
                   })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {errors.fechaCobro && (
+                {errors.fecha_pago && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.fechaCobro.message}
+                    {errors.fecha_pago.message}
                   </p>
                 )}
               </div>
@@ -154,20 +156,20 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
               {/* Fecha inicio */}
               <div>
                 <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
-                  <FaCalendarPlus className="text-blue-900"/> Fecha de inicio
+                  <FaCalendarPlus className="text-blue-900" /> Fecha de inicio
                 </label>
                 <input
                   type="date"
-                  max={watch("fechaFin")}
+                  max={watch("fecha_fin")}
                   defaultValue={pago ? pago.fechaInicio : ""}
-                  {...register("fechaInicio", {
+                  {...register("fecha_inicio", {
                     required: "La fecha de inicio es obligatoria",
                   })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {errors.fechaInicio && (
+                {errors.fecha_inicio && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.fechaInicio.message}
+                    {errors.fecha_inicio.message}
                   </p>
                 )}
               </div>
@@ -175,16 +177,16 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
               {/* Fecha fin */}
               <div>
                 <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
-                  <FaCalendarCheck className="text-blue-900"/> Fecha de fin
+                  <FaCalendarCheck className="text-blue-900" /> Fecha de fin
                 </label>
                 <input
                   type="date"
-                  min={watch("fechaInicio")}
+                  min={watch("fecha_inicio")}
                   defaultValue={pago ? pago.fechaFin : ""}
-                  {...register("fechaFin", {
+                  {...register("fecha_fin", {
                     required: "La fecha de finalización es obligatoria",
                     validate: (fechaFin) => {
-                      const fechaInicio = getValues("fechaInicio");
+                      const fechaInicio = getValues("fecha_inicio");
                       return (
                         new Date(fechaFin) >= new Date(fechaInicio) ||
                         "La fecha de fin no puede ser menor que la fecha de inicio"
@@ -193,9 +195,9 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
                   })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {errors.fechaFin && (
+                {errors.fecha_fin && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.fechaFin.message}
+                    {errors.fecha_fin.message}
                   </p>
                 )}
               </div>
@@ -203,10 +205,10 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
               {/* Forma de pago */}
               <div>
                 <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
-                  <FaCreditCard className="text-blue-900"/> Forma de pago
+                  <FaCreditCard className="text-blue-900" /> Forma de pago
                 </label>
                 <select
-                  {...register("formaPago", {
+                  {...register("forma_pago_id", {
                     required: "La forma de pago es obligatoria",
                   })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -218,9 +220,9 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
                     </option>
                   ))}
                 </select>
-                {errors.formaPago && (
+                {errors.forma_pago_id && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.formaPago.message}
+                    {errors.forma_pago_id.message}
                   </p>
                 )}
               </div>
@@ -228,7 +230,7 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
               {/* Monto */}
               <div>
                 <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
-                  <FaDollarSign className="text-blue-900"/> Monto
+                  <FaDollarSign className="text-blue-900" /> Monto
                 </label>
                 <input
                   type="number"

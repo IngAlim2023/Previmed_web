@@ -1,15 +1,14 @@
 export interface PagoInterface {
-  idPago: number;
-  imagen?: string;
-  noRecibo: number;
-  noContrato: number;
-  titular: string;
-  cobrador: string;
-  fechaCobro: Date | string;
-  fechaInicio: Date | string;
-  fechaFin: Date | string;
-  formaPago: string;
+  idRegistro: number;
   monto: number;
+  foto?: string;
+  fechaInicio: Date;
+  fechaFin: Date;
+  membresiaId:number;
+  formaPagoId: number;
+  fechaPago: Date;
+  formaPago:object;
+  membresia:object;  
 }
 
 export interface ColDataTablePagos {
@@ -25,11 +24,11 @@ export interface ColDataTablePagos {
 }
 
 export interface PostPagoInterface {
-  imagen?: string;
-  titular: number;
-  fechaCobro: Date | string;
-  fechaInicio: Date | string;
-  fechaFin: Date | string;
-  formaPago: number;
-  monto: number;
+    monto:number;
+    foto?:string;
+    fecha_inicio:Date;
+    fecha_fin:Date;
+    fecha_pago: Date;
+    membresia_id:number;
+    forma_pago_id:number;
 }
