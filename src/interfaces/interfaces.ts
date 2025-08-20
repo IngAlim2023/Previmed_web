@@ -1,50 +1,96 @@
-// src/interfaces/index.ts
-
-import { ReactNode } from "react";
-
-// Interfaces para el componente DataTableContratos.tsx
-
+// Usuario
 export interface Usuario {
-  id_usuario?: number;
-  nombre: string;
-  numeroDocumento: string;
+  idUsuario: string
+  nombre: string
+  segundoNombre: string | null
+  apellido: string
+  segundoApellido: string | null
+  email: string
+  password: string
+  direccion: string
+  numeroDocumento: string
+  fechaNacimiento: string
+  numeroHijos: string
+  estrato: string
+  autorizacionDatos: boolean
+  epsId: number
+  rolId: number
+  habilitar: boolean
+  genero: string | null
+  estadoCivil: string | null
+  tipoDocumento: string | null
 }
 
+// Paciente
 export interface Paciente {
-  id_paciente: number;
-  usuario: Usuario;
+  idPaciente: number
+  direccionCobro: string
+  ocupacion: string
+  activo: boolean
+  beneficiario: boolean
+  pacienteId: number | null
+  usuarioId: string
+  usuario?: Usuario
 }
 
+// Plan (estructura real del backend)
 export interface Plan {
-  id_plan: number;
-  nombre: string;
-  // Otros campos del plan...
+  idPlan: number
+  tipoPlan: string
+  descripcion: string
+  precio: string // Viene como string del backend
+  estado: boolean
+  cantidadBeneficiarios: number
 }
 
+// Membresía x Paciente (tabla intermedia)
+export interface MembresiaPaciente {
+  pacienteId: number
+  membresiaId: number
+  idMembresiaXPaciente: number
+  paciente?: Paciente
+}
+
+// Membresía (Contrato)
 export interface Membresia {
-  idMembresia: number;
-  firma: string;
-  formaPago: string;
-  numeroContrato: string;
-  fechaInicio: string;
-  fechaFin: string;
-  planId: number;
-  estado: boolean;
-  membresiaPaciente: Array<{
-    idMembresiaXPaciente: number;
-    paciente?: Paciente;
-  }>;
+  idMembresia: number
+  firma: string
+  formaPago: string
+  numeroContrato: string
+  fechaInicio: string
+  fechaFin: string
+  planId: number
+  estado: boolean
+  membresiaPaciente: MembresiaPaciente[]
+  plan?: Plan
 }
 
-// Interfaces para el formulario de creación de contratos
+// Para crear contrato (ajustado a la estructura real)
 export interface NuevoContratoForm {
-  firma: string;
-  formaPago: string;
-  numeroContrato: string;
-  fechaInicio: string;
-  fechaFin: string;
-  planId: string;
-  pacienteId: string;
+  firma: string
+  forma_pago: string
+  numero_contrato: string
+  fecha_inicio: string
+  fecha_fin: string
+  plan_id: number // Se envía como plan_id al backend
+  paciente_id: number
+  estado: boolean
 }
 
-// Puedes añadir más interfaces aquí según las necesites...
+// Para respuestas de la API
+export interface ApiResponse<T> {
+  data?: T[]
+  msj?: T[]
+  error?: string
+}
+
+// Opciones para los selects
+export interface SelectOption {
+  value: number | string
+  label: string
+}
+
+export interface FormaPagoOption {
+  value: "Efectivo" | "Transferencia" | "Daviplata" | "Nequi"
+  label: string
+}
