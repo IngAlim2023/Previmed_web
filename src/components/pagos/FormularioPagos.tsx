@@ -117,7 +117,7 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
       membresia_id: pago.membresiaId,
     });
   }
-  }, [pago, reset, opcionesTitular]);
+  }, []);
 
   const formasPago = [
     { id: 1, nombre: "Domicilio" },
