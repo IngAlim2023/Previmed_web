@@ -7,13 +7,13 @@ const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
   const {nombre, segundoNombre, apellido, segundoApellido} = pago.membresia.membresiaPaciente[0]?.paciente?.usuario;
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-        <div className="w-2/3 lg:w-1/2 bg-white shadow-md rounded-2xl overflow-hidden p-6 border border-gray-100">
-          <div className="flex flex-col md:flex-row items-center gap-4">
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
+        <div className="w-full lg:w-2/3 bg-white shadow-md rounded-2xl overflow-hidden p-6 border border-gray-100">
+          <div className="flex flex-col md:flex-row items-center">
             {pago.foto ? (
               <img
                 src={pago.foto}
-                className="w-full h-52 rounded-md object-contain md:col-auto"
+                className="w-full h-80 rounded-md object-contain md:col-auto"
               />
             ) : (
               <div className="w-full h-48 flex items-center justify-center bg-gray-100 text-gray-500 rounded-md border md:col-auto">
@@ -21,7 +21,7 @@ const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
               </div>
             )}
             <div className="w-full text-center">
-              <h2 className="text-xl font-bold text-gray-800 mb-1">
+              <h2 className="text-xl font-bold text-gray-800 mb-2">
                 Recibo #{pago.idRegistro}
               </h2>
               <p className="text-sm text-gray-500">
