@@ -1,83 +1,26 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
-import logo from '../../assets/logo.png';
+import React from "react";
+import logo from "../../assets/logo.png";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { login } from "../../services/autentication";
 
 // Interfaz para tipar las credenciales del usuario
 interface UsuarioCredenciales {
-  documento: string;
-  contrasena: string;
+  numero_documento: string;
+  numero_documentoRequired: string;
+  password: string;
+  passwordRequired: string;
 }
 
 const Login: React.FC = () => {
-  // Estados para manejar los campos del formulario
-  const [documento, setDocumento] = useState<string>('');
-  const [contrasena, setContrasena] = useState<string>('');
-  
-  // Hook para navegación programática
-  const navigate = useNavigate();
+  const { register, handleSubmit } = useForm<UsuarioCredenciales>();
 
-  // Constantes de validación
-  const LONGITUD_MIN_CONTRASENA = 6;
-  const LONGITUD_MAX_CONTRASENA = 20;
+  const onSubmit: SubmitHandler<UsuarioCredenciales> = async (data) => {
+    try{
+      const res = await login(data)
 
-  // Datos temporales para autenticación
-  const usuarioTemporal: UsuarioCredenciales = {
-    documento: '123456789',
-    contrasena: '123456789',
-  };
 
-  // Función para validar las credenciales ingresadas
-  const validarCredenciales = (): boolean => {
-    // Verificar campos vacíos
-    if (!documento.trim() || !contrasena.trim()) {
-      toast.error('Todos los campos son obligatorios');
-      return false;
-    }
-
-    // Verificar longitud de contraseña
-    if (contrasena.length < LONGITUD_MIN_CONTRASENA || contrasena.length > LONGITUD_MAX_CONTRASENA) {
-      toast.error(`La contraseña debe tener entre ${LONGITUD_MIN_CONTRASENA} y ${LONGITUD_MAX_CONTRASENA} caracteres`);
-      return false;
-    }
-
-    return true;
-  };
-
-  // Función para autenticar usuario
-  const autenticarUsuario = (): boolean => {
-    return documento === usuarioTemporal.documento && contrasena === usuarioTemporal.contrasena;
-  };
-
-  // Manejador del envío del formulario
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
-
-    // Validar credenciales antes de proceder
-    if (!validarCredenciales()) {
-      return;
-    }
-
-    // Intentar autenticar usuario
-    if (autenticarUsuario()) {
-      toast.success('¡Inicio de sesión exitoso!');
-      // Redirigir al dashboard del médico después de un pequeño delay
-      setTimeout(() => {
-        navigate('/home/medico');
-      }, 1000);
-    } else {
-      toast.error('Credenciales incorrectas. Verifique su documento y contraseña');
-    }
-  };
-
-  // Manejadores de cambio para los inputs (con sanitización básica)
-  const handleDocumentoChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const valor = e.target.value.replace(/\D/g, ''); // Solo números
-    setDocumento(valor);
-  };
-
-  const handleContrasenaChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setContrasena(e.target.value);
+      const respu = await res?.json()
+    }catch(e){}
   };
 
   return (
@@ -86,21 +29,17 @@ const Login: React.FC = () => {
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         {/* Logo de la aplicación */}
         <div className="flex justify-center mb-6">
-          <img 
-            src={logo} 
-            alt="Logo Previmed" 
-            className="h-22 object-contain" 
-          />
+          <img src={logo} alt="Logo Previmed" className="h-22 object-contain" />
         </div>
-        
+
         {/* Mensaje de bienvenida */}
         <div className="text-left mb-8">
           <h2 className="text-2xl font-semibold text-lgreen">Hola</h2>
           <p className="text-gray-600">Bienvenido a Previmed</p>
         </div>
-        
+
         {/* Formulario de login */}
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           {/* Campo de documento */}
           <div>
             <input
@@ -108,27 +47,25 @@ const Login: React.FC = () => {
               inputMode="numeric"
               placeholder="Número de documento"
               required
-              value={documento}
-              onChange={handleDocumentoChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               maxLength={15}
+              {...register("numero_documento", { required: true })}
             />
           </div>
-          
+
           {/* Campo de contraseña */}
           <div>
             <input
               type="password"
               placeholder="Contraseña"
               required
-              minLength={LONGITUD_MIN_CONTRASENA}
-              maxLength={LONGITUD_MAX_CONTRASENA}
-              value={contrasena}
-              onChange={handleContrasenaChange}
+              minLength={5}
+              maxLength={15}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              {...register("password", { required: true })}
             />
           </div>
-          
+
           {/* Botón de envío */}
           <button
             type="submit"
