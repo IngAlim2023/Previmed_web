@@ -1,8 +1,10 @@
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { PagoInterface, PostPagoInterface } from "../../interfaces/Pagos";
 import { ImCancelCircle } from "react-icons/im";
 import { MdImageSearch } from "react-icons/md";
 import toast from "react-hot-toast";
+import Select from "react-select";
+import { createPago, updatePago, subirImgCloudinary } from "../../services/pagosService";
 import {
   FaUser,
   FaCalendarDay,
@@ -11,12 +13,17 @@ import {
   FaDollarSign,
   FaCreditCard,
 } from "react-icons/fa";
-import { HiDocumentCurrencyDollar } from "react-icons/hi2";
+import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
+import { useEffect, useState } from "react";
+import { getTitulares as getTitularesService } from "../../services/pacientes";
 
 type prop = {
   pago?: PagoInterface;
   setForm: (value: boolean) => void;
 };
+
+  const fecha = new Date(); //Instancia de la clase Date para manejar fechas
+  const fechaHoy = fecha.toLocaleDateString("sv-SE"); //Se consigue la fecha actual
 
 const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
   const {
@@ -24,53 +31,117 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
     handleSubmit,
     getValues,
     watch,
+    control,
+    reset,
     formState: { errors },
-  } = useForm<PostPagoInterface>();
-
-  const fecha = new Date(); //Instancia de la clase Date para manejar fechas
-  const fechaHoy = fecha.toLocaleDateString("sv-SE"); //Se consigue la fecha actual
-
-  const actualizarPago = (data: PostPagoInterface) => {
-    toast.success("Pago actualizado correctamente");
-    console.log(data);
-    setForm(false);
-  };
-
-  const registrarPago = (data: PostPagoInterface) => {
-    fetch("http://localhost:3333/registro-pago", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
+  } = useForm<PostPagoInterface>({
+  defaultValues: pago
+    ? {
+        fecha_pago: pago.fechaPago,
+        fecha_inicio: pago.fechaInicio,
+        fecha_fin: pago.fechaFin,
+        monto: pago.monto,
+        forma_pago_id: pago.formaPagoId,
+        membresia_id: pago.membresiaId,
+      }
+    : {
+        fecha_pago: fechaHoy,
       },
-      body: JSON.stringify(data),
-    });
-    setForm(false)
+});
+
+  //const [formasPago, setFormasPago] = useState<any[]>([]);
+  const [titulares, setTitulares] = useState<any[]>([]);
+
+  const actualizarPago = async (data: PostPagoInterface) => {
+    try {
+      if (!pago) return;
+      if (data.foto && data.foto.length > 0) {
+        data.foto = await subirImgCloudinary(data.foto[0]);
+      } else {
+        data.foto = pago.foto;
+      }
+      const response = await updatePago(data, pago.idRegistro);
+      toast.success(response.message);
+      setForm(false);
+    } catch (error) {
+      toast.error("Error al actualizar el pago");
+    }
   };
+
+  const registrarPago = async (data: PostPagoInterface) => {
+    try {
+      if (data.foto && data.foto.length > 0) {
+        data.foto = await subirImgCloudinary(data.foto[0]);
+      } else {
+        data.foto = null;
+      }
+      const resonse = await createPago(data);
+      toast.success(resonse.message);
+      setForm(false);
+    } catch (error) {
+      toast.error("Error al registrar el pago");
+    }
+  };
+
+  const getTitulares = async () => {
+    try {
+      const response = await getTitularesService();
+      setTitulares(response.data);
+    } catch (error) {
+      throw new Error("Error al obtener los titulares");
+    }
+  };
+
+  const opcionesTitular = titulares.map((t) => ({
+    value: t.idPaciente,
+    label: `${t.usuario.nombre ?? ""} ${t.usuario.segundoNombre ?? ""} ${
+      t.usuario.apellido
+    } ${t.usuario.segundoApellido ?? ""}`,
+  }));
+
+  const formatDate = (date: string | Date | null | undefined) => {
+  if (!date) return "";
+  const d = new Date(date);
+  return d.toISOString().split("T")[0]; // -> "2025-08-25"
+};
+
+  useEffect(() => {
+    getTitulares();
+      if (pago) {
+    reset({
+      fecha_pago: formatDate(pago.fechaPago),
+      fecha_inicio: formatDate(pago.fechaInicio),
+      fecha_fin: formatDate(pago.fechaFin),
+      monto: pago.monto,
+      forma_pago_id: pago.formaPagoId,
+      membresia_id: pago.membresiaId,
+    });
+  }
+  }, [pago, reset, opcionesTitular]);
 
   const formasPago = [
-    { id: 1, nombre: "Efectivo" },
-    { id: 2, nombre: "Transferencia Bancaria" },
-    { id: 3, nombre: "Nequi" },
-    { id: 4, nombre: "Daviplata" },
-    { id: 5, nombre: "Tarjeta de Crédito" },
+    { id: 1, nombre: "Domicilio" },
+    { id: 2, nombre: "Debito automático" },
+    { id: 3, nombre: "Convenio" },
+    { id: 4, nombre: "Nequi" },
+    { id: 5, nombre: "Daviplata" },
   ];
 
-  const titulares = [
-    { id: 1, nombre: "Carlos", apellido: "Ramírez" },
-    { id: 2, nombre: "Laura", apellido: "González" },
-    { id: 3, nombre: "Mateo", apellido: "Torres" },
-    { id: 4, nombre: "Valentina", apellido: "Martínez" },
-    { id: 5, nombre: "Andrés", apellido: "Pérez" },
-  ];
+  const opcionesFormaFpago = formasPago.map((fp) => ({
+    value: fp.id,
+    label: fp.nombre,
+  }));
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 flex justify-center items-center overflow-y-auto z-50">
-        <div className="my-6 bg-white rounded-lg p-6">
+      <div className="fixed inset-0 bg-black/80 flex justify-center items-start pt-8 overflow-y-auto z-50">
+        <div className="my-2 bg-white rounded-md p-6">
           <div className="flex justify-between items-start mb-4">
-            <h2 className="text-2xl mb-8 font-bold text-gray-700 flex items-center gap-2">
-              <HiDocumentCurrencyDollar />
-              {pago ? `Actualiza el pago ${pago.idRegistro}` : "Registro de pago"}
+            <h2 className="text-3xl mb-8 font-semibold text-gray-700 flex items-center gap-2">
+              <HiOutlineDocumentCurrencyDollar className="w-10 h-auto text-blue-600" />
+              {pago
+                ? `Actualiza el pago ${pago.idRegistro}`
+                : "Registro de pago"}
             </h2>
             <ImCancelCircle
               title="Cancelar"
@@ -81,8 +152,8 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
 
           <form
             onSubmit={handleSubmit(pago ? actualizarPago : registrarPago)}
-            className="space-y-4">
-
+            className="space-y-4"
+          >
             {/* Imagen */}
             <div>
               <label className="flex items-center  mb-1 font-medium text-gray-600">
@@ -90,12 +161,11 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
                 <MdImageSearch className="w-6 h-auto text-blue-900 ml-2" />
               </label>
               {pago?.foto && (
-                <div className="my-2">
-                  <p className="text-sm text-gray-600 mb-1">Imagen actual:</p>
+                <div>
                   <img
                     src={pago.foto}
                     alt="Comprobante"
-                    className="w-full md:w-2/3 lg:w-1/2 h:auto max:h-48 object-content rounded p-4"
+                    className="w-full h-80 rounded-md object-contain md:col-auto"
                   />
                 </div>
               )}
@@ -107,25 +177,30 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-24">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-32">
               {/* Titular */}
               <div>
                 <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
                   <FaUser className="text-blue-900" /> Titular
                 </label>
-                <select
-                  {...register("membresia_id", {
-                    required: "La membresia es obligatoria",
-                  })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">-- Selecciona el titular --</option>
-                  {titulares.map((value) => (
-                    <option key={value.id} value={value.id}>
-                      {value.nombre} {value.apellido}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  name="membresia_id"
+                  control={control}
+                  rules={{
+                    required: "El titular es obligatorio",
+                  }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={opcionesTitular}
+                      placeholder="Selecciona el titular"
+                      value={opcionesTitular.find(o=>o.value == field.value)}
+                      onChange={(selectedOption) => {
+                        field.onChange(selectedOption);
+                      }}
+                    />
+                  )}
+                />
                 {errors.membresia_id && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.membresia_id.message}
@@ -207,19 +282,24 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
                 <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
                   <FaCreditCard className="text-blue-900" /> Forma de pago
                 </label>
-                <select
-                  {...register("forma_pago_id", {
+                <Controller
+                  name="forma_pago_id"
+                  control={control}
+                  rules={{
                     required: "La forma de pago es obligatoria",
-                  })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">-- Selecciona la forma de pago --</option>
-                  {formasPago.map((value) => (
-                    <option key={value.id} value={value.id}>
-                      {value.nombre}
-                    </option>
-                  ))}
-                </select>
+                  }}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      options={opcionesFormaFpago}
+                      placeholder="Selecciona la forma de pago"
+                      value={opcionesFormaFpago.find(o => o.value == field.value)}
+                      onChange={(selectedOption) => {
+                        field.onChange(selectedOption);
+                      }}
+                    />
+                  )}
+                />
                 {errors.forma_pago_id && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.forma_pago_id.message}

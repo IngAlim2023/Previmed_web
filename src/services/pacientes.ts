@@ -46,3 +46,18 @@ export const deletePaciente = async ( id:number) =>{
       return {msg: 'Error'}
   }
 }
+
+export const getTitulares = async() => {
+  try {
+    const titulares = await fetch(`${URL_BACK}pacientes/titular`,{
+      method:"GET",
+      headers: { "Content-Type": "application/json" }
+    });
+
+    if(!titulares.ok) throw new Error("Error al obtener los titulares");
+
+    return titulares.json();
+  } catch (e) {
+    return {msj:'Error'}
+  }
+}
