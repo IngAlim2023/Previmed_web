@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {
-  DataUsuario,
-  TipoGenero,
-  TipoEstadoCivil,
-  TipoDocumento,
-} from "../../interfaces/Usuario";
+import {DataUsuario} from "../../interfaces/Usuario";
 import BtnAgregar from "../botones/BtnAgregar";
 import BtnCancelar from "../botones/BtnCancelar";
-
-interface UsuarioFormProps {
-  initialData?: DataUsuario;
-  onSubmit: (usuario: Partial<DataUsuario>) => void;
-  onCancel: () => void;
-}
+import { UsuarioFormProps } from "../../interfaces/Usuario";
 
 const UsuarioForm: React.FC<UsuarioFormProps> = ({
   initialData,

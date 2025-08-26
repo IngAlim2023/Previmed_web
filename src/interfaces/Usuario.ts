@@ -16,7 +16,6 @@ export type TipoDocumento =
   | "Documento de Identificación Extranjero (DIE)"
   | "Permiso Especial de Permanencia (PEP)";
 
-// ⚠️ camelCase → como devuelve el backend en Postman
 export interface DataUsuario {
   idUsuario?: string;
   nombre: string;
@@ -37,4 +36,9 @@ export interface DataUsuario {
   tipoDocumento: TipoDocumento;
   epsId: number | null;
   rolId: number;
+}
+export interface UsuarioFormProps {
+  initialData?: DataUsuario;
+  onSubmit: (usuario: Partial<DataUsuario>) => void;
+  onCancel: () => void;
 }
