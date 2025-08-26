@@ -7,3 +7,17 @@
 #root{
     width: 100%;
 }
+
+/*Estilo para el scroll de la sidebar*/
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eff6ff;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #d1d5db; 
+  border-radius: 20px;
+}

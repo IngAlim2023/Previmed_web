@@ -21,35 +21,40 @@ import Contratos from './pages/general/Contratos';
 import FormasPago from './pages/administrador/FormasPago';
 import BeneficiosPlan from './pages/administrador/BeneficiosPlan';
 import FormularioPacientes from './pages/general/FormularioPacientes';
+import RenderVistas from './components/navegation/RenderVistas';
+import Usuarios from './pages/administrador/Usuarios';
 
 function App() {  
   return (  
     <Router>  
       <Routes>  
         <Route path='/' element={<Home />} />  
-        <Route path='/login' element={<Login />} />  
-        <Route path='/home/medico' element={<HomeMedico />} />
-        <Route path='/home/asesor' element={<HomeAsesor/>}/>
-        <Route path='/home/paciente' element={<HomePacientes/>}/>
-        <Route path='/visitas' element={<Visitas />} />
-        <Route path='/historial/visitas' element={<HistorialVisitas />} />
-        <Route path='/pagos' element={<Pagos/>}/>
-        <Route path='/pacientes' element={<Pacientes/>}/>
-        <Route path='/contrato' element={<ContratoPaciente/>}/>
-        <Route path='/historial/visitas' element={<HistorialVisitas/>}/>
-        <Route path='/beneficiarios' element={<Beneficiarios/>}/>
-        <Route path='/planes' element={<PlanesAdmin/>}/>
-        <Route path='/pagos' element={<Pagos/>}/>
-        <Route path='/visitas' element={<Visitas/>}/>
-        <Route path='/medicos' element={<Medicos/>}/>
-        <Route path='/contratos' element={<Contratos/>}/>
-        <Route path='/beneficios_plan' element={<BeneficiosPlan/>}/>
-        <Route path='/solicitudes' element={<Solicitudes/>}/>
-        <Route path='/formas_pago' element={<FormasPago/>}/>
-        <Route path='/eps' element={<Eps/>}/>
-        <Route path='/roles' element={<Roles/>}/>
-        <Route path='/panel_control' element={<Roles/>}/>
-        <Route path='/formularioPacientes' element={<FormularioPacientes/>}/>
+        <Route path='/login' element={<Login />} />
+        <Route element={<RenderVistas/>}>
+          <Route path='/home/medico' element={<HomeMedico />} />
+          <Route path='/home/asesor' element={<HomeAsesor/>}/>
+          <Route path='/home/paciente' element={<HomePacientes/>}/>
+          <Route path='/usuarios' element={<Usuarios/>}/>
+          <Route path='/visitas' element={<Visitas />} />
+          <Route path='/historial/visitas' element={<HistorialVisitas />} />
+          <Route path='/pagos' element={<Pagos/>}/>
+          <Route path='/pacientes' element={<Pacientes/>}/>
+          <Route path='/contrato' element={<ContratoPaciente/>}/>
+          <Route path='/historial/visitas' element={<HistorialVisitas/>}/>
+          <Route path='/beneficiarios' element={<Beneficiarios/>}/>
+          <Route path='/planes' element={<PlanesAdmin/>}/>
+          <Route path='/pagos' element={<Pagos/>}/>
+          <Route path='/visitas' element={<Visitas/>}/>
+          <Route path='/medicos' element={<Medicos/>}/>
+          <Route path='/contratos' element={<Contratos/>}/>
+          <Route path='/beneficios_plan' element={<BeneficiosPlan/>}/>
+          <Route path='/solicitudes' element={<Solicitudes/>}/>
+          <Route path='/formas_pago' element={<FormasPago/>}/>
+          <Route path='/eps' element={<Eps/>}/>
+          <Route path='/roles' element={<Roles/>}/>
+          <Route path='/panel_control' element={<Roles/>}/>
+          <Route path='/formularioPacientes' element={<FormularioPacientes/>}/>
+        </Route>
       </Routes>
       <Toaster/>
     </Router>  
