@@ -1,37 +1,39 @@
 // Usuario
+// Usuario
 export interface Usuario {
   idUsuario: string
   nombre: string
-  segundoNombre: string | null
+  segundoNombre?: string | null
   apellido: string
-  segundoApellido: string | null
+  segundoApellido?: string | null
   email: string
-  password: string
-  direccion: string
-  numeroDocumento: string
-  fechaNacimiento: string
-  numeroHijos: string
-  estrato: string
-  autorizacionDatos: boolean
-  epsId: number
-  rolId: number
-  habilitar: boolean
-  genero: string | null
-  estadoCivil: string | null
-  tipoDocumento: string | null
+  password?: string
+  direccion?: string
+  numeroDocumento?: string
+  fechaNacimiento?: string
+  numeroHijos?: string | null
+  estrato?: string | null
+  autorizacionDatos?: boolean
+  epsId?: number | null
+  rolId?: number
+  habilitar?: boolean
+  genero?: string | null
+  estadoCivil?: string | null
+  tipoDocumento?: string | null
 }
 
 // Paciente
 export interface Paciente {
   idPaciente: number
-  direccionCobro: string
-  ocupacion: string
+  direccionCobro?: string
+  ocupacion?: string | null
   activo: boolean
   beneficiario: boolean
-  pacienteId: number | null
+  pacienteId?: number | null
   usuarioId: string
   usuario?: Usuario
 }
+
 
 // Plan (estructura real del backend)
 export interface Plan {
@@ -65,6 +67,7 @@ export interface Membresia {
   plan?: Plan
 }
 
+
 // Para crear contrato (ajustado a la estructura real)
 export interface NuevoContratoForm {
   firma: string
@@ -72,10 +75,11 @@ export interface NuevoContratoForm {
   numero_contrato: string
   fecha_inicio: string
   fecha_fin: string
-  plan_id: number // Se envía como plan_id al backend
+  plan_id: number
   paciente_id: number
   estado: boolean
 }
+
 
 // Para respuestas de la API
 export interface ApiResponse<T> {
