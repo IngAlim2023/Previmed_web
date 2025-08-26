@@ -4,25 +4,26 @@ import toast from "react-hot-toast"
 import { Membresia } from "../../interfaces/interfaces"
 import BtnLeer from "../botones/BtnLeer"
 import { generarPDF } from "./ContratoPDF"
+import { getContratos } from "../../services/contratos"
+
 
 const DataTableContratos: React.FC = () => {
       const [contratos, setContratos] = useState<any[]>([]) // Cambiado a any[] por la estructura
   const [search, setSearch] = useState("")
   const [modalDetalles, setModalDetalles] = useState<any | null>(null) // Cambiado a any
 
-  const fetchContratos = async () => {
-    try {
-      const res = await fetch("http://localhost:3334/membresias")
-      const raw = await res.json()
 
-      //  backend devuelve directamente el array
-      const data = Array.isArray(raw) ? raw : []
-      setContratos(data)
-    } catch (error) {
-      console.error("Error al cargar contratos:", error)
-      toast.error("Error al cargar contratos")
-    }
+
+const fetchContratos = async () => {
+  try {
+    const data = await getContratos()
+    setContratos(Array.isArray(data) ? data : [])
+  } catch (error) {
+    console.error("Error al cargar contratos:", error)
+    toast.error("Error al cargar contratos")
   }
+}
+
 
   useEffect(() => {
     fetchContratos()
@@ -151,8 +152,6 @@ const DataTableContratos: React.FC = () => {
                   <p><strong>Nombre:</strong> {getNombre(mp)}</p>
                   <p><strong>Documento:</strong> {usuario.numeroDocumento}</p>
                   <p><strong>Email:</strong> {usuario.email}</p>
-                  <p><strong>Ocupación:</strong> {mp.paciente?.ocupacion}</p>
-
                   <button
                     onClick={() =>
                       generarPDF({

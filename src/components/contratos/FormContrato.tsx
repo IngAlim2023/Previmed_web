@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom"
 import Select from "react-select"
 import toast from "react-hot-toast"
 import { Plan, Paciente } from "../../interfaces/interfaces"
+import { createContrato } from "../../services/contratos"
+import { NuevoContratoForm, Membresia} from "../../interfaces/interfaces"
+
 
 const FormContrato: React.FC = () => {
   const navigate = useNavigate()
@@ -28,8 +31,8 @@ const FormContrato: React.FC = () => {
     const fetchDatos = async () => {
       try {
         const [resPlanes, resPacientes] = await Promise.all([
-          fetch("http://localhost:3334/planes"),
-          fetch("http://localhost:3334/pacientes"),
+          fetch("http://localhost:3333/planes"),
+          fetch("http://localhost:3333/pacientes"),
         ])
 
         const planesData = await resPlanes.json()
@@ -69,49 +72,36 @@ const FormContrato: React.FC = () => {
     fetchDatos()
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
 
-    if (
-      !selectedPlan ||
-      !selectedPaciente ||
-      !fechaInicio ||
-      !fechaFin ||
-      !firma ||
-      !formaPago ||
-      !numeroContrato
-    ) {
-      toast.error("Por favor completa todos los campos")
-      return
-    }
-
-    const payload = {
-      firma,
-      forma_pago: formaPago.value,
-      numero_contrato: numeroContrato,
-      fecha_inicio: fechaInicio,
-      fecha_fin: fechaFin,
-      estado: true,
-      plan_id: selectedPlan.value,
-      paciente_id: selectedPaciente.value,
-    }
-
-    try {
-      const res = await fetch("http://localhost:3334/membresias", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-
-      if (!res.ok) throw new Error("Error al crear contrato")
-
-      toast.success("Contrato creado con éxito")
-      navigate("/contratos") // Mejor usar navigate que window.location.href
-    } catch (error) {
-      console.error("Error al guardar contrato:", error)
-      toast.error("No se pudo crear el contrato")
-    }
+  if (!formaPago || !selectedPlan || !selectedPaciente) {
+    toast.error("Debes completar todos los campos obligatorios")
+    return
   }
+
+  const payload: NuevoContratoForm = {
+    firma,
+    forma_pago: formaPago.value,
+    numero_contrato: numeroContrato,
+    fecha_inicio: fechaInicio,
+    fecha_fin: fechaFin,
+    plan_id: selectedPlan.value,
+    paciente_id: selectedPaciente.value,
+    estado: true
+  }
+
+  try {
+    await createContrato(payload)
+    toast.success("Contrato creado con éxito")
+    navigate("/contratos") // regresa a la tabla de contratos
+  } catch (error) {
+    toast.error("Error al guardar contrato")
+  }
+}
+
+
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
@@ -154,7 +144,7 @@ const FormContrato: React.FC = () => {
             <Select
               options={pacientes.map((p: any) => ({
                 // Ajustado para manejar diferentes nombres de ID
-                value: p.idPaciente || p.paciente_id || p.id,
+                value: p.idPaciente,
                 label: `${[
                   p.usuario?.nombre,
                   p.usuario?.segundoNombre,
@@ -173,8 +163,8 @@ const FormContrato: React.FC = () => {
             <Select
               options={planes.map((p: any) => ({
                 // Manejo flexible de IDs de plan
-                value: p.id_plan,
-                label: `${p.nombre || 'Plan'} - ${p.precio || '0'}`,
+                value: p.idPlan,
+                label: `${p.tipoPlan} - $${p.precio}`,
               }))}
               value={selectedPlan}
               onChange={setSelectedPlan}
