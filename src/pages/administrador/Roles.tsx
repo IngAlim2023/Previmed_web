@@ -1,10 +1,7 @@
+import DataTableRoles from "../../components/roles/DataTableRoles";
 
-const Roles:React.FC = () => {
-  return (
-    <>
-      
-    </>
-  )
-}
+const RolesAdmin: React.FC = () => {
+  return <DataTableRoles />;
+};
 
-export default Roles
+export default RolesAdmin;
