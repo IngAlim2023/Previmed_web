@@ -8,15 +8,11 @@ export interface Visita {
   paciente_id: number
   medico_id: number
   barrio_id: number
+}
 
-  // Relaciones cargadas con preload
-  paciente?: {
-    nombre: string
-  }
-  medico?: {
-    nombre: string
-  }
-  barrio?: {
-    nombre: string
-  }
+export interface ConfirmDialogProps {
+  show: boolean
+  onConfirm: () => void
+  onCancel: () => void
+  message: string
 }
