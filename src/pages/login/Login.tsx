@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import logo from "../../assets/logo.png";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { login } from "../../services/autentication";
+import { useAuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 // Interfaz para tipar las credenciales del usuario
 interface UsuarioCredenciales {
@@ -13,14 +15,29 @@ interface UsuarioCredenciales {
 
 const Login: React.FC = () => {
   const { register, handleSubmit } = useForm<UsuarioCredenciales>();
+  const navigate = useNavigate();
+
+  const { setUser, setIsAuthenticated, isAuthenticated } =
+    useAuthContext();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/home/asesor");
+    }
+  }, [isAuthenticated]);
 
   const onSubmit: SubmitHandler<UsuarioCredenciales> = async (data) => {
-    try{
-      const res = await login(data)
+    try {
+      const res = await login(data);
 
-
-      const respu = await res?.json()
-    }catch(e){}
+      const respu = await res?.json();
+      if (respu.message != "Acceso permitido") {
+        return setIsAuthenticated(false);
+      }
+      setUser(respu.data);
+      navigate('/home/medico')
+      return setIsAuthenticated(true);
+    } catch (e) {}
   };
 
   return (
