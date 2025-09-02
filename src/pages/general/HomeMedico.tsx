@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import SideBarMedico from '../../components/navegation/SideBarMedico';
 
 const HomeMedico: React.FC = () => {
   const [estadoDisponible, setEstadoDisponible] = useState(true);
@@ -19,8 +18,7 @@ const HomeMedico: React.FC = () => {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar a la izquierda */}
-      <SideBarMedico />
+      
 
       {/* Contenido principal */}
       <div className="flex-1 p-6 flex justify-center items-center bg-gray-300">

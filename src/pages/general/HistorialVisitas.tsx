@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import SideBarMedico from "../../components/navegation/SideBarMedico"
 
 // Interfaz para la info del historial
 interface InfoHistorial {
@@ -46,8 +45,6 @@ const HistorialVisitas: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
-      <SideBarMedico />
 
       {/* Contenido principal */}
       <div className="flex-1 p-8">

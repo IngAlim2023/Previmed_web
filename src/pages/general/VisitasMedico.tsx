@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { FiClock, FiChevronDown, FiChevronUp } from 'react-icons/fi'
-import SideBarMedico from '../../components/navegation/SideBarMedico'
-
 interface InfoVisita {
   nombre: string
   segundo_nobre: string
@@ -50,7 +48,6 @@ const VisitasMedico: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <SideBarMedico />
       <main className="flex-1 p-6">
         <h2 className="text-3xl font-bold text-teal-700 mb-6">Visitas Pendientes</h2>
         {loading && <p className="text-gray-600">Cargando visitas...</p>}

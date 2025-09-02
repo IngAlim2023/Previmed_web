@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import PREVIMED_Full_Color from "../../assets/PREVIMED_Full_Color.png";
 import {
   FaUsers,
@@ -18,6 +18,9 @@ import {
   FaTachometerAlt,
   FaBars,
 } from "react-icons/fa";
+import { LuLogOut } from "react-icons/lu";
+import { useAuthContext } from "../../context/AuthContext";
+import Cookies from "js-cookie";
 
 type PropsSideBar = {
   cerrado: boolean;
@@ -25,6 +28,9 @@ type PropsSideBar = {
 };
 
 const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
+  const navigate = useNavigate();
+
+  const { setUser, setIsAuthenticated } = useAuthContext();
   return (
     <aside
       className={`fixed top-0 left-6 h-screen bg-blue-50 text-gray-600 flex flex-col transition-all duration-300 ${
@@ -178,6 +184,22 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
           <FaTachometerAlt className="text-lg" />
           {!cerrado && <span>Panel de Control</span>}
         </Link>
+        <div
+          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-200 cursor-pointer transition"
+          onClick={() => {
+            navigate('/')
+            
+            setIsAuthenticated(false);
+            setUser({
+              id: null,
+              documento: null,
+            });
+            return Cookies.remove("auth");
+          }}
+        >
+          <LuLogOut className="text-lg" />
+          {!cerrado && <span>Salir</span>}
+        </div>
       </nav>
     </aside>
   );
