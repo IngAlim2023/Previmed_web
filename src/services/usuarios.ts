@@ -1,6 +1,7 @@
 import { DataUsuario } from "../interfaces/usuario";
 
-const API_URL = "http://localhost:3333/usuarios";
+const URL_BACK = import.meta.env.VITE_URL_BACK;
+const API_URL = `${URL_BACK}usuarios`;
 
 const toSnake = (u: Partial<DataUsuario>) => ({
   nombre: u.nombre,
