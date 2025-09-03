@@ -1,301 +1,199 @@
 import { useEffect, useState } from "react";
-import DataTable from "react-data-table-component";
+import { FiTrash2, FiPlus } from "react-icons/fi";
+import { medicoService } from "../../services/medicoService";
+import type { MedicoResponse } from "../../interfaces/medicoInterface";
 import FormMedicos from "./FormMedicos";
-import DetallesMedico from "./DetallesMedico";
-import AlertDelete from "../modales/AlertDelete";
-import {
-  ColDataTableMedicos,
-  MedicosInterface,
-} from "../../interfaces/Medicos";
-import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
-import BtnEliminar from "../botones/BtnEliminar";
-import BtnEditar from "../botones/BtnEditar";
-import BtnLeer from "../botones/BtnLeer";
-import BtnAgregar from "../botones/BtnAgregar";
-import { FaUserDoctor } from "react-icons/fa6";
-import toast from "react-hot-toast";
-import BtnCambiar from "../botones/BtnCambiar";
 
-const TableMedicos: React.FC = () => {
-  const [form, setForm] = useState<boolean>(false);
-  const [alert, setAlert] = useState<boolean>(false);
-  const [detalles, setDetalles] = useState<boolean>(false);
-  const [medico, setMedico] = useState<MedicosInterface>();
+export default function TableMedicos() {
+  const [medicos, setMedicos] = useState<MedicoResponse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+
+  const [search, setSearch] = useState("");
+  const [filterDisponibilidad, setFilterDisponibilidad] = useState("all");
+  const [filterEstado, setFilterEstado] = useState("all");
+
+  const load = () =>
+    medicoService
+      .getAll()
+      .then((res) => setMedicos(res.data))
+      .finally(() => setLoading(false));
 
   useEffect(() => {
-    //Aqui se resivirá el servicio que trae los medicos desde nuestro backend
-    const doctors = fetch("https://fakestoreapi.com/products", {
-      method: "GET",
-    });
-
-    toast.promise(
-      doctors,
-      {
-        loading: "Cargando los médicos...",
-        success: "Médicos cargados exitosamente",
-        error: "Error al cargar los Médicos",
-      },
-      {
-        id: "doctors-toast", // Este id es para evitar que el toast aparezca 2 veces
-      }
-    );
+    load();
   }, []);
 
-  const columns: ColDataTableMedicos[] = [
-    {
-      name: "Nombre",
-      selector: (row) => `${row.nombre} ${row.apellido}`,
-      sortable: true,
-    },
-    {
-      name: "N° documento",
-      selector: (row) => row.numero_documento,
-      sortable: true,
-    },
-    {
-      name: "Dirección",
-      selector: (row) => row.direccion,
-    },
-    {
-      name: "Estado",
-      selector: (row) =>
-        row.estado ? (
-          <FaCheckCircle title="Activo" className="w-4 h-auto text-green-500" />
-        ) : (
-          <FaTimesCircle
-            title="Innactivo"
-            className="w-4 h-auto text-red-500"
-          />
-        ),
-      maxWidth: "80px",
-    },
-    {
-      name: "Acciones",
-      cell: (row) => (
-        <div className="flex gap-2 p-2 space-x-1">
-          <div title="Cambiar estado">
-            <BtnCambiar />
-          </div>
+  const toggleDisponibilidad = async (id: number, actual: boolean) => {
+    await medicoService.update(id, { disponibilidad: !actual });
+    load();
+  };
 
-          <div
-            title="Ver detalles"
-            onClick={() => {
-              setMedico(row);
-              setDetalles(true);
-            }}
-          >
-            <BtnLeer />
-          </div>
+  const toggleEstado = async (id: number, actual: boolean) => {
+    await medicoService.update(id, { estado: !actual });
+    load();
+  };
 
-          <div
-            title="Editar"
-            onClick={() => {
-              setMedico(row);
-              setForm(true);
-            }}
-          >
-            <BtnEditar />
-          </div>
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("¿Estás seguro de eliminar este médico?")) return;
+    await medicoService.remove(id);
+    load();
+  };
 
-          <div
-            title="Eliminar"
-            onClick={() => {
-              setMedico(row);
-              setAlert(true);
-            }}
-          >
-            <BtnEliminar />
-          </div>
-        </div>
-      ),
-      ignoreRowClick: false,
-      allowOverflow: true,
-      button: true,
-      minWidth: "240px",
-    },
-  ];
+  if (loading) return <p className="text-center text-gray-600">Cargando…</p>;
 
-  const medicos: MedicosInterface[] = [
-    {
-      id_medico: 1,
-      nombre: "Carlos",
-      segundo_nombre: "Eduardo",
-      apellido: "Ramírez",
-      segundo_apellido: "Gómez",
-      email: "carlos.ramirez@example.com",
-      telefono: "3104567890",
-      direccion: "Calle 45 #12-30",
-      numero_documento: "1032456789",
-      fecha_nacimiento: new Date("1980-05-14"),
-      numero_hijos: "2",
-      estrato: "3",
-      barrio: "La Esperanza",
-      eps: "Sura",
-      rol: "medico",
-      genero: "masculino",
-      tipo_documento: "CC",
-      estado_civil: "casado",
-      autorizacion_datos: true,
-      password: "12345678",
-      created: new Date("2023-01-10"),
-      updated: new Date("2024-07-01"),
-      habilitar: true,
-      disponibilidad: true,
-      estado: true,
-      usuario_id: "u001",
-    },
-    {
-      id_medico: 2,
-      nombre: "Laura",
-      apellido: "Martínez",
-      email: "laura.martinez@example.com",
-      telefono: "3112345678",
-      direccion: "Carrera 7 #56-89",
-      numero_documento: "1045896231",
-      fecha_nacimiento: new Date("1990-08-22"),
-      barrio: "El Prado",
-      rol: "medico",
-      tipo_documento: "CC",
-      autorizacion_datos: true,
-      password: "securepass123",
-      created: new Date("2023-05-12"),
-      updated: new Date("2024-07-01"),
-      habilitar: true,
-      disponibilidad: false,
-      estado: false,
-      usuario_id: "u002",
-    },
-    {
-      id_medico: 3,
-      nombre: "Andrés",
-      segundo_nombre: "Felipe",
-      apellido: "González",
-      email: "andres.gonzalez@example.com",
-      telefono: "3009876543",
-      direccion: "Av. Siempre Viva 123",
-      numero_documento: "1098765432",
-      fecha_nacimiento: new Date("1985-12-03"),
-      numero_hijos: "1",
-      barrio: "San Fernando",
-      rol: "medico",
-      genero: "masculino",
-      tipo_documento: "CC",
-      autorizacion_datos: true,
-      password: "claveAndres!",
-      created: new Date("2022-09-01"),
-      updated: new Date("2024-06-15"),
-      habilitar: false,
-      disponibilidad: true,
-      estado: true,
-      usuario_id: "u003",
-    },
-    {
-      id_medico: 4,
-      nombre: "Diana",
-      segundo_nombre: "Carolina",
-      apellido: "Ríos",
-      email: "diana.rios@example.com",
-      telefono: "3201234567",
-      direccion: "Cra 33 #45-67",
-      numero_documento: "1056789345",
-      fecha_nacimiento: new Date("1992-04-18"),
-      estrato: "4",
-      barrio: "Santa Fe",
-      eps: "Coomeva",
-      rol: "medico",
-      genero: "femenino",
-      tipo_documento: "CC",
-      estado_civil: "soltera",
-      autorizacion_datos: true,
-      password: "dianaSecure456",
-      created: new Date("2023-11-25"),
-      updated: new Date("2024-07-10"),
-      habilitar: true,
-      disponibilidad: false,
-      estado: false,
-      usuario_id: "u004",
-    },
-    {
-      id_medico: 5,
-      nombre: "José",
-      apellido: "Moreno",
-      segundo_apellido: "López",
-      email: "jose.moreno@example.com",
-      telefono: "3011122334",
-      direccion: "Calle 10 #20-30",
-      numero_documento: "1067890123",
-      fecha_nacimiento: new Date("1978-11-09"),
-      barrio: "Las Palmas",
-      rol: "medico",
-      tipo_documento: "CC",
-      autorizacion_datos: true,
-      password: "joseClave987",
-      created: new Date("2022-04-03"),
-      updated: new Date("2024-05-25"),
-      habilitar: false,
-      disponibilidad: true,
-      estado: true,
-      usuario_id: "u005",
-    },
-  ];
+  const filteredMedicos = medicos.filter((m) => {
+    const matchesSearch = `${m.usuario.nombre} ${m.usuario.apellido}`
+      .toLowerCase()
+      .includes(search.toLowerCase());
 
-  const [buscarMedico, setBuscarMedico] = useState<string>('')
+    const matchesDisponibilidad =
+      filterDisponibilidad === "all"
+        ? true
+        : filterDisponibilidad === "true"
+        ? m.disponibilidad
+        : !m.disponibilidad;
 
-    const medicosFiltrados:MedicosInterface[] = medicos.filter((medico)=>
-      medico.nombre.toLowerCase().includes(buscarMedico.toLowerCase()) ||
-      medico.segundo_nombre?.toLowerCase().includes(buscarMedico.toLowerCase()) ||
-      medico.apellido.toLowerCase().includes(buscarMedico.toLowerCase()) ||
-      medico.segundo_apellido?.toLowerCase().includes(buscarMedico.toLowerCase()) ||
-      medico.numero_documento.toLowerCase().includes(buscarMedico.toLowerCase())
-    );
-  
+    const matchesEstado =
+      filterEstado === "all"
+        ? true
+        : filterEstado === "true"
+        ? m.estado
+        : !m.estado;
+
+    return matchesSearch && matchesDisponibilidad && matchesEstado;
+  });
 
   return (
-    <>
-      <div className="min-h-screen flex items-center justify-center w-full px-4 py-8 bg-gray-100">
-        <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg p-6 overflow-x-auto">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold text-gray-800 flex items-center">
-              <FaUserDoctor className="w-10 h-auto text-blue-600 mr-4" />
-              Médicos 
-            </h2>
+    <div className="w-full p-4">
+      {/* Título */}
+      <h1 className="text-2xl font-bold text-teal-900 mb-6">Lista de Médicos</h1>
 
-            <input
-              type="text"
-              placeholder="Buscar..."
-              value={buscarMedico}
-              onChange={(e) =>setBuscarMedico(e.target.value)}
-              className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
-            />
+      {/* Filtros */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 flex flex-col md:flex-row gap-4">
+        {/* Buscar */}
+        <input
+          type="text"
+          placeholder="Buscar por nombre…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        />
 
-            <div onClick={() => setForm(true)}>
-              <BtnAgregar verText={true} />
-            </div>
-          </div>
 
-          <DataTable
-            columns={columns}
-            data={medicosFiltrados}
-            pagination
-            highlightOnHover
-            responsive
-            striped
-            noDataComponent="Médicos no encontrados"
-          />
-        </div>
-        {form && <FormMedicos medico={medico} setForm={setForm} />}
-        {detalles && (
-          <DetallesMedico medico={medico} setDetalles={setDetalles} />
-        )}
-        {alert && (
-          <AlertDelete
-            nombre={`Medico ${medico?.nombre} ${medico?.apellido}`}
-            setAlert={setAlert}
-          />
-        )}
+        <select
+          value={filterDisponibilidad}
+          onChange={(e) => setFilterDisponibilidad(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        >
+          <option value="all">Todas las disponibilidades</option>
+          <option value="true">Disponible</option>
+          <option value="false">No disponible</option>
+        </select>
+
+
+        <select
+          value={filterEstado}
+          onChange={(e) => setFilterEstado(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        >
+          <option value="all">Todos los estados</option>
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
       </div>
-    </>
-  );
-};
 
-export default TableMedicos;
+      {filteredMedicos.length ? (
+        <div className="space-y-4">
+          {filteredMedicos.map((m) => (
+            <div
+              key={m.id_medico}
+              className="bg-white p-4 rounded-lg shadow flex justify-between items-center hover:shadow-md transition"
+            >
+              <div>
+                <p className="font-semibold text-teal-800">
+                  {m.usuario.nombre} {m.usuario.apellido}
+                </p>
+                <p className="text-sm text-gray-600">{m.usuario.email}</p>
+
+                <div className="mt-2 flex flex-wrap gap-2 text-sm">
+                  <span
+                    className={`px-2 py-1 rounded font-medium ${
+                      m.disponibilidad
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    Disponible: {m.disponibilidad ? "Sí" : "No"}
+                  </span>
+
+                  <span
+                    className={`px-2 py-1 rounded font-medium ${
+                      m.estado
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    Estado: {m.estado ? "Activo" : "Inactivo"}
+                  </span>
+                </div>
+
+                <div className="mt-3 flex gap-2">
+                  <button
+                    onClick={() =>
+                      toggleDisponibilidad(m.id_medico, m.disponibilidad)
+                    }
+                    className="text-xs bg-teal-500 hover:bg-teal-600 text-white px-3 py-1 rounded transition"
+                  >
+                    Cambiar disponibilidad
+                  </button>
+                  <button
+                    onClick={() => toggleEstado(m.id_medico, m.estado)}
+                    className="text-xs bg-slate-500 hover:bg-slate-600 text-white px-3 py-1 rounded transition"
+                  >
+                    Cambiar estado
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleDelete(m.id_medico)}
+                className="text-red-500 hover:text-red-700 transition"
+                title="Eliminar"
+              >
+                <FiTrash2 size={20} />
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-600">No se encontraron médicos</p>
+      )}
+
+      {/* BOTÓN FLOTANTE AGREGAR MÉDICO */}
+      <button
+        onClick={() => setShowModal(true)}
+        className="fixed bottom-6 right-6 bg-teal-600 hover:bg-teal-700 text-white p-4 rounded-full shadow-lg transition flex items-center justify-center"
+        title="Agregar médico"
+      >
+        <FiPlus size={24} />
+      </button>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md">
+            <h2 className="text-xl font-bold mb-4 text-gray-800">
+              Nuevo médico
+            </h2>
+            <FormMedicos
+              onSuccess={() => {
+                setShowModal(false);
+                load();
+              }}
+              onCancel={() => setShowModal(false)}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
