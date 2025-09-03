@@ -1,13 +1,13 @@
 import { Rol } from "../interfaces/roles";
 
-const API_URL = "http://localhost:3333/roles";
+const URL_BACK = import.meta.env.VITE_URL_BACK;
+const API_URL = `${URL_BACK}roles`;
 
 export const getRoles = async (): Promise<Rol[]> => {
   const res = await fetch(API_URL);
   if (!res.ok) throw new Error("Error al obtener roles");
   const json = await res.json();
 
-  // 👇 transformar los campos del backend a tu interfaz
   return json.msj.map((r: any) => ({
     id_rol: r.idRol,
     nombre_rol: r.nombreRol,
