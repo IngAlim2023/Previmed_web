@@ -75,7 +75,7 @@ const DataTableVisitas: React.FC = () => {
 
   const columns = [
     { name: "ID", selector: (row: Visita) => row.id_visita, sortable: true },
-    { name: "Fecha", selector: (row: Visita) => row.fecha_visita, sortable: true },
+    { name: "Fecha", selector: (row: Visita) => row.fecha_visita, sortable: true,cell: (row: Visita) => new Date(row.fecha_visita).toLocaleDateString("es-CO")  },
     { name: "Descripción", selector: (row: Visita) => row.descripcion, sortable: true },
     { name: "Teléfono", selector: (row: Visita) => row.telefono, sortable: true },
     { name: "Estado", selector: (row: Visita) => row.estado,

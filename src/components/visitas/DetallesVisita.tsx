@@ -1,5 +1,8 @@
+import { useEffect, useState } from "react"
 import { Visita } from "../../interfaces/visitas"
 import BtnCerrar from "../botones/BtnCerrar"
+import { readPacientes } from "../../services/pacientes"
+import { medicoService } from "../../services/medicoService"
 
 type Props = {
   visita: Visita | null
@@ -7,6 +10,25 @@ type Props = {
 }
 
 const DetallesVisita: React.FC<Props> = ({ visita, setDetalles }) => {
+  const [paciente, setPaciente] = useState<any>(null)
+  const [medico, setMedico] = useState<any>(null)
+
+  useEffect(() => {
+    if (!visita) return
+
+    // 🔹 Buscar paciente por ID
+    readPacientes().then((res) => {
+      const p = res.data.find((p: any) => p.idPaciente === visita.paciente_id)
+      setPaciente(p)
+    })
+
+    // 🔹 Buscar médico por ID
+    medicoService
+      .getById(visita.medico_id)
+      .then((m) => setMedico(m))
+      .catch(() => setMedico(null))
+  }, [visita])
+
   if (!visita) return null
 
   return (
@@ -18,13 +40,29 @@ const DetallesVisita: React.FC<Props> = ({ visita, setDetalles }) => {
 
         <div className="px-6 py-6 space-y-3">
           <p><b>ID:</b> {visita.id_visita}</p>
-          <p><b>Fecha:</b> {visita.fecha_visita}</p>
+          <p><b>Fecha:</b> {new Date(visita.fecha_visita).toLocaleDateString("es-CO")}</p>
           <p><b>Descripción:</b> {visita.descripcion}</p>
           <p><b>Dirección:</b> {visita.direccion}</p>
           <p><b>Teléfono:</b> {visita.telefono}</p>
           <p><b>Estado:</b> {visita.estado ? "Activo" : "Inactivo"}</p>
-          <p><b>Paciente ID:</b> {visita.paciente_id}</p>
-          <p><b>Médico ID:</b> {visita.medico_id}</p>
+
+          {/* Paciente */}
+          <p>
+            <b>Paciente:</b>{" "}
+            {paciente
+              ? `CC: ${paciente.usuario?.numeroDocumento} - ${paciente.usuario?.nombre} ${paciente.usuario?.apellido}`
+              : "Cargando..."}
+          </p>
+
+          {/* Médico */}
+          <p>
+            <b>Médico:</b>{" "}
+            {medico
+              ? `${medico.usuario?.nombre} ${medico.usuario?.apellido} - CC: ${medico.usuario?.numero_documento}`
+              : "Cargando..."}
+          </p>
+
+          {/* Barrio ID tal cual */}
           <p><b>Barrio ID:</b> {visita.barrio_id}</p>
         </div>
 

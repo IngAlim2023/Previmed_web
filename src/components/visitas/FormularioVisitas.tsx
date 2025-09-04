@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { Visita } from "../../interfaces/visitas"
 import { createVisita, updateVisita } from "../../services/visitasService"
+import { readPacientes } from "../../services/pacientes"
+import { medicoService } from "../../services/medicoService"
 
 // botones personalizados
 import BtnActualizar from "../botones/BtnActualizar"
@@ -49,6 +52,37 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
         },
   })
 
+  const [pacientes, setPacientes] = useState<any[]>([])
+  const [medicos, setMedicos] = useState<any[]>([]) 
+
+
+  useEffect(() => {
+  const fetchPacientes = async () => {
+    try {
+      const res = await readPacientes()
+      setPacientes(res.data || [])
+    } catch (error) {
+      console.error("Error al cargar pacientes", error)
+      toast.error("No se pudieron cargar los pacientes")
+    }
+  }
+
+  const fetchMedicos = async () => {
+    try {
+      const res = await medicoService.getAll()
+      setMedicos(res.data || [])   // 👈 tu service devuelve array directo
+    } catch (error) {
+      console.error("Error al cargar médicos", error)
+      toast.error("No se pudieron cargar los médicos")
+    }
+  }
+
+  fetchPacientes()
+  fetchMedicos()
+}, [])
+
+  
+
   const onSubmit = async (data: VisitaFormValues) => {
     try {
       const payload: Visita = {
@@ -95,7 +129,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Fecha */}
-          <div className="col-span-1">
+          <div>
             <label className="block text-gray-600 text-sm mb-1">Fecha</label>
             <input
               type="date"
@@ -106,7 +140,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
           </div>
 
           {/* Estado */}
-          <div className="col-span-1">
+          <div>
             <label className="block text-gray-600 text-sm mb-1">Estado</label>
             <select
               {...register("estado")}
@@ -146,24 +180,45 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
             />
           </div>
 
-          {/* IDs Relacionales */}
-          <div>
-            <label className="block text-gray-600 text-sm mb-1">Paciente ID</label>
-            <input
-              type="number"
-              {...register("paciente_id", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="block text-gray-600 text-sm mb-1">Médico ID</label>
-            <input
-              type="number"
-              {...register("medico_id", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg"
-            />
-          </div>
+          {/* Paciente */}
           <div className="col-span-2">
+            <label className="block text-gray-600 text-sm mb-1">Paciente</label>
+            <select
+              {...register("paciente_id", { required: true })}
+              className="w-full px-3 py-2 border rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Seleccione un paciente</option>
+              {pacientes.map((p: any) => (
+                <option key={p.idPaciente} value={p.idPaciente}>
+                  CC: {p.usuario?.numeroDocumento} - {p.usuario?.nombre}{" "}
+                  {p.usuario?.segundoNombre ?? ""} {p.usuario?.apellido}{" "}
+                  {p.usuario?.segundoApellido ?? ""}
+                </option>
+              ))}
+            </select>
+            {errors.paciente_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
+          </div>
+
+          {/* Médico */}
+<div className="col-span-2">
+  <label className="block text-gray-600 text-sm mb-1">Médico</label>
+  <select
+    {...register("medico_id", { required: true })}
+    className="w-full px-3 py-2 border rounded-lg"
+  >
+    <option value="">Seleccione un médico</option>
+    {medicos.map((m: any) => (
+      <option key={m.id_medico} value={m.id_medico}>
+        {m.usuario?.nombre} {m.usuario?.apellido} - CC: {m.usuario?.numero_documento}
+      </option>
+    ))}
+  </select>
+  {errors.medico_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
+</div>
+
+
+          {/* Barrio */}
+          <div>
             <label className="block text-gray-600 text-sm mb-1">Barrio ID</label>
             <input
               type="number"

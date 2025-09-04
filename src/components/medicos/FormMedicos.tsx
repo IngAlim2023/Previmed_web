@@ -16,7 +16,7 @@ export default function FormMedicos({ medico, onSuccess, onCancel }: Props) {
 
   // Traer usuarios (sin crear servicio externo)
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_URL_BACK}/usuarios`)
+    fetch(`${import.meta.env.VITE_URL_BACK}usuarios`)
       .then(r => r.json())
       .then(setUsuarios)
       .catch(console.error);
