@@ -3,6 +3,7 @@ import { Visita } from "../interfaces/visitas";
 const URL_BACK = import.meta.env.VITE_URL_BACK;
 const API_URL = `${URL_BACK}visitas`;
 
+// ✅ Recibir: backend manda camelCase → transformamos a snake_case
 export const getVisitas = async (): Promise<Visita[]> => {
   const res = await fetch(API_URL);
   if (!res.ok) throw new Error("Error al obtener visitas");
@@ -21,6 +22,7 @@ export const getVisitas = async (): Promise<Visita[]> => {
   }));
 };
 
+// ✅ Enviar: usamos snake_case porque así lo espera el backend
 export const createVisita = async (visita: Visita): Promise<Visita> => {
   const res = await fetch(API_URL, {
     method: "POST",
@@ -28,7 +30,19 @@ export const createVisita = async (visita: Visita): Promise<Visita> => {
     body: JSON.stringify(visita),
   });
   if (!res.ok) throw new Error("Error al crear visita");
-  return res.json();
+
+  const json = await res.json();
+  return {
+    id_visita: json.idVisita,
+    fecha_visita: json.fechaVisita,
+    descripcion: json.descripcion,
+    direccion: json.direccion,
+    estado: json.estado,
+    telefono: json.telefono,
+    paciente_id: json.pacienteId,
+    medico_id: json.medicoId,
+    barrio_id: json.barrioId,
+  };
 };
 
 export const updateVisita = async (id: number, visita: Visita): Promise<Visita> => {
@@ -38,7 +52,19 @@ export const updateVisita = async (id: number, visita: Visita): Promise<Visita> 
     body: JSON.stringify(visita),
   });
   if (!res.ok) throw new Error("Error al actualizar visita");
-  return res.json();
+
+  const json = await res.json();
+  return {
+    id_visita: json.idVisita,
+    fecha_visita: json.fechaVisita,
+    descripcion: json.descripcion,
+    direccion: json.direccion,
+    estado: json.estado,
+    telefono: json.telefono,
+    paciente_id: json.pacienteId,
+    medico_id: json.medicoId,
+    barrio_id: json.barrioId,
+  };
 };
 
 export const deleteVisita = async (id: number): Promise<void> => {
