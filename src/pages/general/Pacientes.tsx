@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { deletePaciente, readPacientes } from "../../services/pacientes";
+import {
+  deletePaciente,
+  readPacientes,
+} from "../../services/pacientes";
 import DataTable, { TableColumn } from "react-data-table-component";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 interface Paciente {
   id: number;
@@ -15,14 +19,16 @@ interface Paciente {
 }
 
 const Pacientes: React.FC = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState<Paciente[]>([]);
   const [idDelete, setIdDelete] = useState<number>(0);
-  const [open, setOpen] = useState<boolean>(false)
-  const [accion, setAccion] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false);
+  const [accion, setAccion] = useState<boolean>(false);
 
   useEffect(() => {
     const load = async () => {
       const dat = await readPacientes();
+
       setData(dat.data || []);
     };
     load();
@@ -36,10 +42,8 @@ const Pacientes: React.FC = () => {
   const handleDelete = async (row: Paciente) => {
     setIdDelete(row.idPaciente);
     setOpen(true);
-
   };
 
-  
   const columns: TableColumn<Paciente>[] = [
     {
       name: "Nombre",
@@ -82,18 +86,31 @@ const Pacientes: React.FC = () => {
     },
   ];
 
-  const deletePac = async () =>{
+  const deletePac = async () => {
     const res = await deletePaciente(idDelete);
     setOpen(false);
     setIdDelete(0);
-    if(res.message === "Error") return toast.error('No se puede eliminar el paciente por politicas de datos')
-    return toast.success('Paciente eliminado')
-  }
+    if (res.message === "Error")
+      return toast.error(
+        "No se puede eliminar el paciente por politicas de datos"
+      );
+    return toast.success("Paciente eliminado");
+  };
 
   return (
     <div className="p-6 md:p-10 bg-gray-100 min-h-screen">
       <div className="bg-white shadow-lg rounded-xl p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-700">📋 Lista de Pacientes</h2>
+        <div className="flex p-2 justify-between items-center">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+            📋 Lista de Pacientes
+          </h2>
+          <button
+            onClick={() => navigate("/formularioPacientes")}
+            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md flex items-center gap-1 transition"
+          >
+            <FaPlus /> Crear
+          </button>
+        </div>
         <DataTable
           columns={columns}
           data={data}
@@ -130,7 +147,10 @@ const Pacientes: React.FC = () => {
             </p>
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => {setOpen(false);setIdDelete(0)}}
+                onClick={() => {
+                  setOpen(false);
+                  setIdDelete(0);
+                }}
                 className="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
               >
                 Cancelar
@@ -145,7 +165,10 @@ const Pacientes: React.FC = () => {
 
             {/* Botón cerrar (X) arriba a la derecha */}
             <button
-              onClick={() => {setOpen(false);setIdDelete(0)}}
+              onClick={() => {
+                setOpen(false);
+                setIdDelete(0);
+              }}
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 animate-pulse"
             >
               ✕

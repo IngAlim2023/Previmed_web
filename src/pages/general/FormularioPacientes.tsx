@@ -1,7 +1,8 @@
-import React from "react";
-import { useForm } from "react-hook-form";
-import { createPaciente } from "../../services/pacientes";
+import React, { useEffect, useState } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { createPaciente, getTitulares } from "../../services/pacientes";
 import toast from "react-hot-toast";
+import Select from "react-select";
 
 interface FormData {
   nombre: string;
@@ -31,22 +32,40 @@ interface FormData {
 }
 
 const FormularioPacientes: React.FC = () => {
-  const { register, handleSubmit, reset } = useForm<FormData>();
+  const { register, handleSubmit, reset, control } = useForm<FormData>();
+
+  const [titulares, setTitulares] = useState<any[]>([]);
+  useEffect(() => {
+    const load = async () => {
+      const tit = await getTitulares();
+
+      setTitulares(tit.data || []);
+    };
+    load();
+  }, []);
 
   const onSubmit = async (data: FormData) => {
-    if(data.password != data.password2){
-      return toast.error('Verifica las contraseñas')
+    if (data.password != data.password2) {
+      return toast.error("Verifica las contraseñas");
     }
+    console.log(data);
+
     const res = await createPaciente(data);
-    if(res.msg ==='Error'){
-      return toast.error('No se logro crear el paciente')
+    if (res.msg === "Error") {
+      return toast.error("No se logro crear el paciente");
     }
-    if(res.message ==='El usuario ya se encuentra registrado'){
-      return toast.error('El paciente ya se encuentra registrado')
+    if (res.message === "El usuario ya se encuentra registrado") {
+      return toast.error("El paciente ya se encuentra registrado");
     }
 
-    return toast.success('Paciente creado')
+    return toast.success("Paciente creado");
   };
+
+  //Creacion de la opciones para el titular con react Select
+  const optionsTitulares = titulares.map((val) => ({
+    value: val.idPaciente,
+    label: val.usuario.numeroDocumento,
+  }));
 
   return (
     <form
@@ -55,7 +74,7 @@ const FormularioPacientes: React.FC = () => {
     >
       {/* Inputs */}
       <input
-        {...register("nombre", {required: true})}
+        {...register("nombre", { required: true })}
         placeholder="Nombre"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
@@ -65,7 +84,7 @@ const FormularioPacientes: React.FC = () => {
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("apellido", {required: true})}
+        {...register("apellido", { required: true })}
         placeholder="Apellido"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
@@ -75,46 +94,46 @@ const FormularioPacientes: React.FC = () => {
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("email", {required: true})}
+        {...register("email", { required: true })}
         placeholder="Email"
         type="email"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("password", {required: true})}
+        {...register("password", { required: true })}
         placeholder="Password"
         type="password"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("password2", {required: true})}
+        {...register("password2", { required: true })}
         placeholder="Password"
         type="password"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("direccion" , {required: true})}
+        {...register("direccion", { required: true })}
         placeholder="Dirección"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("numero_documento" , {required: true})}
+        {...register("numero_documento", { required: true })}
         placeholder="Número de documento"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("fecha_nacimiento", {required: true})}
+        {...register("fecha_nacimiento", { required: true })}
         type="date"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("numero_hijos", { required:true,  valueAsNumber: true })}
+        {...register("numero_hijos", { required: true, valueAsNumber: true })}
         placeholder="Número de hijos"
         type="number"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("estrato", {required:true, valueAsNumber: true })}
+        {...register("estrato", { required: true, valueAsNumber: true })}
         placeholder="Estrato"
         type="number"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -122,7 +141,7 @@ const FormularioPacientes: React.FC = () => {
 
       {/* Selects */}
       <select
-        {...register("genero", {required: true})}
+        {...register("genero", { required: true })}
         className="border border-gray-300 p-3 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
       >
         <option value="">Seleccione género</option>
@@ -132,7 +151,7 @@ const FormularioPacientes: React.FC = () => {
       </select>
 
       <select
-        {...register("estado_civil", {required: true})}
+        {...register("estado_civil", { required: true })}
         className="border border-gray-300 p-3 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
       >
         <option value="">Seleccione estado civil</option>
@@ -144,7 +163,7 @@ const FormularioPacientes: React.FC = () => {
       </select>
 
       <select
-        {...register("tipo_documento", {required: true})}
+        {...register("tipo_documento", { required: true })}
         className="border border-gray-300 p-3 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
       >
         <option value="">Seleccione tipo de documento</option>
@@ -162,7 +181,7 @@ const FormularioPacientes: React.FC = () => {
       </select>
 
       <select
-        {...register("eps_id", {required: true})}
+        {...register("eps_id", { required: true })}
         className="border border-gray-300 p-3 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
       >
         <option value="">Seleccione la EPS</option>
@@ -173,7 +192,7 @@ const FormularioPacientes: React.FC = () => {
       </select>
 
       <select
-        {...register("rol_id", {required: true})}
+        {...register("rol_id", { required: true })}
         className="border border-gray-300 p-3 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
       >
         <option value="">Seleccione el rol</option>
@@ -181,25 +200,44 @@ const FormularioPacientes: React.FC = () => {
       </select>
 
       <input
-        {...register("direccion_cobro", {required: true})}
+        {...register("direccion_cobro", { required: true })}
         placeholder="Dirección de cobro"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
       <input
-        {...register("ocupacion", {required: true})}
+        {...register("ocupacion", { required: true })}
         placeholder="Ocupación"
         className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
       />
-      <select
-        {...register("paciente_id")}
-        className="border border-gray-300 p-3 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-      >
-        <option value="">Seleccione el titular</option>
-        <option value="1">10000011</option>
-        <option value="2">10000012</option>
-        <option value="3">10000013</option>
-        <option value="19">1023456000</option>
-      </select>
+      <Controller
+        name="paciente_id"
+        control={control}
+        render={({ field: { onChange, value, ref } }) => (
+          <Select
+            inputRef={ref}
+            options={optionsTitulares}
+            placeholder="Seleccione el titular"
+            value={optionsTitulares.find((c) => c.value === value)}
+            onChange={(val) => onChange(val?.value)}
+            isClearable
+            classNamePrefix="react-select"
+            styles={{
+              control: (baseStyles, state) => ({
+                ...baseStyles,
+                borderColor: state.isFocused ? "#3b82f6" : "#d1d5db",
+                boxShadow: state.isFocused
+                  ? "0 0 0 3px rgba(59, 130, 246, 0.1)"
+                  : "none",
+                padding: "0.5rem",
+                borderRadius: "0.5rem",
+                "&:hover": {
+                  borderColor: "#9ca3af",
+                },
+              }),
+            }}
+          />
+        )}
+      />
 
       {/* Checkboxes */}
       <label className="flex items-center gap-2 text-sm col-span-2">
