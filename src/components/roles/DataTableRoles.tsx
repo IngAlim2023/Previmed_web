@@ -2,15 +2,13 @@ import { useEffect, useState } from "react";
 import DataTable from "react-data-table-component";
 import toast from "react-hot-toast";
 import { Rol } from "../../interfaces/roles";
-import { getRoles, deleteRol } from "../../services/roles";
+import { getRoles } from "../../services/roles";
 import BtnLeer from "../botones/BtnLeer";
 import BtnEditar from "../botones/BtnEditar";
-import BtnEliminar from "../botones/BtnEliminar";
 import BtnAgregar from "../botones/BtnAgregar";
 import FormularioRoles from "./FormularioRoles";
 import DetallesRol from "./DetallesRol";
 import { HiOutlineUsers } from "react-icons/hi";
-import ConfirmDialog from "./ConfirmDialog"; // 👈 modal reutilizable
 
 // 👇 Badge para estado
 const EstadoBadge: React.FC<{ estado: boolean }> = ({ estado }) => {
@@ -34,9 +32,7 @@ const DataTableRoles: React.FC = () => {
   const [detalles, setDetalles] = useState(false);
   const [rol, setRol] = useState<Rol | null>(null);
 
-  // Para confirmación
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [rolAEliminar, setRolAEliminar] = useState<Rol | null>(null);
+  
 
   const fetchRoles = async (showToast = false) => {
     try {
@@ -55,26 +51,7 @@ const DataTableRoles: React.FC = () => {
     fetchRoles(true);
   }, []);
 
-  const handleDelete = (rol: Rol) => {
-    setRolAEliminar(rol);
-    setShowConfirm(true);
-  };
-
-  const confirmDelete = async () => {
-    if (rolAEliminar) {
-      try {
-        await deleteRol(rolAEliminar.id_rol);
-        toast.success("Rol eliminado correctamente");
-        fetchRoles(); // 👈 recarga la tabla
-      } catch (error) {
-        console.error(error);
-        toast.error("Error al eliminar el rol");
-      } finally {
-        setShowConfirm(false);
-        setRolAEliminar(null);
-      }
-    }
-  };
+  
 
   const filteredData = roles.filter((r) =>
     r.nombre_rol.toLowerCase().includes(search.toLowerCase())
@@ -111,9 +88,7 @@ const DataTableRoles: React.FC = () => {
           >
             <BtnEditar />
           </div>
-          <div title="Eliminar" onClick={() => handleDelete(row)}>
-            <BtnEliminar />
-          </div>
+          
         </div>
       ),
       button: true,
@@ -165,13 +140,7 @@ const DataTableRoles: React.FC = () => {
         )}
         {detalles && <DetallesRol rol={rol} setDetalles={setDetalles} />}
 
-        {/* 👇 Aquí usamos tu componente ConfirmDialog */}
-        <ConfirmDialog
-          show={showConfirm}
-          message={`¿Estás seguro de eliminar el rol ${rolAEliminar?.nombre_rol}?`}
-          onCancel={() => setShowConfirm(false)}
-          onConfirm={confirmDelete}
-        />
+        
       </div>
     </>
   );
