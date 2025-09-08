@@ -1,5 +1,16 @@
-export interface Barrio {
-  id: number;
-  nombre: string;
-  ciudad: string;
+// src/interfaces/barrios.ts
+export interface DataBarrio {
+  idBarrio?: string;             // id (string o number según backend)
+  nombreBarrio: string;          // nombre del barrio
+  ciudad?: string;               // opcional
+  comuna?: number | string;      // opcional
+  latitud?: number | null;       // opcional
+  longitud?: number | null;      // opcional
+  habilitar: boolean;            // activo/inactivo
+}
+
+export interface BarrioFormProps {
+  initialData?: Partial<DataBarrio>;
+  onSubmit: (barrio: Partial<DataBarrio>) => void;
+  onCancel: () => void;
 }

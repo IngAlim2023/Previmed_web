@@ -25,6 +25,7 @@ import RenderVistas from "./components/navegation/RenderVistas";
 import Usuarios from "./pages/administrador/Usuarios";
 import NotFound from "./pages/NotFound";
 import ProtectedRoutes from "./protectedRoutes/ProtectedRoutes";
+import Barrios from "./pages/administrador/Barrios";
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
             <Route path="/eps" element={<Eps />} />
             <Route path="/roles" element={<Roles />} />
             <Route path="/panel_control" element={<Roles />} />
+            <Route path="/barrios" element={<Barrios />} />
             <Route
               path="/formularioPacientes"
               element={<FormularioPacientes />}

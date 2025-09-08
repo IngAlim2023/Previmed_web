@@ -184,6 +184,13 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
           <FaTachometerAlt className="text-lg" />
           {!cerrado && <span>Panel de Control</span>}
         </Link>
+         <Link
+          to="/barrios"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-200 transition"
+        >
+          <FaTachometerAlt className="text-lg" />
+          {!cerrado && <span>Barrios</span>}
+        </Link>
         <div
           className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-200 cursor-pointer transition"
           onClick={() => {
