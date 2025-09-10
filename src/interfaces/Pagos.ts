@@ -25,10 +25,10 @@ export interface ColDataTablePagos {
 
 export interface PostPagoInterface {
     monto:number;
-    foto?:string;
-    fecha_inicio:Date;
-    fecha_fin:Date;
-    fecha_pago: Date;
+    foto?:File;
+    fecha_inicio:Date | string;
+    fecha_fin:Date | string;
+    fecha_pago: Date | string;
     membresia_id:number;
     forma_pago_id:number;
 }

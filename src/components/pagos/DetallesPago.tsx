@@ -1,9 +1,12 @@
+import { PagoInterface } from "../../interfaces/Pagos";
+
 type PropsDetalles = {
   setDetalles: (value: boolean) => void;
+  setPago: (value: PagoInterface | null) => void;
   pago: any;
 };
 
-const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
+const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago, setPago }) => {
   const {nombre, segundoNombre, apellido, segundoApellido} = pago.membresia.membresiaPaciente[0]?.paciente?.usuario;
   return (
     <>
@@ -59,7 +62,7 @@ const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago }) => {
           </div>
           <div className="flex items-center justify-center w-full mt-4">
             <button
-              onClick={() => setDetalles(false)}
+              onClick={() => {setPago(null),setDetalles(false)}}
               className="mt-4 bg-blue-600 text-white text-xl rounded-lg px-4 py-1 cursor-pointer"
             >
               Volver
