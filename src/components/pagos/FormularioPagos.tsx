@@ -4,7 +4,7 @@ import { ImCancelCircle } from "react-icons/im";
 import { MdImageSearch } from "react-icons/md";
 import toast from "react-hot-toast";
 import Select from "react-select";
-import { createPago, updatePago, subirImgCloudinary } from "../../services/pagosService";
+import { createPago, updatePago } from "../../services/pagosService";
 import {
   FaUser,
   FaCalendarDay,
@@ -20,12 +20,14 @@ import { getTitulares as getTitularesService } from "../../services/pacientes";
 type prop = {
   pago?: PagoInterface;
   setForm: (value: boolean) => void;
+  setPago: (value: PagoInterface | null) => void;
+  setPagos: (value:any) => void;
 };
 
   const fecha = new Date(); //Instancia de la clase Date para manejar fechas
   const fechaHoy = fecha.toLocaleDateString("sv-SE"); //Se consigue la fecha actual
 
-const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
+const FormularioPagos: React.FC<prop> = ({ pago, setForm, setPago, setPagos }) => {
   const {
     register,
     handleSubmit,
@@ -49,35 +51,32 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
       },
 });
 
-  //const [formasPago, setFormasPago] = useState<any[]>([]);
   const [titulares, setTitulares] = useState<any[]>([]);
 
   const actualizarPago = async (data: PostPagoInterface) => {
     try {
       if (!pago) return;
-      if (data.foto && data.foto.length > 0) {
-        data.foto = await subirImgCloudinary(data.foto[0]);
-      } else {
-        data.foto = pago.foto;
-      }
       const response = await updatePago(data, pago.idRegistro);
+      const actualizado = response.data;
       toast.success(response.message);
+      setPagos((prev:any) => prev.map((p:any) => p.idRegistro === pago.idRegistro ? actualizado : p));
+      setPago(null);
       setForm(false);
     } catch (error) {
+      console.log(error)
       toast.error("Error al actualizar el pago");
     }
   };
-
+  
   const registrarPago = async (data: PostPagoInterface) => {
     try {
-      if (data.foto && data.foto.length > 0) {
-        data.foto = await subirImgCloudinary(data.foto[0]);
-      } else {
-        data.foto = null;
+      if (!pago) {
+        const response = await createPago(data);
+        setPagos((prev: any) => [...prev, response.data]);
+        toast.success(response.message);
+        setPago(null);
+        setForm(false);
       }
-      const resonse = await createPago(data);
-      toast.success(resonse.message);
-      setForm(false);
     } catch (error) {
       toast.error("Error al registrar el pago");
     }
@@ -93,13 +92,15 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
   };
 
   const opcionesTitular = titulares.map((t) => ({
-    value: t.idPaciente,
-    label: `${t.usuario.nombre ?? ""} ${t.usuario.segundoNombre ?? ""} ${
-      t.usuario.apellido
-    } ${t.usuario.segundoApellido ?? ""}`,
+    value: t.membresiaPaciente[0].membresiaId,
+    label: `${t.usuario.nombre ?? ""} 
+    ${t.usuario.segundoNombre ?? ""} 
+    ${t.usuario.apellido} 
+    ${t.usuario.segundoApellido ?? ""}-
+    ${t.usuario.numeroDocumento ?? ""}`
   }));
 
-  const formatDate = (date: string | Date | null | undefined) => {
+  const formatDate = (date: any) => {
   if (!date) return "";
   const d = new Date(date);
   return d.toISOString().split("T")[0]; // -> "2025-08-25"
@@ -146,7 +147,7 @@ const FormularioPagos: React.FC<prop> = ({ pago, setForm }) => {
             <ImCancelCircle
               title="Cancelar"
               className="w-6 h-auto text-gray-500 hover:text-red-600 transition-all duration-500 cursor-pointer"
-              onClick={() => setForm(false)}
+              onClick={() => {setPago(null); setForm(false)}}
             />
           </div>
 

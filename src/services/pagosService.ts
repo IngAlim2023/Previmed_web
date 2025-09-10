@@ -1,8 +1,6 @@
 import { PostPagoInterface } from "../interfaces/Pagos";
 
 const URL_BACK = import.meta.env.VITE_URL_BACK;
-const cloude_name = import.meta.env.VITE_CLOUDE_NAME;
-const upload_preset = import.meta.env.VITE_UPLOAD_PRESET;
 // tendras que poner primero la VITE_URL_BACK en el .env, de lo contrario no te funcionará
 
 export const getPagos = async() => {
@@ -20,74 +18,67 @@ export const getPagos = async() => {
   }
 }
 
-export const subirImgCloudinary = async (file: File) => {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("upload_preset", upload_preset); // configurado en cloudinary
-  // upload_preset y cloude_name los encuentras en cloudinary con la cuenta del proyecto
-  // inicia sesion y ponlos en el archivo .env, si no lo tienes crealo.
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloude_name}/image/upload`, {
-    method: "POST",
-    body: formData
-  });
-
-  if (!res.ok) throw new Error("Error al subir la imagen");
-
-  const data = await res.json();
-  return data.secure_url; // retorna la url de la imagen
-};
-
-
-export const createPago = async(pago : PostPagoInterface) => {
+export const createPago = async (pago: PostPagoInterface) => {
   try {
-    const pagoCorregido = {
-      foto: pago.foto ?? null,
-      fecha_pago: pago.fecha_pago,
-      fecha_inicio: pago.fecha_inicio,
-      fecha_fin: pago.fecha_fin,
-      monto: pago.monto,
-      membresia_id: pago.membresia_id?.value,
-      forma_pago_id: pago.forma_pago_id?.value,
+    const formData = new FormData();
+    if (pago.foto && (pago.foto as any)[0]) {
+      formData.append("foto", (pago.foto as any)[0]);
     }
+
+    formData.append("fecha_pago", String(pago.fecha_pago));
+    formData.append("fecha_inicio", String(pago.fecha_inicio));
+    formData.append("fecha_fin", String(pago.fecha_fin));
+    formData.append("monto", String(pago.monto));
+    formData.append("membresia_id", String(pago.membresia_id?.value));
+    formData.append("forma_pago_id", String(pago.forma_pago_id?.value));
+
     const response = await fetch(`${URL_BACK}registro-pago`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(pagoCorregido)
+      body: formData
     });
-    if(!response.ok)throw new Error("Error al crear el pago");
 
-    return response.json();
+    if (!response.ok) throw new Error("Error al crear el pago");
+
+    return await response.json();
   } catch (error) {
-    throw new Error("Error al registrar el pago : " + error);
+    throw new Error("Error al registrar el pago: " + error);
   }
-}
+};
 
-export const updatePago = async(pago:PostPagoInterface, id:number) => {
+export const updatePago = async (pago: PostPagoInterface, id: number) => {
   try {
-    const pagoCorregido = {
-      foto: pago.foto ?? null,
-      fecha_pago: pago.fecha_pago,
-      fecha_inicio: pago.fecha_inicio,
-      fecha_fin: pago.fecha_fin,
-      monto: pago.monto,
-      membresia_id: pago.membresia_id?.value,
-      forma_pago_id: pago.forma_pago_id?.value,
+    const formData = new FormData();
+    if (pago.foto && (pago.foto as any)[0]) {
+      formData.append("foto", (pago.foto as any)[0]);
     }
-    const response = await fetch(`${URL_BACK}registro-pago/${id}`,{
-      method:"PUT",
-      headers:{"Content-Type":"application/json"},
-      body: JSON.stringify(pagoCorregido)
+
+  const membresiaId = typeof pago.membresia_id === "number"
+    ? pago.membresia_id
+    : pago.membresia_id?.value;
+
+  const formaPagoId = typeof pago.forma_pago_id === "number"
+    ? pago.forma_pago_id
+    : pago.forma_pago_id?.value;
+
+    formData.append("fecha_pago", String(pago.fecha_pago));
+    formData.append("fecha_inicio", String(pago.fecha_inicio));
+    formData.append("fecha_fin", String(pago.fecha_fin));
+    formData.append("monto", String(pago.monto));
+    formData.append("membresia_id", String(membresiaId));
+    formData.append("forma_pago_id", String(formaPagoId));
+
+    const response = await fetch(`${URL_BACK}registro-pago/${id}`, {
+      method: "PUT",
+      body: formData
     });
 
-    if(!response.ok)throw new Error("Error al editar el pago");
+    if (!response.ok) throw new Error("Error al actualizar el pago");
 
-    return response.json();
+    return await response.json();
   } catch (error) {
-    throw new Error("Error al editar el registro de pago : " + error);
+    throw new Error("Error al actualizar el pago: " + error);
   }
-}
+};
 
 export const deletePago = async(id:number) => {
   try {

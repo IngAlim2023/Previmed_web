@@ -161,8 +161,8 @@ const eliminarPago = async (id: number) => {
             noDataComponent="NO HAY REGISTROS DE PAGO"
           />
         </div>
-        {form && <FormularioPagos pago={pago} setForm={setForm} />}
-        {detalles && <DetallesPago pago={pago} setDetalles={setDetalles} />}
+        {form && <FormularioPagos pago={pago} setForm={setForm} setPago={setPago} setPagos={setPagos}/>}
+        {detalles && <DetallesPago pago={pago} setDetalles={setDetalles} setPago={setPago}/>}
       </div>
     </>
   );
