@@ -2,7 +2,7 @@
 import { DataBarrio } from "../interfaces/Barrio";
 
 const BASE_URL =
-  import.meta.env.VITE_BACKEND_URL || "https://previmedbackend-q73n.onrender.com/";
+  import.meta.env.VITE_BACKEND_URL ;
 
 const RUTA = "/barrios"; // ajusta si tu backend usa otro path
 
