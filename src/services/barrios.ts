@@ -1,8 +1,9 @@
 // src/services/barrios.ts
 import { DataBarrio } from "../interfaces/Barrio";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL ?? "http://localhost:3333";
-const RUTA = "/barrios";
+const BASE_URL = import.meta.env.VITE_URL_BACK;  
+const RUTA = "barrios";
+
 
 // Mapea del frontend al DTO esperado por el backend
 const toDto = (b: Partial<DataBarrio>) => ({
