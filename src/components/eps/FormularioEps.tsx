@@ -1,71 +1,151 @@
-import React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { HookFormEps } from "../../interfaces/eps.ts";
-import logo from "../../assets/logo.png";
+import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import { Eps, CreateEpsDto, UpdateEpsDto } from "../../interfaces/eps";
+import { epsService } from "../../services/epsService";
 
-const FormularioEps: React.FC = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<HookFormEps>();
+type FormMode = "create" | "edit";
 
-  const onSubmit:SubmitHandler<HookFormEps> = async (data) =>{
-    return console.log(data);
-  }
-  return (<div className="min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        <div className="flex justify-center mb-6">
-          <img src={logo} alt="Logo Previmed" className="h-22 object-contain" />
-        </div>
-        <div className="text-left mb-8">
-          <p className="text-gray-600 font-bold">Formulario EPS</p>
-        </div>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
-          <div className="mb-4">
-            <label
-              htmlFor="nombre_eps"
-              className="block text-sm font-medium text-gray-600 mb-2"
-            >
-              Nombre de la EPS:
-            </label>
+type Props = {
+  mode: FormMode;
+  initialEps?: Eps | null;
+  onSaved?: (saved: Eps) => void;
+  onCancel?: () => void;
+};
+
+const FormularioEps: React.FC<Props> = ({ mode, initialEps, onSaved, onCancel }) => {
+  const isEdit = mode === "edit";
+
+  const [idEps, setIdEps] = useState<number | null>(null);
+  const [nombreEps, setNombreEps] = useState<string>("");
+  const [estado, setEstado] = useState<boolean>(true);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isEdit && initialEps) {
+      setIdEps(initialEps.idEps);
+      setNombreEps(initialEps.nombreEps); 
+      setEstado(initialEps.estado);
+    } else {
+      setIdEps(null);
+      setNombreEps("");
+      setEstado(true);
+    }
+  }, [isEdit, initialEps]);
+
+  const validate = () => {
+    if (!nombreEps.trim()) {
+      toast.error("El nombre de la EPS es obligatorio");
+      return false;
+    }
+    if (isEdit && (idEps === null || idEps === undefined)) {
+      toast.error("Falta el identificador de la EPS a editar");
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      setSubmitting(true);
+
+      if (isEdit) {
+        const payload: UpdateEpsDto = {
+          idEps: idEps as number,
+          nombre_eps: nombreEps.trim(),
+          estado,
+        };
+        const updated = await epsService.update(payload);
+        toast.success("EPS actualizada correctamente");
+        onSaved?.(updated);
+      } else {
+        const payload: CreateEpsDto = {
+          nombre_eps: nombreEps.trim(),
+          estado,
+        };
+        const created = await epsService.create(payload);
+        toast.success("EPS creada correctamente");
+        onSaved?.(created);
+        setNombreEps("");
+        setEstado(true);
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Ocurrió un error al guardar la EPS");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-xl mx-auto bg-white rounded-xl shadow p-6">
+      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+        {isEdit ? "Editar EPS" : "Registrar EPS"}
+      </h2>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {isEdit && (
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">ID</label>
             <input
-              id="nombre_eps"
-              {...register("nombre_eps", {
-                required: "Este campo es obligatorio",
-                minLength: {
-                  value: 2,
-                  message: "El nombre de la eps debe contener mínimo 2 caracteres.",
-                },
-                maxLength: {
-                  value: 25,
-                  message: "El nombre de la eps debe contener máximo 25 caracteres.",
-                },
-              })}
-              placeholder="Ejemplo: Sanitas"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+              type="text"
+              value={idEps ?? ""}
+              readOnly
+              className="w-full rounded-lg border bg-gray-100 text-gray-600 p-2 cursor-not-allowed"
             />
-            {errors.nombre_eps && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.nombre_eps.message}
-              </p>
-            )}
           </div>
+        )}
 
-          <div className="flex justify-center">
+        <div>
+          <label htmlFor="nombreEps" className="block text-sm text-gray-600 mb-1">
+            Nombre de la EPS <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="nombreEps"
+            type="text"
+            placeholder="Ej: Famisanar"
+            value={nombreEps}
+            onChange={(e) => setNombreEps(e.target.value)}
+            className="w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <input
+            id="estado"
+            type="checkbox"
+            checked={estado}
+            onChange={(e) => setEstado(e.target.checked)}
+            className="h-4 w-4"
+          />
+          <label htmlFor="estado" className="text-sm text-gray-700">
+            Activa
+          </label>
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
+          <button
+            type="submit"
+            disabled={submitting}
+            className={`px-4 py-2 rounded-lg text-white ${submitting ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"} transition`}
+          >
+            {submitting ? (isEdit ? "Guardando..." : "Creando...") : isEdit ? "Guardar cambios" : "Crear EPS"}
+          </button>
+
+          {onCancel && (
             <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-lgreen to-lblue text-white py-2 rounded-md hover:from-green-700 hover:to-blue-700 transition-all duration-200 font-medium"
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 rounded-lg border hover:bg-gray-50 transition"
             >
-              Enviar
+              Cancelar
             </button>
-          </div>
-        </form>
-      </div>
-    </div>);
+          )}
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default FormularioEps;
