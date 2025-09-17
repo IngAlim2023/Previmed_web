@@ -1,12 +1,11 @@
 // src/services/barrios.ts
 import { DataBarrio } from "../interfaces/Barrio";
 
-const BASE_URL =
-  import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = import.meta.env.VITE_URL_BACK;  
+const RUTA = "barrios";
 
-const RUTA = "/barrios"; // ajusta si tu backend usa otro path
 
-// Mapear del FE -> DTO que espera el BE
+// Mapea del frontend al DTO esperado por el backend
 const toDto = (b: Partial<DataBarrio>) => ({
   nombre_barrio: b.nombreBarrio,
   ciudad: b.ciudad,
@@ -16,7 +15,7 @@ const toDto = (b: Partial<DataBarrio>) => ({
   habilitar: b.habilitar ?? true,
 });
 
-// Mapear del BE -> FE (por si tu BE usa snake_case)
+// Mapea del backend al frontend, soportando diferentes posibles campos
 const fromDto = (raw: any): DataBarrio => ({
   idBarrio: raw.idBarrio ?? raw.id ?? raw.id_barrio ?? String(raw.id),
   nombreBarrio: raw.nombreBarrio ?? raw.nombre_barrio ?? raw.nombre ?? "",
@@ -31,7 +30,8 @@ export const getBarrios = async (): Promise<DataBarrio[]> => {
   const res = await fetch(`${BASE_URL}${RUTA}`, { credentials: "include" });
   if (!res.ok) throw new Error("Error listando barrios");
   const data = await res.json();
-  return Array.isArray(data) ? data.map(fromDto) : [];
+  const lista = data.msj ?? [];
+  return Array.isArray(lista) ? lista.map(fromDto) : [];
 };
 
 export const createBarrio = async (barrio: Partial<DataBarrio>) => {
@@ -42,7 +42,8 @@ export const createBarrio = async (barrio: Partial<DataBarrio>) => {
     body: JSON.stringify(toDto(barrio)),
   });
   if (!res.ok) throw new Error("Error creando barrio");
-  return fromDto(await res.json());
+  const data = await res.json();
+  return fromDto(data.data);
 };
 
 export const updateBarrio = async (id: string, barrio: Partial<DataBarrio>) => {
@@ -53,7 +54,8 @@ export const updateBarrio = async (id: string, barrio: Partial<DataBarrio>) => {
     body: JSON.stringify(toDto(barrio)),
   });
   if (!res.ok) throw new Error("Error actualizando barrio");
-  return fromDto(await res.json());
+  const data = await res.json();
+  return fromDto(data.msj ?? data.data ?? {});
 };
 
 export const deleteBarrio = async (id: string) => {
@@ -65,7 +67,6 @@ export const deleteBarrio = async (id: string) => {
   return true;
 };
 
-// Utilidad: alternar habilitado
 export const toggleHabilitarBarrio = async (b: DataBarrio) => {
   return updateBarrio(b.idBarrio!, { habilitar: !b.habilitar });
 };

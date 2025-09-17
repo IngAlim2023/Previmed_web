@@ -94,8 +94,6 @@ const DataTableBarrios: React.FC = () => {
 
   const columns = [
     { name: "Nombre", selector: (row: DataBarrio) => row.nombreBarrio, sortable: true },
-    { name: "Ciudad", selector: (row: DataBarrio) => row.ciudad || "-", sortable: true },
-    { name: "Comuna", selector: (row: DataBarrio) => String(row.comuna ?? "-"), sortable: true },
     { name: "Habilitado", selector: (row: DataBarrio) => (row.habilitar ? "Sí" : "No"), sortable: true },
     {
       name: "Acciones",
@@ -104,7 +102,6 @@ const DataTableBarrios: React.FC = () => {
           <div onClick={() => setModalDetalles(row)}><BtnLeer /></div>
           <div onClick={() => openEdit(row)}><BtnEditar /></div>
           <div onClick={() => handleDelete(row.idBarrio!)}><BtnEliminar /></div>
-          <div onClick={() => handleToggle(row)}><BtnCambiar /></div>
         </div>
       ),
       ignoreRowClick: true,
@@ -155,8 +152,6 @@ const DataTableBarrios: React.FC = () => {
             <h2 className="text-xl font-bold mb-4">Detalles del Barrio</h2>
             <div className="space-y-1">
               <p><strong>Nombre:</strong> {modalDetalles.nombreBarrio}</p>
-              <p><strong>Ciudad:</strong> {modalDetalles.ciudad || "-"}</p>
-              <p><strong>Comuna:</strong> {modalDetalles.comuna ?? "-"}</p>
               <p><strong>Latitud:</strong> {modalDetalles.latitud ?? "-"}</p>
               <p><strong>Longitud:</strong> {modalDetalles.longitud ?? "-"}</p>
               <p><strong>Habilitado:</strong> {modalDetalles.habilitar ? "Sí" : "No"}</p>

@@ -1,23 +1,23 @@
 import { Plan, NuevoPlanForm, ActualizarPlanForm } from "../interfaces/planes"
 
 // Normaliza API_URL para que siempre termine con "/"
-const rawApiUrl = import.meta.env.VITE_URL_BACK || "http://localhost:3333";
-const API_URL = rawApiUrl.endsWith('/') ? rawApiUrl : rawApiUrl + "/";
+const BASE_URL = import.meta.env.VITE_URL_BACK;
+const RUTA = "planes";
 
 export const getPlanes = async (): Promise<Plan[]> => {
-  const res = await fetch(`${API_URL}planes`);
+  const res = await fetch(`${BASE_URL}planes`);
   if (!res.ok) throw new Error("Error al obtener planes");
   return await res.json();
 }
 
 export const getPlanById = async (idPlan: number): Promise<Plan> => {
-  const res = await fetch(`${API_URL}planes/${idPlan}`);
+  const res = await fetch(`${BASE_URL}planes/${idPlan}`);
   if (!res.ok) throw new Error("Error al obtener plan");
   return await res.json();
 }
 
 export const createPlan = async (data: NuevoPlanForm): Promise<Plan> => {
-  const res = await fetch(`${API_URL}planes`, {
+  const res = await fetch(`${BASE_URL}planes`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -41,7 +41,7 @@ export const updatePlan = async (idPlan: number, data: ActualizarPlanForm): Prom
     ...(data.cantidadBeneficiarios !== undefined && { cantidad_beneficiarios: data.cantidadBeneficiarios }),
   };
 
-  const res = await fetch(`${API_URL}planes/${idPlan}`, {
+  const res = await fetch(`${BASE_URL}planes/${idPlan}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(bodyPayload),
@@ -51,7 +51,7 @@ export const updatePlan = async (idPlan: number, data: ActualizarPlanForm): Prom
 }
 
 export const deletePlan = async (idPlan: number) => {
-  const res = await fetch(`${API_URL}planes/${idPlan}`, {
+  const res = await fetch(`${BASE_URL}planes/${idPlan}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Error al eliminar plan");
@@ -59,7 +59,7 @@ export const deletePlan = async (idPlan: number) => {
 }
 
 export const contarPlanes = async (): Promise<{ count: number }> => {
-  const res = await fetch(`${API_URL}conteoplanes`);
+  const res = await fetch(`${BASE_URL}conteoplanes`);
   if (!res.ok) throw new Error("Error al contar planes");
   return await res.json();
 }
