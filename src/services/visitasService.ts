@@ -3,7 +3,7 @@ import { Visita } from "../interfaces/visitas";
 const URL_BACK = import.meta.env.VITE_URL_BACK;
 const API_URL = `${URL_BACK}visitas`;
 
-// ✅ Recibir: backend manda camelCase → transformamos a snake_case
+// ✅ Recibir: backend manda camelCase dentro de msj → transformamos a snake_case
 export const getVisitas = async (): Promise<Visita[]> => {
   const res = await fetch(API_URL);
   if (!res.ok) throw new Error("Error al obtener visitas");
@@ -32,16 +32,18 @@ export const createVisita = async (visita: Visita): Promise<Visita> => {
   if (!res.ok) throw new Error("Error al crear visita");
 
   const json = await res.json();
+  const v = json.msj; // 👈 la data real viene dentro de `msj`
+
   return {
-    id_visita: json.idVisita,
-    fecha_visita: json.fechaVisita,
-    descripcion: json.descripcion,
-    direccion: json.direccion,
-    estado: json.estado,
-    telefono: json.telefono,
-    paciente_id: json.pacienteId,
-    medico_id: json.medicoId,
-    barrio_id: json.barrioId,
+    id_visita: v.idVisita,
+    fecha_visita: v.fechaVisita,
+    descripcion: v.descripcion,
+    direccion: v.direccion,
+    estado: v.estado,
+    telefono: v.telefono,
+    paciente_id: v.pacienteId,
+    medico_id: v.medicoId,
+    barrio_id: v.barrioId,
   };
 };
 
@@ -54,16 +56,18 @@ export const updateVisita = async (id: number, visita: Visita): Promise<Visita> 
   if (!res.ok) throw new Error("Error al actualizar visita");
 
   const json = await res.json();
+  const v = json.msj; // 👈 también dentro de `msj`
+
   return {
-    id_visita: json.idVisita,
-    fecha_visita: json.fechaVisita,
-    descripcion: json.descripcion,
-    direccion: json.direccion,
-    estado: json.estado,
-    telefono: json.telefono,
-    paciente_id: json.pacienteId,
-    medico_id: json.medicoId,
-    barrio_id: json.barrioId,
+    id_visita: v.idVisita,
+    fecha_visita: v.fechaVisita,
+    descripcion: v.descripcion,
+    direccion: v.direccion,
+    estado: v.estado,
+    telefono: v.telefono,
+    paciente_id: v.pacienteId,
+    medico_id: v.medicoId,
+    barrio_id: v.barrioId,
   };
 };
 

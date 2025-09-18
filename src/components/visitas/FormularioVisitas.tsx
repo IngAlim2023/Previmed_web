@@ -5,8 +5,10 @@ import { Visita } from "../../interfaces/visitas"
 import { createVisita, updateVisita } from "../../services/visitasService"
 import { readPacientes } from "../../services/pacientes"
 import { medicoService } from "../../services/medicoService"
+import { getBarrios } from "../../services/barrios"
 
 // botones personalizados
+import BtnAgregar from "../botones/BtnAgregar"
 import BtnActualizar from "../botones/BtnActualizar"
 import BtnCancelar from "../botones/BtnCancelar"
 
@@ -27,61 +29,98 @@ type VisitaFormValues = {
   barrio_id: number
 }
 
+// ✅ función para convertir fecha ISO a yyyy-mm-dd
+const formatDate = (dateString: string) => {
+  if (!dateString) return ""
+  return new Date(dateString).toISOString().split("T")[0]
+}
+
 const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<VisitaFormValues>({
-    defaultValues: visita
-      ? {
-          fecha_visita: visita.fecha_visita,
-          descripcion: visita.descripcion,
-          direccion: visita.direccion,
-          estado: visita.estado ? "true" : "false",
-          telefono: visita.telefono,
-          paciente_id: visita.paciente_id,
-          medico_id: visita.medico_id,
-          barrio_id: visita.barrio_id,
-        }
-      : {
-          fecha_visita: "",
-          descripcion: "",
-          direccion: "",
-          estado: "true",
-          telefono: "",
-          paciente_id: 0,
-          medico_id: 0,
-          barrio_id: 0,
-        },
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<VisitaFormValues>({
+    defaultValues: {
+      fecha_visita: "",
+      descripcion: "",
+      direccion: "",
+      estado: "true",
+      telefono: "",
+      paciente_id: 0,
+      medico_id: 0,
+      barrio_id: 0,
+    },
   })
 
   const [pacientes, setPacientes] = useState<any[]>([])
-  const [medicos, setMedicos] = useState<any[]>([]) 
+  const [medicos, setMedicos] = useState<any[]>([])
+  const [barrios, setBarrios] = useState<any[]>([])
 
-
+  // ✅ cuando cambia la visita cargamos sus valores iniciales
   useEffect(() => {
-  const fetchPacientes = async () => {
-    try {
-      const res = await readPacientes()
-      setPacientes(res.data || [])
-    } catch (error) {
-      console.error("Error al cargar pacientes", error)
-      toast.error("No se pudieron cargar los pacientes")
+    if (visita) {
+      reset({
+        fecha_visita: formatDate(visita.fecha_visita), // ✅ conversión aquí
+        descripcion: visita.descripcion,
+        direccion: visita.direccion,
+        estado: visita.estado ? "true" : "false",
+        telefono: visita.telefono,
+        paciente_id: visita.paciente_id,
+        medico_id: visita.medico_id,
+        barrio_id: visita.barrio_id,
+      })
     }
-  }
+  }, [visita, reset])
 
-  const fetchMedicos = async () => {
-    try {
-      const res = await medicoService.getAll()
-      setMedicos(res.data || [])   // 👈 tu service devuelve array directo
-    } catch (error) {
-      console.error("Error al cargar médicos", error)
-      toast.error("No se pudieron cargar los médicos")
+  // cargar datos externos
+  useEffect(() => {
+    const fetchPacientes = async () => {
+      try {
+        const res = await readPacientes()
+        setPacientes(res.data || [])
+      } catch (error) {
+        console.error("Error al cargar pacientes", error)
+        toast.error("No se pudieron cargar los pacientes")
+      }
     }
-  }
 
-  fetchPacientes()
-  fetchMedicos()
-}, [])
+    const fetchMedicos = async () => {
+      try {
+        const res = await medicoService.getAll()
+        setMedicos(res.data || [])
+      } catch (error) {
+        console.error("Error al cargar médicos", error)
+        toast.error("No se pudieron cargar los médicos")
+      }
+    }
 
-  
+    const fetchBarrios = async () => {
+      try {
+        const res = await getBarrios()
+        setBarrios(res || []) // ✅ ya es un array
+      } catch (error) {
+        console.error("Error al cargar barrios", error)
+        toast.error("No se pudieron cargar los barrios")
+      }
+    }
+
+    fetchPacientes()
+    fetchMedicos()
+    fetchBarrios()
+  }, [])
+
+  // ✅ cuando ya tengamos visita + listas cargadas, actualizamos selección
+  useEffect(() => {
+    if (visita && pacientes.length > 0 && medicos.length > 0 && barrios.length > 0) {
+      reset({
+        fecha_visita: formatDate(visita.fecha_visita), // ✅ conversión aquí también
+        descripcion: visita.descripcion,
+        direccion: visita.direccion,
+        estado: visita.estado ? "true" : "false",
+        telefono: visita.telefono,
+        paciente_id: visita.paciente_id,
+        medico_id: visita.medico_id,
+        barrio_id: visita.barrio_id,
+      })
+    }
+  }, [visita, pacientes, medicos, barrios, reset])
 
   const onSubmit = async (data: VisitaFormValues) => {
     try {
@@ -200,37 +239,47 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
           </div>
 
           {/* Médico */}
-<div className="col-span-2">
-  <label className="block text-gray-600 text-sm mb-1">Médico</label>
-  <select
-    {...register("medico_id", { required: true })}
-    className="w-full px-3 py-2 border rounded-lg"
-  >
-    <option value="">Seleccione un médico</option>
-    {medicos.map((m: any) => (
-      <option key={m.id_medico} value={m.id_medico}>
-        {m.usuario?.nombre} {m.usuario?.apellido} - CC: {m.usuario?.numero_documento}
-      </option>
-    ))}
-  </select>
-  {errors.medico_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
-</div>
-
+          <div className="col-span-2">
+            <label className="block text-gray-600 text-sm mb-1">Médico</label>
+            <select
+              {...register("medico_id", { required: true })}
+              className="w-full px-3 py-2 border rounded-lg"
+            >
+              <option value="">Seleccione un médico</option>
+              {medicos.map((m: any) => (
+                <option key={m.id_medico} value={m.id_medico}>
+                  {m.usuario?.nombre} {m.usuario?.apellido} - CC: {m.usuario?.numero_documento}
+                </option>
+              ))}
+            </select>
+            {errors.medico_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
+          </div>
 
           {/* Barrio */}
-          <div>
-            <label className="block text-gray-600 text-sm mb-1">Barrio ID</label>
-            <input
-              type="number"
+          <div className="col-span-2">
+            <label className="block text-gray-600 text-sm mb-1">Barrio</label>
+            <select
               {...register("barrio_id", { required: true })}
               className="w-full px-3 py-2 border rounded-lg"
-            />
+            >
+              <option value="">Seleccione un barrio</option>
+              {barrios.map((b: any) => (
+                <option key={b.idBarrio} value={b.idBarrio}>
+                  {b.nombreBarrio}
+                </option>
+              ))}
+            </select>
+            {errors.barrio_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Botón */}
           <div className="col-span-2 flex justify-end pt-3">
             <div onClick={handleSubmit(onSubmit)}>
-              <BtnActualizar verText={true} text={visita ? "Actualizar" : "Guardar"} />
+              {visita ? (
+                <BtnActualizar verText={true} text="Actualizar" />
+              ) : (
+                <BtnAgregar verText={true} text="Agregar" />
+              )}
             </div>
           </div>
         </form>
