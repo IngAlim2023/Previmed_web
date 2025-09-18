@@ -3,6 +3,7 @@ import { Visita } from "../../interfaces/visitas"
 import BtnCerrar from "../botones/BtnCerrar"
 import { readPacientes } from "../../services/pacientes"
 import { medicoService } from "../../services/medicoService"
+import { getBarrios } from "../../services/barrios"
 
 type Props = {
   visita: Visita | null
@@ -12,6 +13,7 @@ type Props = {
 const DetallesVisita: React.FC<Props> = ({ visita, setDetalles }) => {
   const [paciente, setPaciente] = useState<any>(null)
   const [medico, setMedico] = useState<any>(null)
+  const [barrio, setBarrio] = useState<any>(null)
 
   useEffect(() => {
     if (!visita) return
@@ -27,6 +29,14 @@ const DetallesVisita: React.FC<Props> = ({ visita, setDetalles }) => {
       .getById(visita.medico_id)
       .then((m) => setMedico(m))
       .catch(() => setMedico(null))
+
+    // 🔹 Buscar barrio por ID (normalizando ids como string/number)
+    getBarrios()
+      .then((res) => {
+        const b = res.find((b: any) => String(b.idBarrio) === String(visita.barrio_id))
+        setBarrio(b || null)
+      })
+      .catch(() => setBarrio(null))
   }, [visita])
 
   if (!visita) return null
@@ -62,8 +72,11 @@ const DetallesVisita: React.FC<Props> = ({ visita, setDetalles }) => {
               : "Cargando..."}
           </p>
 
-          {/* Barrio ID tal cual */}
-          <p><b>Barrio ID:</b> {visita.barrio_id}</p>
+          {/* Barrio */}
+          <p>
+            <b>Barrio:</b>{" "}
+            {barrio ? barrio.nombreBarrio : "Cargando..."}
+          </p>
         </div>
 
         <div className="px-6 py-4 bg-gray-100 border-t flex justify-end">
