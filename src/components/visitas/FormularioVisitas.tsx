@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
+import Select from "react-select"
 import { Visita } from "../../interfaces/visitas"
 import { createVisita, updateVisita } from "../../services/visitasService"
 import { readPacientes } from "../../services/pacientes"
@@ -36,7 +37,14 @@ const formatDate = (dateString: string) => {
 }
 
 const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<VisitaFormValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+  } = useForm<VisitaFormValues>({
     defaultValues: {
       fecha_visita: "",
       descripcion: "",
@@ -57,7 +65,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
   useEffect(() => {
     if (visita) {
       reset({
-        fecha_visita: formatDate(visita.fecha_visita), // ✅ conversión aquí
+        fecha_visita: formatDate(visita.fecha_visita),
         descripcion: visita.descripcion,
         direccion: visita.direccion,
         estado: visita.estado ? "true" : "false",
@@ -94,7 +102,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
     const fetchBarrios = async () => {
       try {
         const res = await getBarrios()
-        setBarrios(res || []) // ✅ ya es un array
+        setBarrios(res || [])
       } catch (error) {
         console.error("Error al cargar barrios", error)
         toast.error("No se pudieron cargar los barrios")
@@ -105,22 +113,6 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
     fetchMedicos()
     fetchBarrios()
   }, [])
-
-  // ✅ cuando ya tengamos visita + listas cargadas, actualizamos selección
-  useEffect(() => {
-    if (visita && pacientes.length > 0 && medicos.length > 0 && barrios.length > 0) {
-      reset({
-        fecha_visita: formatDate(visita.fecha_visita), // ✅ conversión aquí también
-        descripcion: visita.descripcion,
-        direccion: visita.direccion,
-        estado: visita.estado ? "true" : "false",
-        telefono: visita.telefono,
-        paciente_id: visita.paciente_id,
-        medico_id: visita.medico_id,
-        barrio_id: visita.barrio_id,
-      })
-    }
-  }, [visita, pacientes, medicos, barrios, reset])
 
   const onSubmit = async (data: VisitaFormValues) => {
     try {
@@ -152,6 +144,23 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
     }
   }
 
+  // 🎨 estilos para que react-select se vea igual que los inputs
+  const customSelectStyles = {
+    control: (base: any) => ({
+      ...base,
+      borderRadius: "0.5rem",
+      borderColor: "#d1d5db",
+      padding: "2px 4px",
+      boxShadow: "none",
+      "&:hover": { borderColor: "#9ca3af" },
+    }),
+    menu: (base: any) => ({
+      ...base,
+      borderRadius: "0.5rem",
+      overflow: "hidden",
+    }),
+  }
+
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
       <div className="bg-white rounded-2xl shadow-2xl w-[500px] max-h-[95vh] overflow-y-auto p-6 relative">
@@ -173,7 +182,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
             <input
               type="date"
               {...register("fecha_visita", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-400"
             />
             {errors.fecha_visita && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
@@ -183,7 +192,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
             <label className="block text-gray-600 text-sm mb-1">Estado</label>
             <select
               {...register("estado")}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-400"
             >
               <option value="true">Activo</option>
               <option value="false">Inactivo</option>
@@ -195,7 +204,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
             <label className="block text-gray-600 text-sm mb-1">Descripción</label>
             <textarea
               {...register("descripcion", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg h-20"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg h-20 focus:ring focus:ring-blue-200 focus:border-blue-400"
             />
           </div>
 
@@ -205,7 +214,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
             <input
               type="text"
               {...register("direccion", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-400"
             />
           </div>
 
@@ -215,60 +224,85 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
             <input
               type="text"
               {...register("telefono", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-400"
             />
           </div>
 
           {/* Paciente */}
           <div className="col-span-2">
             <label className="block text-gray-600 text-sm mb-1">Paciente</label>
-            <select
-              {...register("paciente_id", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">Seleccione un paciente</option>
-              {pacientes.map((p: any) => (
-                <option key={p.idPaciente} value={p.idPaciente}>
-                  CC: {p.usuario?.numeroDocumento} - {p.usuario?.nombre}{" "}
-                  {p.usuario?.segundoNombre ?? ""} {p.usuario?.apellido}{" "}
-                  {p.usuario?.segundoApellido ?? ""}
-                </option>
-              ))}
-            </select>
+            <Select
+              styles={customSelectStyles}
+              options={pacientes.map((p: any) => ({
+                value: p.idPaciente,
+                label: `CC: ${p.usuario?.numeroDocumento} - ${p.usuario?.nombre} ${p.usuario?.segundoNombre ?? ""} ${p.usuario?.apellido} ${p.usuario?.segundoApellido ?? ""}`,
+              }))}
+              value={
+                pacientes
+                  .map((p: any) => ({
+                    value: p.idPaciente,
+                    label: `CC: ${p.usuario?.numeroDocumento} - ${p.usuario?.nombre} ${p.usuario?.segundoNombre ?? ""} ${p.usuario?.apellido} ${p.usuario?.segundoApellido ?? ""}`,
+                  }))
+                  .find((opt: any) => opt.value === watch("paciente_id")) || null
+              }
+              onChange={(option) => {
+                if (option) setValue("paciente_id", option.value)
+              }}
+              placeholder="Buscar paciente..."
+              className="text-sm"
+            />
             {errors.paciente_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Médico */}
           <div className="col-span-2">
             <label className="block text-gray-600 text-sm mb-1">Médico</label>
-            <select
-              {...register("medico_id", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg"
-            >
-              <option value="">Seleccione un médico</option>
-              {medicos.map((m: any) => (
-                <option key={m.id_medico} value={m.id_medico}>
-                  {m.usuario?.nombre} {m.usuario?.apellido} - CC: {m.usuario?.numero_documento}
-                </option>
-              ))}
-            </select>
+            <Select
+              styles={customSelectStyles}
+              options={medicos.map((m: any) => ({
+                value: m.id_medico,
+                label: `${m.usuario?.nombre} ${m.usuario?.apellido} - CC: ${m.usuario?.numero_documento}`,
+              }))}
+              value={
+                medicos
+                  .map((m: any) => ({
+                    value: m.id_medico,
+                    label: `${m.usuario?.nombre} ${m.usuario?.apellido} - CC: ${m.usuario?.numero_documento}`,
+                  }))
+                  .find((opt: any) => opt.value === watch("medico_id")) || null
+              }
+              onChange={(option) => {
+                if (option) setValue("medico_id", option.value)
+              }}
+              placeholder="Buscar médico..."
+              className="text-sm"
+            />
             {errors.medico_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Barrio */}
           <div className="col-span-2">
             <label className="block text-gray-600 text-sm mb-1">Barrio</label>
-            <select
-              {...register("barrio_id", { required: true })}
-              className="w-full px-3 py-2 border rounded-lg"
-            >
-              <option value="">Seleccione un barrio</option>
-              {barrios.map((b: any) => (
-                <option key={b.idBarrio} value={b.idBarrio}>
-                  {b.nombreBarrio}
-                </option>
-              ))}
-            </select>
+            <Select
+              styles={customSelectStyles}
+              options={barrios.map((b: any) => ({
+                value: b.idBarrio,
+                label: b.nombreBarrio,
+              }))}
+              value={
+                barrios
+                  .map((b: any) => ({
+                    value: b.idBarrio,
+                    label: b.nombreBarrio,
+                  }))
+                  .find((opt: any) => opt.value === watch("barrio_id")) || null
+              }
+              onChange={(option) => {
+                if (option) setValue("barrio_id", option.value)
+              }}
+              placeholder="Buscar barrio..."
+              className="text-sm"
+            />
             {errors.barrio_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
