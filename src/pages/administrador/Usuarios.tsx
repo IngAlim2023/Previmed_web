@@ -1,132 +1,158 @@
-import { useEffect, useState } from "react"
-import DataTable, { TableColumn } from "react-data-table-component"
-import { DataUsuario } from "../../interfaces/usuario"
+import { useEffect, useMemo, useState } from "react";
+import DataTable, { TableColumn } from "react-data-table-component";
+import { useNavigate } from "react-router-dom";
+import { DataUsuario } from "../../interfaces/usuario";
 import {
   getUsuarios,
   createUsuario,
   updateUsuario,
   deleteUsuario,
-} from "../../services/usuarios"
-import UsuarioForm from "../../components/usuarios/UsuarioForm"
+} from "../../services/usuarios";
+import UsuarioForm from "../../components/usuarios/UsuarioForm";
 
-import BtnAgregar from "../../components/botones/BtnAgregar"
-import BtnLeer from "../../components/botones/BtnLeer"
-import BtnEditar from "../../components/botones/BtnEditar"
-import BtnEliminar from "../../components/botones/BtnEliminar"
+import BtnAgregar from "../../components/botones/BtnAgregar";
+import BtnLeer from "../../components/botones/BtnLeer";
+import BtnEditar from "../../components/botones/BtnEditar";
+import BtnEliminar from "../../components/botones/BtnEliminar";
 
 export default function UsuariosPage() {
-  const [usuarios, setUsuarios] = useState<DataUsuario[]>([])
-  const [showForm, setShowForm] = useState(false)
-  const [editing, setEditing] = useState<DataUsuario | null>(null)
-  const [viewing, setViewing] = useState<DataUsuario | null>(null)
-  const [search, setSearch] = useState("")
+  const [usuarios, setUsuarios] = useState<DataUsuario[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<DataUsuario | null>(null);
+  const [viewing, setViewing] = useState<DataUsuario | null>(null);
+  const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   const loadUsuarios = async () => {
     try {
-      const data = await getUsuarios()
-      setUsuarios(data)
+      const data = await getUsuarios();
+      setUsuarios(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
   useEffect(() => {
-    loadUsuarios()
-  }, [])
+    loadUsuarios();
+  }, []);
 
   const handleSubmit = async (usuario: Partial<DataUsuario>) => {
     try {
       if (editing) {
-        await updateUsuario(editing.idUsuario!, usuario)
+        await updateUsuario(editing.idUsuario!, usuario);
       } else {
-        await createUsuario(usuario)
+        await createUsuario(usuario);
       }
-      setShowForm(false)
-      setEditing(null)
-      loadUsuarios()
+      setShowForm(false);
+      setEditing(null);
+      loadUsuarios();
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Seguro que quieres eliminar este usuario?")) return
+  const handleDelete = async (id?: string) => {
+    if (!id) return;
+    if (!confirm("¿Seguro que quieres eliminar este usuario?")) return;
     try {
-      await deleteUsuario(id)
-      loadUsuarios()
+      await deleteUsuario(id);
+      loadUsuarios();
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-  }
+  };
 
-  // ✅ Tabla con solo los campos importantes
-  const columns: TableColumn<DataUsuario>[] = [
-    { 
-      name: "Nombre", 
-      selector: (row) => `${row.nombre ?? ""} ${row.apellido ?? ""}`, 
-      sortable: true 
-    },
-    { 
-      name: "Documento", 
-      selector: (row) => row.numeroDocumento || "-", 
-      sortable: true 
-    },
-    { 
-      name: "Email", 
-      selector: (row) => row.email || "-", 
-      sortable: true 
-    },
-    { 
-      name: "Rol", 
-      selector: (row) => row.rolId || "-", 
-      sortable: true 
-    },
-    { 
-      name: "Habilitado", 
-      selector: (row) => (row.habilitar ? "Sí" : "No"), 
-      sortable: true 
-    },
-    {
-      name: "Acciones",
-      cell: (row) => (
-        <div className="flex gap-2 justify-center">
-          <div onClick={() => setViewing(row)}>
-            <BtnLeer />
-          </div>
-          <div onClick={() => { setEditing(row); setShowForm(true) }}>
-            <BtnEditar />
-          </div>
-          <div onClick={() => handleDelete(row.idUsuario!)}>
-            <BtnEliminar />
-          </div>
-        </div>
-      ),
-      ignoreRowClick: true,
-      allowOverflow: true,
-      button: true,
-    },
-  ]
+  // ✅ Columnas (se añade botón Teléfonos como DIV onClick)
+  const columns: TableColumn<DataUsuario>[] = useMemo(
+    () => [
+      {
+        name: "Nombre",
+        selector: (row) => `${row.nombre ?? ""} ${row.apellido ?? ""}`,
+        sortable: true,
+      },
+      {
+        name: "Documento",
+        selector: (row) => row.numeroDocumento || "-",
+        sortable: true,
+      },
+      {
+        name: "Email",
+        selector: (row) => row.email || "-",
+        sortable: true,
+      },
+      {
+        name: "Rol",
+        selector: (row) => (row.rolId ?? "-") as any,
+        sortable: true,
+      },
+      {
+        name: "Habilitado",
+        selector: (row) => (row.habilitar ? "Sí" : "No"),
+        sortable: true,
+      },
+      {
+        name: "Acciones",
+        // damos espacio para que no se oculte el botón
+        style: { minWidth: "260px" },
+        cell: (row) => (
+          <div className="flex gap-2 justify-center items-center">
+            <div onClick={() => setViewing(row)}>
+              <BtnLeer />
+            </div>
+            <div
+              onClick={() => {
+                setEditing(row);
+                setShowForm(true);
+              }}
+            >
+              <BtnEditar />
+            </div>
+            <div onClick={() => handleDelete(row.idUsuario!)}>
+              <BtnEliminar />
+            </div>
 
-  const filteredData = usuarios.filter((u) => {
-    const nombreCompleto = `${u.nombre} ${u.segundoNombre} ${u.apellido} ${u.segundoApellido}`.toLowerCase()
-    const documento = u.numeroDocumento?.toLowerCase() || ""
-    const email = u.email?.toLowerCase() || ""
-    const searchTerm = search.toLowerCase()
+            {/* Telefonos */}
+            <div
+              onClick={() => {
+                if (!row.idUsuario) return;
+                navigate(`/usuarios/${row.idUsuario}/telefonos`, {
+                  state: { nombre: `${row.nombre} ${row.apellido}` },
+                });
+              }}
+              className="cursor-pointer select-none px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold shadow hover:bg-blue-700 active:scale-[0.98] transition"
+              title="Gestionar teléfonos del usuario"
+            >
+              📞 Teléfonos
+            </div>
+          </div>
+        ),
+        ignoreRowClick: true,
+        allowOverflow: true,
+        button: true,
+      },
+    ],
+    [navigate]
+  );
 
-    return (
-      nombreCompleto.includes(searchTerm) ||
-      documento.includes(searchTerm) ||
-      email.includes(searchTerm)
-    )
-  })
+  const filteredData = useMemo(() => {
+    const searchTerm = search.toLowerCase();
+    return usuarios.filter((u) => {
+      const nombreCompleto = `${u.nombre ?? ""} ${u.segundoNombre ?? ""} ${u.apellido ?? ""} ${u.segundoApellido ?? ""}`.toLowerCase();
+      const documento = (u.numeroDocumento ?? "").toLowerCase();
+      const email = (u.email ?? "").toLowerCase();
+      return (
+        nombreCompleto.includes(searchTerm) ||
+        documento.includes(searchTerm) ||
+        email.includes(searchTerm)
+      );
+    });
+  }, [usuarios, search]);
 
   return (
     <div className="p-6">
       {/* Header con botón y buscador */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Gestión de Usuarios
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
 
         <div className="flex gap-2 items-center w-full md:w-auto">
           <input
@@ -138,8 +164,8 @@ export default function UsuariosPage() {
           />
           <div
             onClick={() => {
-              setShowForm(true)
-              setEditing(null)
+              setShowForm(true);
+              setEditing(null);
             }}
           >
             <BtnAgregar />
@@ -171,8 +197,8 @@ export default function UsuariosPage() {
             <UsuarioForm
               onSubmit={handleSubmit}
               onCancel={() => {
-                setShowForm(false)
-                setEditing(null)
+                setShowForm(false);
+                setEditing(null);
               }}
               initialData={editing ?? undefined}
             />
@@ -180,8 +206,8 @@ export default function UsuariosPage() {
             <div className="flex justify-end mt-8">
               <button
                 onClick={() => {
-                  setShowForm(false)
-                  setEditing(null)
+                  setShowForm(false);
+                  setEditing(null);
                 }}
                 className="bg-gradient-to-r from-blue-500 to-blue-700 
                            text-white px-6 py-2.5 rounded-lg 
@@ -235,5 +261,5 @@ export default function UsuariosPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
