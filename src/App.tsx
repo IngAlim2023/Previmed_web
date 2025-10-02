@@ -26,6 +26,7 @@ import Usuarios from "./pages/administrador/Usuarios";
 import NotFound from "./pages/NotFound";
 import ProtectedRoutes from "./protectedRoutes/ProtectedRoutes";
 import Barrios from "./pages/administrador/Barrios";
+import TelefonosUsuario from "./pages/administrador/TelefonosUsuario";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
             <Route path="/usuarios" element={<Usuarios />} />
             <Route path="/visitas" element={<Visitas />} />
             <Route path="/historial/visitas" element={<HistorialVisitas />} />
+            <Route path="/usuarios/:id/telefonos" element={<TelefonosUsuario />} />
             <Route path="/pagos" element={<Pagos />} />
             <Route path="/pacientes" element={<Pacientes />} />
             <Route path="/contrato" element={<ContratoPaciente />} />
