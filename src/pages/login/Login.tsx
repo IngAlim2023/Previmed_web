@@ -1,50 +1,67 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import logo from "../../assets/logo.png";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { login } from "../../services/autentication";
 import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-// Interfaz para tipar las credenciales del usuario
 interface UsuarioCredenciales {
   numero_documento: string;
-  numero_documentoRequired: string;
   password: string;
-  passwordRequired: string;
 }
 
 const Login: React.FC = () => {
   const { register, handleSubmit } = useForm<UsuarioCredenciales>();
   const navigate = useNavigate();
+  const { setUser, setIsAuthenticated, isAuthenticated } = useAuthContext();
 
-  const { setUser, setIsAuthenticated, isAuthenticated } =
-    useAuthContext();
-
+  // ✅ Si ya está autenticado, redirige automáticamente
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/home/asesor");
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const parsedUser = JSON.parse(storedUser);
+        if (parsedUser.rol === "medico") navigate("/home/medico");
+        else if (parsedUser.rol === "asesor") navigate("/home/asesor");
+        else if (parsedUser.rol === "administrador") navigate("/home/admin");
+        else navigate("/home/paciente");
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   const onSubmit: SubmitHandler<UsuarioCredenciales> = async (data) => {
     try {
       const res = await login(data);
-
       const respu = await res?.json();
-      if (respu.message != "Acceso permitido") {
-        return setIsAuthenticated(false);
+
+      if (respu.message !== "Acceso permitido") {
+        setIsAuthenticated(false);
+        return;
       }
+
+      // ✅ Guardar en localStorage
+      localStorage.setItem("user", JSON.stringify(respu.data));
+      localStorage.setItem("token", respu.token ?? "");
+
+      // ✅ Guardar en contexto
       setUser(respu.data);
-      navigate('/home/medico')
-      return setIsAuthenticated(true);
-    } catch (e) {}
+      setIsAuthenticated(true);
+
+      // ✅ Redirigir según rol
+      if (respu.data.rol === "medico") navigate("/home/medico");
+      else if (respu.data.rol === "asesor") navigate("/home/asesor");
+      else if (respu.data.rol === "administrador") navigate("/home/admin");
+      else navigate("/home/paciente");
+    } catch (e) {
+      console.error("Error en login:", e);
+      setIsAuthenticated(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      {/* <Toaster */}
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        {/* Logo de la aplicación */}
+        {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Logo Previmed" className="h-22 object-contain" />
         </div>
@@ -55,35 +72,28 @@ const Login: React.FC = () => {
           <p className="text-gray-600">Bienvenido a Previmed</p>
         </div>
 
-        {/* Formulario de login */}
+        {/* Formulario */}
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          {/* Campo de documento */}
-          <div>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="Número de documento"
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              maxLength={15}
-              {...register("numero_documento", { required: true })}
-            />
-          </div>
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="Número de documento"
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            maxLength={15}
+            {...register("numero_documento", { required: true })}
+          />
 
-          {/* Campo de contraseña */}
-          <div>
-            <input
-              type="password"
-              placeholder="Contraseña"
-              required
-              minLength={5}
-              maxLength={15}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              {...register("password", { required: true })}
-            />
-          </div>
+          <input
+            type="password"
+            placeholder="Contraseña"
+            required
+            minLength={5}
+            maxLength={15}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            {...register("password", { required: true })}
+          />
 
-          {/* Botón de envío */}
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-lgreen to-lblue text-white py-2 rounded-md hover:from-green-700 hover:to-blue-700 transition-all duration-200 font-medium"
