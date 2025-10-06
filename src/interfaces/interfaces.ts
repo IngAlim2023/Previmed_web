@@ -1,5 +1,6 @@
-// Usuario
-// Usuario
+// Interfaces compartidas frontend
+// Nota: frontend usa el término "Contrato", backend expone /membresias
+
 export interface Usuario {
   idUsuario: string
   nombre: string
@@ -22,38 +23,33 @@ export interface Usuario {
   tipoDocumento?: string | null
 }
 
-// Paciente
 export interface Paciente {
   idPaciente: number
   direccionCobro?: string
   ocupacion?: string | null
   activo: boolean
   beneficiario: boolean
-  pacienteId?: number | null
+  pacienteId?: string | null
   usuarioId: string
   usuario?: Usuario
 }
 
-
-// Plan (estructura real del backend)
 export interface Plan {
   idPlan: number
   tipoPlan: string
   descripcion: string
-  precio: string // Viene como string del backend
+  precio: string
   estado: boolean
   cantidadBeneficiarios: number
 }
 
-// Membresía x Paciente (tabla intermedia)
 export interface MembresiaPaciente {
+  idMembresiaXPaciente: number
   pacienteId: number
   membresiaId: number
-  idMembresiaXPaciente: number
   paciente?: Paciente
 }
 
-// Membresía (Contrato)
 export interface Membresia {
   idMembresia: number
   firma: string
@@ -61,40 +57,35 @@ export interface Membresia {
   numeroContrato: string
   fechaInicio: string
   fechaFin: string
-  planId: number
+  planId:number
   estado: boolean
   membresiaPaciente: MembresiaPaciente[]
-  plan?: Plan
+  plan?: Plan | null
 }
 
-
-// Para crear contrato (ajustado a la estructura real)
 export interface NuevoContratoForm {
   firma: string
   forma_pago: string
   numero_contrato: string
   fecha_inicio: string
   fecha_fin: string
-  plan_id: number
-  paciente_id: number
+  plan_id: number 
+  paciente_id: number 
   estado: boolean
 }
 
-
-// Para respuestas de la API
 export interface ApiResponse<T> {
-  data?: T[]
-  msj?: T[]
+  data?: T[] | T
+  msj?: string
   error?: string
 }
 
-// Opciones para los selects
 export interface SelectOption {
   value: number | string
   label: string
 }
 
 export interface FormaPagoOption {
-  value: "Efectivo" | "Transferencia" | "Daviplata" | "Nequi"
+  value: "Efectivo" | "Transferencia" | "Daviplata" | "Nequi" | "Tarjeta"
   label: string
 }
