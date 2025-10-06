@@ -1,183 +1,237 @@
 import React, { useEffect, useState } from "react"
-import DataTable from "react-data-table-component"
+import DataTable, { TableColumn } from "react-data-table-component"
 import toast from "react-hot-toast"
-import { Membresia } from "../../interfaces/interfaces"
-import BtnLeer from "../botones/BtnLeer"
-import { generarPDF } from "./ContratoPDF"
-import { getContratos } from "../../services/contratos"
 
+import { Membresia, Plan } from "../../interfaces/interfaces"
+import { getContratos, deleteContrato, getPlanes } from "../../services/contratos"
+
+// 🧩 Botones personalizados
+import BtnAgregar from "../botones/BtnAgregar"
+import BtnEditar from "../botones/BtnEditar"
+import BtnEliminar from "../botones/BtnEliminar"
+import BtnCerrar from "../botones/BtnCerrar"
+
+// 🧩 Modal formulario
+import FormContrato from "./FormContrato"
 
 const DataTableContratos: React.FC = () => {
-      const [contratos, setContratos] = useState<any[]>([]) // Cambiado a any[] por la estructura
-  const [search, setSearch] = useState("")
-  const [modalDetalles, setModalDetalles] = useState<any | null>(null) // Cambiado a any
+  const [contratos, setContratos] = useState<(Membresia & { planNombre?: string })[]>([])
+  const [planes, setPlanes] = useState<Plan[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showForm, setShowForm] = useState(false)
+  const [editing, setEditing] = useState<Membresia | null>(null)
+  const [closingModal, setClosingModal] = useState(false)
+  const [search, setSearch] = useState("") // 🔍 Estado para la búsqueda
 
-
-
-const fetchContratos = async () => {
-  try {
-    const data = await getContratos()
-    setContratos(Array.isArray(data) ? data : [])
-  } catch (error) {
-    console.error("Error al cargar contratos:", error)
-    toast.error("Error al cargar contratos")
-  }
-}
-
-
+  // 🔄 Cargar contratos y planes
   useEffect(() => {
-    fetchContratos()
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const [c, pl] = await Promise.all([getContratos(), getPlanes()])
+        setPlanes(pl)
+
+        const contratosConPlanNombre = c.map((m) => {
+          const planRelacionado = pl.find((p) => Number(p.idPlan) === Number(m.planId))
+          return {
+            ...m,
+            planNombre: planRelacionado ? planRelacionado.tipoPlan : "Sin plan",
+          }
+        })
+
+        setContratos(contratosConPlanNombre)
+      } catch (error) {
+        console.error("❌ Error cargando contratos:", error)
+        toast.error("Error al cargar contratos", { duration: 1500 })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
   }, [])
 
-  // Funciones auxiliares actualizadas para tu estructura camelCase
-  const getNombre = (mp: any) => {
-    const usuario = mp?.paciente?.usuario
-    if (!usuario) return "Sin nombre"
-    
-    // Concatenar nombres y apellidos
-    const nombres = [
-      usuario.nombre,
-      usuario.segundoNombre,
-      usuario.apellido,
-      usuario.segundoApellido
-    ].filter(Boolean).join(" ")
-    
-    return nombres || "Sin nombre"
-  }
-
-  const getDocumento = (mp: any) => {
-    return mp?.paciente?.usuario?.numeroDocumento || "Sin documento"
-  }
-
-  const columns = [
+  // 🧾 Columnas
+  const columns: TableColumn<Membresia & { planNombre?: string }>[] = [
+    { name: "ID", selector: (row) => row.idMembresia, sortable: true },
+    { name: "Firma", selector: (row) => row.firma, sortable: true },
+    { name: "Forma de Pago", selector: (row) => row.formaPago, sortable: true },
+    { name: "Número Contrato", selector: (row) => row.numeroContrato, sortable: true },
+    { name: "Fecha Inicio", selector: (row) => row.fechaInicio.split("T")[0], sortable: true },
+    { name: "Fecha Fin", selector: (row) => row.fechaFin.split("T")[0], sortable: true },
     {
-      name: "Nombre(s)",
-      selector: (row: any) => {
-        if (!row.membresiaPaciente?.length) return "Sin pacientes"
-        return row.membresiaPaciente.map(getNombre).join(", ")
-      },
+      name: "Plan",
+      selector: (row) => row.planNombre || "Sin plan",
+      sortable: true,
+      grow: 2,
+    },
+    {
+      name: "Estado",
+      selector: (row) => (row.estado ? "Activo" : "Inactivo"),
       sortable: true,
     },
     {
-      name: "Documento(s)",
-      selector: (row: any) => {
-        if (!row.membresiaPaciente?.length) return "Sin pacientes"
-        return row.membresiaPaciente.map(getDocumento).join(", ")
-      },
-      sortable: true,
-    },
-    {
-      name: "Número Contrato",
-      selector: (row: any) => row.numeroContrato || "-",
-      sortable: true,
-    },
-    
-    {
-      name: "Acción",
-      cell: (row: any) => (
+      name: "Acciones",
+      cell: (row) => (
         <div className="flex gap-2">
-          <div onClick={() => setModalDetalles(row)}>
-            <BtnLeer />
+          <div onClick={() => { setEditing(row); setShowForm(true) }}>
+            <BtnEditar />
+          </div>
+          <div onClick={() => handleEliminar(row.idMembresia)}>
+            <BtnEliminar />
           </div>
         </div>
       ),
     },
   ]
 
-  const filteredData = contratos.filter((item) => {
-    if (!item.membresiaPaciente?.length) return false
+  // 🗑️ Eliminar contrato
+  const handleEliminar = async (id: number) => {
+    toast((t) => (
+      <div className="text-center">
+        <p className="font-semibold text-gray-800 mb-2">
+          ¿Deseas eliminar este contrato?
+        </p>
+        <div className="flex justify-center gap-3">
+          <button
+            onClick={async () => {
+              toast.dismiss(t.id)
+              try {
+                await deleteContrato(id)
+                setContratos((prev) => prev.filter((c) => c.idMembresia !== id))
+                toast.success("Contrato eliminado correctamente", { duration: 1500 })
+              } catch (error: any) {
+                console.error("❌ Error al eliminar:", error)
+                toast.error("Error al eliminar contrato", { duration: 1500 })
+              }
+            }}
+            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+          >
+            Eliminar
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ), { duration: 3000 })
+  }
 
-    const nombres = item.membresiaPaciente
-      .map((mp:any) => getNombre(mp).toLowerCase())
-      .join(" ")
-    
-    const documentos = item.membresiaPaciente
-      .map((mp:any) => getDocumento(mp).toLowerCase())
-      .join(" ")
-    
-    const searchTerm = search.toLowerCase()
+  // ➕ Nuevo contrato
+  const handleNuevo = () => {
+    setEditing(null)
+    setShowForm(true)
+  }
 
+  // ✅ Guardar o actualizar
+  const handleOnSuccess = (saved?: Membresia) => {
+    if (!saved) return
+    const planRelacionado = planes.find((p) => Number(p.idPlan) === Number(saved.planId))
+    const savedWithPlanNombre = {
+      ...saved,
+      planNombre: planRelacionado ? planRelacionado.tipoPlan : "Sin plan",
+    }
+
+    setContratos((prev) => {
+      const exists = prev.find((p) => p.idMembresia === saved.idMembresia)
+      if (exists) {
+        return prev.map((p) =>
+          p.idMembresia === saved.idMembresia ? savedWithPlanNombre : p
+        )
+      }
+      return [savedWithPlanNombre, ...prev]
+    })
+  }
+
+  // ✨ Cierre con animación
+  const closeModal = () => {
+    setClosingModal(true)
+    setTimeout(() => {
+      setShowForm(false)
+      setClosingModal(false)
+      setEditing(null)
+    }, 250)
+  }
+
+  // 🔍 Filtrar contratos según la búsqueda
+  const filteredContratos = contratos.filter((c) => {
+    const term = search.toLowerCase()
     return (
-      nombres.includes(searchTerm) ||
-      documentos.includes(searchTerm) ||
-      (item.numeroContrato && item.numeroContrato.toLowerCase().includes(searchTerm)) ||
-      (item.formaPago && item.formaPago.toLowerCase().includes(searchTerm))
-     
+      c.firma.toLowerCase().includes(term) ||
+      c.formaPago.toLowerCase().includes(term) ||
+      c.numeroContrato.toLowerCase().includes(term) ||
+      (c.planNombre?.toLowerCase().includes(term) ?? false)
     )
   })
 
-  const cerrarModal = () => setModalDetalles(null)
-
   return (
-    <div>
-      <input
-        type="text"
-        placeholder="Buscar por nombre, documento o número de contrato..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="border px-3 py-2 rounded mb-4 w-full"
-      />
+    <div className="p-6">
+      {/* Barra superior con búsqueda y botón agregar */}
+      <div className="mb-4 flex flex-col md:flex-row justify-between items-center gap-3">
+        {/* 🔍 Barra de búsqueda */}
+        <input
+          type="text"
+          placeholder="Buscar contrato..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-green-500"
+        />
 
-      <DataTable
-        columns={columns}
-        data={filteredData}
-        pagination
-        highlightOnHover
-        striped
-        noDataComponent="No hay contratos disponibles"
-      />
+        {/* ➕ Botón agregar */}
+        <div onClick={handleNuevo}>
+          {/* @ts-expect-error forzar children sin modificar el componente */}
+          <BtnAgregar>Nuevo contrato</BtnAgregar>
+        </div>
+      </div>
 
-      {modalDetalles && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[600px] max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Contrato de afiliación</h2>
-
-            <div className="mb-4">
-              <p><strong>Número de Contrato:</strong> {modalDetalles.numeroContrato}</p>
-              <p><strong>Forma de Pago:</strong> {modalDetalles.formaPago}</p>
-              <p><strong>Fecha Inicio:</strong> {new Date(modalDetalles.fechaInicio).toLocaleDateString()}</p>
-              <p><strong>Fecha Fin:</strong> {new Date(modalDetalles.fechaFin).toLocaleDateString()}</p>
-              <p><strong>Firma:</strong> {modalDetalles.firma}</p>
-              <p><strong>Estado:</strong> {modalDetalles.estado ? "Activo" : "Inactivo"}</p>
+      {/* Modal elegante con fade */}
+      {showForm && (
+        <div
+          className={`fixed inset-0 flex justify-center items-center z-50 transition-all duration-300 ${
+            closingModal ? "opacity-0 bg-gray-900/0" : "opacity-100 bg-gray-900/60 backdrop-blur-sm"
+          }`}
+        >
+          <div
+            className={`bg-white rounded-2xl shadow-2xl w-[600px] max-w-[95%] p-6 relative border border-gray-200 transform transition-all duration-300 ${
+              closingModal ? "scale-95 opacity-0" : "scale-100 opacity-100"
+            }`}
+          >
+            {/* 🧩 Botón personalizado para cerrar */}
+            <div className="absolute top-3 right-3" onClick={closeModal}>
+              <BtnCerrar />
             </div>
 
-            <h3 className="text-lg font-semibold mb-3">Pacientes asociados:</h3>
-            
-            {modalDetalles.membresiaPaciente?.map((mp:any, index:any) => {
-              const usuario = mp.paciente?.usuario
-              if (!usuario) return null
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center border-b pb-2">
+              {editing ? "Editar Contrato" : "Nuevo Contrato"}
+            </h2>
 
-              return (
-                <div key={index} className="mb-4 border-b pb-4">
-                  <p><strong>Nombre:</strong> {getNombre(mp)}</p>
-                  <p><strong>Documento:</strong> {usuario.numeroDocumento}</p>
-                  <p><strong>Email:</strong> {usuario.email}</p>
-                  <button
-                    onClick={() =>
-                      generarPDF({
-                        nombre: getNombre(mp),
-                        numeroDocumento: usuario.numeroDocumento,
-                      })
-                    }
-                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    📄 Descargar PDF
-                  </button>
-                </div>
-              )
-            })}
-
-            <div className="text-right">
-              <button
-                onClick={cerrarModal}
-                className="mt-4 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cerrar
-              </button>
-            </div>
+            <FormContrato
+              contrato={editing}
+              setShowForm={setShowForm}
+              onSuccess={(c) => {
+                handleOnSuccess(c)
+                closeModal()
+              }}
+              planes={planes}
+            />
           </div>
         </div>
       )}
+
+      {/* Tabla principal */}
+      <DataTable
+        title="Gestión de Contratos"
+        columns={columns}
+        data={filteredContratos}
+        progressPending={loading}
+        pagination
+        highlightOnHover
+        pointerOnHover
+        noDataComponent="No hay contratos registrados."
+      />
     </div>
   )
 }
