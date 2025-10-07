@@ -202,21 +202,6 @@ export default function UsuariosPage() {
               }}
               initialData={editing ?? undefined}
             />
-
-            <div className="flex justify-end mt-8">
-              <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditing(null);
-                }}
-                className="bg-gradient-to-r from-blue-500 to-blue-700 
-                           text-white px-6 py-2.5 rounded-lg 
-                           shadow-md hover:from-blue-600 hover:to-blue-800 
-                           transition-all"
-              >
-                Cerrar
-              </button>
-            </div>
           </div>
         </div>
       )}
