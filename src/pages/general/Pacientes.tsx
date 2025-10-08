@@ -40,7 +40,7 @@ const Pacientes: React.FC = () => {
   };
 
   const handleDelete = async (row: Paciente) => {
-    setIdDelete(row.idPaciente);
+    setIdDelete(row.id);
     setOpen(true);
   };
 
