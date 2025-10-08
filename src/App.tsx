@@ -27,6 +27,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoutes from "./protectedRoutes/ProtectedRoutes";
 import Barrios from "./pages/administrador/Barrios";
 import TelefonosUsuario from "./pages/administrador/TelefonosUsuario";
+import FormPlan from "./components/planes/FormPlan";
 
 function App() {
   return (
@@ -49,6 +50,8 @@ function App() {
             <Route path="/historial/visitas" element={<HistorialVisitas />} />
             <Route path="/beneficiarios" element={<Beneficiarios />} />
             <Route path="/planes" element={<PlanesAdmin />} />
+            <Route path="/planes/crear" element={<FormPlan />} />
+            <Route path="/planes/editar/:idPlan" element={<FormPlan />} />
             <Route path="/pagos" element={<Pagos />} />
             <Route path="/visitas" element={<Visitas />} />
             <Route path="/medicos" element={<Medicos />} />
