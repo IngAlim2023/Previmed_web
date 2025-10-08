@@ -60,7 +60,6 @@ function App() {
             <Route path="/roles" element={<Roles />} />
             <Route path="/panel_control" element={<Roles />} />
             <Route path="/barrios" element={<Barrios />} />
-            <Route path="/beneficiarios" element={<Beneficiarios/>}/>
             <Route
               path="/formularioPacientes"
               element={<FormularioPacientes />}
