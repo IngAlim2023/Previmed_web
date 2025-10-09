@@ -1,123 +1,113 @@
 import React, { useEffect, useState } from "react"
 import DataTable, { TableColumn } from "react-data-table-component"
 import toast from "react-hot-toast"
+import { HiOutlineDocumentText } from "react-icons/hi"
 
 import { Membresia, Plan } from "../../interfaces/interfaces"
 import { getContratos, deleteContrato, getPlanes } from "../../services/contratos"
 
-// 🧩 Botones personalizados
 import BtnAgregar from "../botones/BtnAgregar"
 import BtnEditar from "../botones/BtnEditar"
 import BtnEliminar from "../botones/BtnEliminar"
 import BtnCerrar from "../botones/BtnCerrar"
+import BtnLeer from "../botones/BtnLeer"
+import BtnCancelar from "../botones/BtnCancelar"
 
-// 🧩 Modal formulario
 import FormContrato from "./FormContrato"
+import DetallesContrato from "./DetallesContrato"
 
 const DataTableContratos: React.FC = () => {
-  const [contratos, setContratos] = useState<(Membresia & { planNombre?: string })[]>([])
+  const [contratos, setContratos] = useState<
+    (Membresia & { planNombre?: string; titularNombre?: string })[]
+  >([])
   const [planes, setPlanes] = useState<Plan[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Membresia | null>(null)
   const [closingModal, setClosingModal] = useState(false)
-  const [search, setSearch] = useState("") // 🔍 Estado para la búsqueda
+  const [search, setSearch] = useState("")
+  const [showDetalles, setShowDetalles] = useState(false)
+  const [contratoSeleccionado, setContratoSeleccionado] = useState<Membresia | null>(null)
 
-  // 🔄 Cargar contratos y planes
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        const [c, pl] = await Promise.all([getContratos(), getPlanes()])
-        setPlanes(pl)
+  // 🔄 Cargar contratos y planes (con titulares)
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [c, pl] = await Promise.all([getContratos(), getPlanes()])
+      setPlanes(pl)
 
-        const contratosConPlanNombre = c.map((m) => {
-          const planRelacionado = pl.find((p) => Number(p.idPlan) === Number(m.planId))
-          return {
-            ...m,
-            planNombre: planRelacionado ? planRelacionado.tipoPlan : "Sin plan",
-          }
-        })
+      // Detectar titulares en membresías
+      const titularesDetectados = c.flatMap((m: any) =>
+        m.membresiaPaciente
+          .filter((mp: any) => mp.paciente?.pacienteId === null)
+          .map((mp: any) => ({
+            idUsuario: mp.paciente?.usuario?.idUsuario,
+            nombreCompleto: `${mp.paciente?.usuario?.nombre ?? ""} ${
+              mp.paciente?.usuario?.apellido ?? ""
+            }`.trim(),
+            idMembresia: m.idMembresia,
+          }))
+      )
 
-        setContratos(contratosConPlanNombre)
-      } catch (error) {
-        console.error("❌ Error cargando contratos:", error)
-        toast.error("Error al cargar contratos", { duration: 1500 })
-      } finally {
-        setLoading(false)
-      }
+      const contratosConPlanYTitular = c.map((m: any) => {
+        const planRelacionado = pl.find((p) => Number(p.idPlan) === Number(m.planId))
+        const titular = titularesDetectados.find((t) => t.idMembresia === m.idMembresia)
+        return {
+          ...m,
+          planNombre: planRelacionado ? planRelacionado.tipoPlan : "Sin plan",
+          titularNombre: titular ? titular.nombreCompleto : "Sin titular",
+        }
+      })
+
+      setContratos(contratosConPlanYTitular)
+    } catch (error) {
+      console.error("❌ Error cargando contratos:", error)
+      toast.dismiss()
+      toast.error("Error al cargar contratos", { duration: 1000 })
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchData()
   }, [])
 
-  // 🧾 Columnas
-  const columns: TableColumn<Membresia & { planNombre?: string }>[] = [
-    { name: "ID", selector: (row) => row.idMembresia, sortable: true },
-    { name: "Firma", selector: (row) => row.firma, sortable: true },
-    { name: "Forma de Pago", selector: (row) => row.formaPago, sortable: true },
-    { name: "Número Contrato", selector: (row) => row.numeroContrato, sortable: true },
-    { name: "Fecha Inicio", selector: (row) => row.fechaInicio.split("T")[0], sortable: true },
-    { name: "Fecha Fin", selector: (row) => row.fechaFin.split("T")[0], sortable: true },
-    {
-      name: "Plan",
-      selector: (row) => row.planNombre || "Sin plan",
-      sortable: true,
-      grow: 2,
-    },
-    {
-      name: "Estado",
-      selector: (row) => (row.estado ? "Activo" : "Inactivo"),
-      sortable: true,
-    },
-    {
-      name: "Acciones",
-      cell: (row) => (
-        <div className="flex gap-2">
-          <div onClick={() => { setEditing(row); setShowForm(true) }}>
-            <BtnEditar />
-          </div>
-          <div onClick={() => handleEliminar(row.idMembresia)}>
-            <BtnEliminar />
+  // 🗑️ Eliminar contrato
+  const handleEliminar = async (id: number) => {
+    toast.dismiss()
+    toast(
+      (t) => (
+        <div className="text-center px-2">
+          <p className="font-semibold text-gray-800 mb-3">
+            ¿Deseas eliminar este contrato?
+          </p>
+
+          <div className="flex justify-center gap-3 mt-2">
+            <div
+              onClick={async () => {
+                toast.dismiss(t.id)
+                try {
+                  await deleteContrato(id)
+                  setContratos((prev) => prev.filter((c) => c.idMembresia !== id))
+                  toast.success("Contrato eliminado correctamente ", { duration: 1000 })
+                } catch (error: any) {
+                  console.error("❌ Error al eliminar:", error)
+                  toast.error("Error al eliminar contrato ", { duration: 1000 })
+                }
+              }}
+            >
+              <BtnEliminar />
+            </div>
+
+            <div onClick={() => toast.dismiss(t.id)}>
+              <BtnCancelar />
+            </div>
           </div>
         </div>
       ),
-    },
-  ]
-
-  // 🗑️ Eliminar contrato
-  const handleEliminar = async (id: number) => {
-    toast((t) => (
-      <div className="text-center">
-        <p className="font-semibold text-gray-800 mb-2">
-          ¿Deseas eliminar este contrato?
-        </p>
-        <div className="flex justify-center gap-3">
-          <button
-            onClick={async () => {
-              toast.dismiss(t.id)
-              try {
-                await deleteContrato(id)
-                setContratos((prev) => prev.filter((c) => c.idMembresia !== id))
-                toast.success("Contrato eliminado correctamente", { duration: 1500 })
-              } catch (error: any) {
-                console.error("❌ Error al eliminar:", error)
-                toast.error("Error al eliminar contrato", { duration: 1500 })
-              }
-            }}
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
-          >
-            Eliminar
-          </button>
-          <button
-            onClick={() => toast.dismiss(t.id)}
-            className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 rounded"
-          >
-            Cancelar
-          </button>
-        </div>
-      </div>
-    ), { duration: 3000 })
+      { duration: 4000 }
+    )
   }
 
   // ➕ Nuevo contrato
@@ -126,27 +116,22 @@ const DataTableContratos: React.FC = () => {
     setShowForm(true)
   }
 
-  // ✅ Guardar o actualizar
-  const handleOnSuccess = (saved?: Membresia) => {
+  // ✅ Guardar o actualizar (refrescando data completa)
+  const handleOnSuccess = async (saved?: Membresia) => {
     if (!saved) return
-    const planRelacionado = planes.find((p) => Number(p.idPlan) === Number(saved.planId))
-    const savedWithPlanNombre = {
-      ...saved,
-      planNombre: planRelacionado ? planRelacionado.tipoPlan : "Sin plan",
-    }
-
-    setContratos((prev) => {
-      const exists = prev.find((p) => p.idMembresia === saved.idMembresia)
-      if (exists) {
-        return prev.map((p) =>
-          p.idMembresia === saved.idMembresia ? savedWithPlanNombre : p
-        )
-      }
-      return [savedWithPlanNombre, ...prev]
-    })
+    toast.dismiss()
+    toast.loading("Actualizando lista...", { id: "refresh" })
+    await fetchData()
+    toast.dismiss("refresh")
+    toast.success(
+      saved.idMembresia
+        ? "Contrato actualizado correctamente ✅"
+        : "Contrato creado con éxito 🎉",
+      { duration: 1000 }
+    )
   }
 
-  // ✨ Cierre con animación
+  // ✨ Cierre modal
   const closeModal = () => {
     setClosingModal(true)
     setTimeout(() => {
@@ -156,42 +141,110 @@ const DataTableContratos: React.FC = () => {
     }, 250)
   }
 
-  // 🔍 Filtrar contratos según la búsqueda
+  // 🔍 Filtro búsqueda
   const filteredContratos = contratos.filter((c) => {
     const term = search.toLowerCase()
     return (
-      c.firma.toLowerCase().includes(term) ||
-      c.formaPago.toLowerCase().includes(term) ||
       c.numeroContrato.toLowerCase().includes(term) ||
-      (c.planNombre?.toLowerCase().includes(term) ?? false)
+      (c.planNombre?.toLowerCase().includes(term) ?? false) ||
+      (c.titularNombre?.toLowerCase().includes(term) ?? false)
     )
   })
 
-  return (
-    <div className="p-6">
-      {/* Barra superior con búsqueda y botón agregar */}
-      <div className="mb-4 flex flex-col md:flex-row justify-between items-center gap-3">
-        {/* 🔍 Barra de búsqueda */}
-        <input
-          type="text"
-          placeholder="Buscar contrato..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border border-gray-300 rounded-lg px-4 py-2 w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-green-500"
-        />
-
-        {/* ➕ Botón agregar */}
-        <div onClick={handleNuevo}>
-          {/* @ts-expect-error forzar children sin modificar el componente */}
-          <BtnAgregar>Nuevo contrato</BtnAgregar>
+  // 📋 Columnas
+  const columns: TableColumn<
+    Membresia & { planNombre?: string; titularNombre?: string }
+  >[] = [
+    { name: "ID", selector: (row) => row.idMembresia, sortable: true, width: "80px" },
+    { name: "N° Contrato", selector: (row) => row.numeroContrato, sortable: true },
+    {
+      name: "Titular",
+      selector: (row) => row.titularNombre || "Sin titular",
+      sortable: true,
+      grow: 2,
+    },
+    {
+      name: "Plan",
+      selector: (row) => row.planNombre || "Sin plan",
+      sortable: true,
+      grow: 2,
+    },
+    {
+      name: "Estado",
+      cell: (row) => (
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-semibold ${
+            row.estado
+              ? "bg-green-100 text-green-700 border border-green-200"
+              : "bg-red-100 text-red-700 border border-red-200"
+          }`}
+        >
+          {row.estado ? "Activo" : "Inactivo"}
+        </span>
+      ),
+      width: "150px",
+    },
+    {
+      name: "Acciones",
+      cell: (row) => (
+        <div className="flex gap-2 p-2">
+          <div onClick={() => { setContratoSeleccionado(row); setShowDetalles(true) }}>
+            <BtnLeer />
+          </div>
+          <div onClick={() => { setEditing(row); setShowForm(true) }}>
+            <BtnEditar />
+          </div>
+          <div onClick={() => handleEliminar(row.idMembresia)}>
+            <BtnEliminar />
+          </div>
         </div>
+      ),
+      button: true,
+      minWidth: "180px",
+    },
+  ]
+
+  return (
+    <div className="min-h-screen flex items-center justify-center w-full px-4 py-8 bg-blue-50">
+      <div className="w-full max-w-6xl bg-white rounded-lg shadow-xl p-4 overflow-x-auto">
+        {/* 🔹 Encabezado con ícono y botón igual que en “Visitas” */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold text-gray-600 flex items-center">
+            <HiOutlineDocumentText className="w-10 h-auto text-blue-600 mr-4" />
+            Contratos
+          </h2>
+
+          <input
+            type="text"
+            placeholder="Buscar contrato..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="p-2 border border-gray-300 rounded-xl focus:outline-none"
+          />
+
+          <div onClick={handleNuevo}>
+            {/* 👇 igual que en Visitas */}
+            <BtnAgregar verText={true} />
+          </div>
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={filteredContratos}
+          pagination
+          highlightOnHover
+          striped
+          progressPending={loading}
+          noDataComponent="No hay contratos registrados"
+        />
       </div>
 
-      {/* Modal elegante con fade */}
       {showForm && (
         <div
           className={`fixed inset-0 flex justify-center items-center z-50 transition-all duration-300 ${
-            closingModal ? "opacity-0 bg-gray-900/0" : "opacity-100 bg-gray-900/60 backdrop-blur-sm"
+            closingModal
+              ? "opacity-0 bg-gray-900/0"
+              : "opacity-100 bg-gray-900/60 backdrop-blur-sm"
           }`}
         >
           <div
@@ -199,7 +252,6 @@ const DataTableContratos: React.FC = () => {
               closingModal ? "scale-95 opacity-0" : "scale-100 opacity-100"
             }`}
           >
-            {/* 🧩 Botón personalizado para cerrar */}
             <div className="absolute top-3 right-3" onClick={closeModal}>
               <BtnCerrar />
             </div>
@@ -211,8 +263,8 @@ const DataTableContratos: React.FC = () => {
             <FormContrato
               contrato={editing}
               setShowForm={setShowForm}
-              onSuccess={(c) => {
-                handleOnSuccess(c)
+              onSuccess={async (saved) => {
+                await handleOnSuccess(saved)
                 closeModal()
               }}
               planes={planes}
@@ -221,17 +273,12 @@ const DataTableContratos: React.FC = () => {
         </div>
       )}
 
-      {/* Tabla principal */}
-      <DataTable
-        title="Gestión de Contratos"
-        columns={columns}
-        data={filteredContratos}
-        progressPending={loading}
-        pagination
-        highlightOnHover
-        pointerOnHover
-        noDataComponent="No hay contratos registrados."
-      />
+      {showDetalles && (
+        <DetallesContrato
+          contrato={contratoSeleccionado}
+          setShowDetalles={setShowDetalles}
+        />
+      )}
     </div>
   )
 }
