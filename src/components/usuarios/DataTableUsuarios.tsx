@@ -61,7 +61,7 @@ const DataTableUsuarios: React.FC = () => {
     },
     { 
       name: "Rol", 
-      selector: (row: DataUsuario) => row.rol.nombreRol ?? "-", 
+      selector: (row: DataUsuario) => row.rolId ?? "-", 
       sortable: true 
     },
     { 
@@ -154,8 +154,8 @@ const DataTableUsuarios: React.FC = () => {
               <p><strong>Número Hijos:</strong> {modalDetalles.numeroHijos}</p>
               <p><strong>Estrato:</strong> {modalDetalles.estrato}</p>
               <p><strong>Género:</strong> {modalDetalles.genero}</p>
-              <p><strong>EPS:</strong> {modalDetalles.eps.nombreEps}</p>
-              <p><strong>Rol:</strong> {modalDetalles.rol.nombreRol}</p>
+              <p><strong>EPS:</strong> {modalDetalles.epsId}</p>
+              <p><strong>Rol:</strong> {modalDetalles.rolId}</p>
               <p><strong>Autorización Datos:</strong> {modalDetalles.autorizacionDatos ? "Sí" : "No"}</p>
               <p><strong>Habilitado:</strong> {modalDetalles.habilitar ? "Sí" : "No"}</p>
             </div>

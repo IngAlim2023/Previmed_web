@@ -36,8 +36,6 @@ export interface DataUsuario {
   tipoDocumento: TipoDocumento;
   epsId: number | null;
   rolId: number;
-  rol:any;
-  eps:any;
 }
 
 // ------------------- Props de componentes (UI) -------------------
