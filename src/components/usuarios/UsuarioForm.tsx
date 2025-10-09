@@ -109,7 +109,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
               {...register("numeroDocumento", {
                 required: "Documento requerido",
               })}
-              type="number"
               className={input}
               placeholder="....."
             />

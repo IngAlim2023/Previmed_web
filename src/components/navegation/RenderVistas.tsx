@@ -11,7 +11,7 @@ const RenderVistas: React.FC = () => {
       <SideBar cerrado={cerrado} setCerrado={setCerrado} />
 
       <main
-        className={`flex-1 bg-blue-50 transition-all duration-300 ${
+        className={`flex-1 bg-gray-50 transition-all duration-300 ${
           cerrado ? "ml-20" : "ml-64"
         }`}
       >

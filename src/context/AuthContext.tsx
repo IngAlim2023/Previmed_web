@@ -4,8 +4,7 @@ import Cookies from "js-cookie";
 type User = {
   id: string | null;
   documento: string | null;
-  rol?: any | null;
-  nombre?: string | null; 
+  rol?: string | null;
 };
 
 interface Context {
