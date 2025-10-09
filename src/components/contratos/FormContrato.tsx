@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react"
+import Select, { components } from "react-select"
 import { Membresia, NuevoContratoForm, Plan } from "../../interfaces/interfaces"
-import { createContrato, updateContrato } from "../../services/contratos"
+import { createContrato, updateContrato, getContratos } from "../../services/contratos"
 import toast from "react-hot-toast"
 
-// 🧩 Botones personalizados
 import BtnAgregar from "../botones/BtnAgregar"
 import BtnCancelar from "../botones/BtnCancelar"
 
@@ -23,18 +23,22 @@ const FormContrato: React.FC<FormContratoProps> = ({
   const [form, setForm] = useState<NuevoContratoForm>({
     firma: "",
     forma_pago: "Efectivo",
-    numero_contrato: "",
+    numero_contrato: `CT-${Date.now()}`, // 🧾 Por defecto, autogenerado
     fecha_inicio: "",
     fecha_fin: "",
     plan_id: planes.length ? planes[0].idPlan : 1,
-    paciente_id: 61, // ✅ fijo según tu backend
+    paciente_id: 0,
     estado: true,
   })
 
   const [isSaving, setIsSaving] = useState(false)
   const [closing, setClosing] = useState(false)
+  const [manualNumero, setManualNumero] = useState(false)
+  const [titulares, setTitulares] = useState<
+    { value: number; label: string; tieneContrato: boolean }[]
+  >([])
 
-  // 🔄 Cargar datos si se está editando
+  // 🔄 Cargar datos si es edición
   useEffect(() => {
     if (contrato) {
       setForm({
@@ -44,11 +48,53 @@ const FormContrato: React.FC<FormContratoProps> = ({
         fecha_inicio: contrato.fechaInicio.split("T")[0],
         fecha_fin: contrato.fechaFin.split("T")[0],
         plan_id: contrato.plan?.idPlan || contrato.planId || 1,
-        paciente_id: contrato.membresiaPaciente?.[0]?.pacienteId || 61,
+        paciente_id: contrato.membresiaPaciente?.[0]?.pacienteId || 0,
         estado: contrato.estado,
       })
+      setManualNumero(true) // Si viene de edición, se asume que puede ser manual
     }
   }, [contrato, planes])
+
+  // 🔹 Cargar titulares
+  useEffect(() => {
+    const fetchTitulares = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_URL_BACK}pacientes`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        })
+        const raw = await res.json()
+        const pacientes = Array.isArray(raw.data) ? raw.data : []
+
+        const titulares = pacientes.filter((p: any) => p.pacienteId === null)
+
+        const contratos = await getContratos()
+        const titularesConContratoSet = new Set<number>()
+        contratos.forEach((m: any) => {
+          m.membresiaPaciente?.forEach((mp: any) => {
+            const idPaciente = mp.paciente?.idPaciente
+            if (idPaciente) titularesConContratoSet.add(idPaciente)
+          })
+        })
+
+        const opciones = titulares.map((p: any) => ({
+          value: p.idPaciente,
+          label: `${p.usuario?.nombre ?? ""} ${p.usuario?.apellido ?? ""} - ${
+            p.usuario?.numeroDocumento ?? "Sin documento"
+          }`,
+          tieneContrato: titularesConContratoSet.has(p.idPaciente),
+        }))
+
+        setTitulares(opciones)
+      } catch (err) {
+        console.error("❌ Error cargando titulares:", err)
+        toast.dismiss()
+        toast.error("Error al cargar titulares", { duration: 1000 })
+      }
+    }
+
+    fetchTitulares()
+  }, [])
 
   // ✏️ Manejar cambios
   const handleChange = (
@@ -65,31 +111,45 @@ const FormContrato: React.FC<FormContratoProps> = ({
   }
 
   // 💾 Guardar contrato
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
 
+    if (!form.paciente_id || form.paciente_id === 0) {
+      toast.dismiss()
+      toast.error("Selecciona un titular antes de continuar", { duration: 1000 })
+      return
+    }
+
+    if (!form.numero_contrato.trim()) {
+      toast.dismiss()
+      toast.error("El número de contrato es obligatorio", { duration: 1000 })
+      return
+    }
+
+    setIsSaving(true)
     try {
       const saved = contrato
         ? await updateContrato(contrato.idMembresia, form)
         : await createContrato(form)
 
+      toast.dismiss()
       toast.success(
-        contrato ? "Contrato actualizado correctamente" : "Contrato creado con éxito 🎉",
-        { duration: 1500 }
+        contrato ? "Contrato actualizado ✅" : "Contrato creado 🎉",
+        { duration: 1000 }
       )
 
       onSuccess(saved)
       handleClose()
     } catch (error: any) {
       console.error(error)
-      toast.error("Error al guardar el contrato", { duration: 1500 })
+      toast.dismiss()
+      toast.error("Error al guardar contrato ", { duration: 1000 })
     } finally {
       setIsSaving(false)
     }
   }
 
-  // ✨ Cerrar con animación suave
+  // ✨ Cerrar modal
   const handleClose = () => {
     setClosing(true)
     setTimeout(() => {
@@ -97,6 +157,43 @@ const FormContrato: React.FC<FormContratoProps> = ({
       setClosing(false)
     }, 250)
   }
+
+  // 🎨 Custom Option para titulares
+  const Option = (props: any) => (
+    <components.Option {...props}>
+      <div
+        className="flex items-center gap-2"
+        title={props.data.tieneContrato ? "Ya tiene contrato" : "Disponible"}
+      >
+        <span
+          className={`w-3 h-3 rounded-full transition-all duration-200 ${
+            props.data.tieneContrato
+              ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)]"
+              : "bg-gray-300"
+          }`}
+        />
+        <span>{props.data.label}</span>
+      </div>
+    </components.Option>
+  )
+
+  const SingleValue = (props: any) => (
+    <components.SingleValue {...props}>
+      <div
+        className="flex items-center gap-2"
+        title={props.data.tieneContrato ? "Ya tiene contrato" : "Disponible"}
+      >
+        <span
+          className={`w-3 h-3 rounded-full ${
+            props.data.tieneContrato
+              ? "bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.8)]"
+              : "bg-gray-300"
+          }`}
+        />
+        <span>{props.data.label}</span>
+      </div>
+    </components.SingleValue>
+  )
 
   return (
     <div
@@ -108,6 +205,36 @@ const FormContrato: React.FC<FormContratoProps> = ({
         onSubmit={handleSubmit}
         className="grid grid-cols-2 gap-4 bg-white rounded-xl"
       >
+        {/* Titular */}
+        <div className="col-span-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Titular
+          </label>
+          <Select
+            options={titulares}
+            value={titulares.find((t) => t.value === form.paciente_id) || null}
+            onChange={(selected) =>
+              setForm((prev) => ({
+                ...prev,
+                paciente_id: selected ? selected.value : 0,
+              }))
+            }
+            placeholder="Buscar y seleccionar titular..."
+            isClearable
+            isSearchable
+            className="text-sm"
+            components={{ Option, SingleValue }}
+            styles={{
+              control: (base) => ({
+                ...base,
+                borderRadius: "8px",
+                borderColor: "#d1d5db",
+                boxShadow: "none",
+              }),
+            }}
+          />
+        </div>
+
         {/* Firma */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -143,6 +270,28 @@ const FormContrato: React.FC<FormContratoProps> = ({
           </select>
         </div>
 
+        {/* Toggle Manual */}
+        <div className="col-span-2 flex items-center gap-2 mt-2">
+          <input
+            id="manualNumero"
+            type="checkbox"
+            checked={manualNumero}
+            onChange={(e) => {
+              setManualNumero(e.target.checked)
+              if (!e.target.checked) {
+                setForm((prev) => ({
+                  ...prev,
+                  numero_contrato: `CT-${Date.now()}`,
+                }))
+              }
+            }}
+            className="w-4 h-4 accent-blue-600"
+          />
+          <label htmlFor="manualNumero" className="text-sm text-gray-700">
+            Es un contrato antiguo (ingresar número manualmente)
+          </label>
+        </div>
+
         {/* Número Contrato */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -153,9 +302,13 @@ const FormContrato: React.FC<FormContratoProps> = ({
             name="numero_contrato"
             value={form.numero_contrato}
             onChange={handleChange}
-            className="border rounded-lg px-3 py-2 w-full focus:ring focus:ring-blue-200"
-            placeholder="Ej: CT-2025"
-            required
+            className={`border rounded-lg px-3 py-2 w-full ${
+              manualNumero ? "bg-white" : "bg-gray-100 text-gray-600"
+            } focus:ring focus:ring-blue-200`}
+            readOnly={!manualNumero}
+            placeholder={
+              manualNumero ? "Ej: CT-000123 (ingrésalo manualmente)" : ""
+            }
           />
         </div>
 
