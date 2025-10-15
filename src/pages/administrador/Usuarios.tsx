@@ -173,7 +173,7 @@ export default function UsuariosPage() {
         </div>
       </div>
 
-      {/* Contenedor con scroll horizontal para la tabla */}
+      {/*Contenedor con scroll horizontal para la tabla*/}
       <div className="w-full overflow-x-auto rounded-2xl border border-gray-200 shadow-lg bg-white">
         <DataTable
           columns={columns}
