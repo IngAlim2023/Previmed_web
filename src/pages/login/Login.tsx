@@ -21,9 +21,9 @@ const Login: React.FC = () => {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.rol === "medico") navigate("/home/medico");
-        else if (parsedUser.rol === "asesor") navigate("/home/asesor");
-        else if (parsedUser.rol === "administrador") navigate("/home/admin");
+        if (parsedUser.rol.nombreRol === "Médico") navigate("/home/medico");
+        else if (parsedUser.rol.nombreRol === "Asesor") navigate("/home/asesor");
+        else if (parsedUser.rol.nombreRol === "Administrador") navigate("/usuarios");
         else navigate("/home/paciente");
       }
     }
@@ -48,9 +48,9 @@ const Login: React.FC = () => {
       setIsAuthenticated(true);
 
       // ✅ Redirigir según rol
-      if (respu.data.rol === "medico") navigate("/home/medico");
-      else if (respu.data.rol === "asesor") navigate("/home/asesor");
-      else if (respu.data.rol === "administrador") navigate("/home/admin");
+      if (respu.data.rol.nombreRol === "Médico") navigate("/home/medico");
+      else if (respu.data.rol.nombreRol === "Asesor") navigate("/home/asesor");
+      else if (respu.data.rol.nombreRol === "Administrador") navigate("/usuarios");
       else navigate("/home/paciente");
     } catch (e) {
       console.error("Error en login:", e);
