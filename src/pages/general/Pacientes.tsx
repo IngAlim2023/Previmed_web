@@ -44,7 +44,7 @@ const Pacientes: React.FC = () => {
     setOpen(true);
   };
 
-  const columns: TableColumn<Paciente>[] = [
+  const columns: TableColumn<any>[] = [
     {
       name: "Nombre",
       selector: (row) => row.usuario.nombre,
@@ -69,6 +69,15 @@ const Pacientes: React.FC = () => {
       name: "Opciones",
       cell: (row) => (
         <div className="flex gap-2">
+          {
+            row.pacienteId? ( 
+            <button
+            onClick={() => navigate('/beneficiarios', {state: {row}})}
+            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md flex items-center gap-1 transition"
+          >
+            <FaEdit /> Beneficiarios
+          </button>) : (<></>)
+          }
           <button
             onClick={() => handleEdit(row)}
             className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md flex items-center gap-1 transition"
