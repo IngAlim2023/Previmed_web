@@ -30,7 +30,7 @@ type PropsSideBar = {
 const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
   const navigate = useNavigate();
 
-  const { setUser, setIsAuthenticated } = useAuthContext();
+  const { setUser, setIsAuthenticated, user } = useAuthContext();
   return (
     <aside
       className={`fixed top-0 left-6 h-screen bg-blue-50 text-gray-600 flex flex-col transition-all duration-300 ${
@@ -51,8 +51,8 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
 
       {!cerrado && (
         <div className="px-6 py-2 border-b border-gray-300">
-          <h2 className="text-xl font-bold text-blue-500">Alberto Lasso</h2>
-          <p className="text-md text-gray-400">Administrador</p>
+          <h2 className="text-xl font-bold text-blue-500">{user.nombre}</h2>
+          <p className="text-md text-gray-400">{user.rol.nombreRol}</p>
         </div>
       )}
 
