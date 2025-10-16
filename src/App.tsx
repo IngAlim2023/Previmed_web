@@ -28,6 +28,7 @@ import ProtectedRoutes from "./protectedRoutes/ProtectedRoutes";
 import Barrios from "./pages/administrador/Barrios";
 import TelefonosUsuario from "./pages/administrador/TelefonosUsuario";
 import FormPlan from "./components/planes/FormPlan";
+import FormBeneficioPage from "./pages/administrador/FormBeneficioPage";
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
             <Route path="/medicos" element={<Medicos />} />
             <Route path="/contratos" element={<Contratos />} />
             <Route path="/beneficios_plan" element={<BeneficiosPlan />} />
+            <Route path="/beneficios_plan/nuevo" element={<FormBeneficioPage />} />
             <Route path="/solicitudes" element={<Solicitudes />} />
             <Route path="/formas_pago" element={<FormasPago />} />
             <Route path="/eps" element={<Eps />} />

@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import toast from "react-hot-toast"
-import { Plan, NuevoPlanForm } from "../../interfaces/planes"
+import { NuevoPlanForm } from "../../interfaces/planes"
 import { createPlan, updatePlan, getPlanById } from "../../services/planes"
+import { getBeneficios } from "../../services/beneficios"
+import { getPlanBeneficioById } from "../../services/planxbeneficios"
+import { Beneficio } from "../../interfaces/beneficios"
+import BtnAgregar from "../botones/BtnAgregar"
+import BtnCancelar from "../botones/BtnCancelar"
 
 const FormPlan: React.FC = () => {
   const navigate = useNavigate()
@@ -14,41 +19,91 @@ const FormPlan: React.FC = () => {
     descripcion: "",
     precio: "",
     estado: true,
-    cantidadBeneficiarios: 1
+    cantidadBeneficiarios: 1,
+    beneficios: [],
   })
-  const [loading, setLoading] = useState(false)
-  const [loadingData, setLoadingData] = useState(isEditing)
 
+  const [beneficios, setBeneficios] = useState<Beneficio[]>([])
+  const [isSaving, setIsSaving] = useState(false)
+  const [loadingData, setLoadingData] = useState(true)
+  const [closing, setClosing] = useState(false)
+
+  // 🔹 Cargar beneficios y plan (si aplica)
   useEffect(() => {
-    if (isEditing && idPlan) {
-      const fetchPlan = async () => {
-        try {
-          setLoadingData(true)
-          const response = await getPlanById(Number(idPlan))
-          const plan: Plan = response.msj
+    const fetchData = async () => {
+      try {
+        setLoadingData(true)
+
+        // 🔸 1️⃣ Obtener beneficios disponibles
+        const benefData = await getBeneficios()
+        setBeneficios(benefData)
+
+        // 🔸 2️⃣ Si se edita, obtener el plan y sus beneficios asociados
+        if (isEditing && idPlan) {
+          const planData = await getPlanById(Number(idPlan))
+          const relaciones = await getPlanBeneficioById(Number(idPlan))
+
+          const beneficiosIds = relaciones.map(
+            (r) => r.beneficio_id ?? r.beneficioId
+          )
+
           setFormData({
-            tipoPlan: plan.tipoPlan,
-            descripcion: plan.descripcion,
-            precio: plan.precio,
-            estado: plan.estado,
-            cantidadBeneficiarios: plan.cantidadBeneficiarios
+            tipoPlan: planData.tipoPlan,
+            descripcion: planData.descripcion,
+            precio: planData.precio.toString(),
+            estado: planData.estado,
+            cantidadBeneficiarios: planData.cantidadBeneficiarios,
+            beneficios: beneficiosIds,
           })
-        } catch (error) {
-          console.error("Error al cargar plan:", error)
-          toast.error("Error al cargar los datos del plan")
-          navigate("/planes")
-        } finally {
-          setLoadingData(false)
         }
+      } catch (error) {
+        console.error("❌ Error al cargar datos:", error)
+        toast.error("No se pudieron cargar los datos del plan")
+        navigate("/planes")
+      } finally {
+        setLoadingData(false)
       }
-      fetchPlan()
     }
+
+    fetchData()
   }, [idPlan, isEditing, navigate])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // ✏️ Manejar cambios en inputs
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value, type } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]:
+        type === "checkbox"
+          ? (e.target as HTMLInputElement).checked
+          : name === "precio"
+          ? value.replace(/[^\d.]/g, "")
+          : type === "number"
+          ? Number(value)
+          : value,
+    }))
+  }
 
-    if (!formData.tipoPlan || !formData.descripcion || !formData.precio || formData.cantidadBeneficiarios <= 0) {
+  // 🔹 Activar o desactivar beneficios (checkbox)
+  const toggleBeneficio = (id: number) => {
+    setFormData((prev) => {
+      const selected = prev.beneficios.includes(id)
+      return {
+        ...prev,
+        beneficios: selected
+          ? prev.beneficios.filter((b) => b !== id)
+          : [...prev.beneficios, id],
+      }
+    })
+  }
+
+  // 💾 Guardar o actualizar plan
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault()
+
+    if (!formData.tipoPlan || !formData.descripcion || !formData.precio) {
       toast.error("Debes completar todos los campos obligatorios")
       return
     }
@@ -58,36 +113,38 @@ const FormPlan: React.FC = () => {
       return
     }
 
+    setIsSaving(true)
     try {
-      setLoading(true)
-      if (isEditing && idPlan) {
-        await updatePlan(Number(idPlan), formData)
-        toast.success("Plan actualizado con éxito")
-      } else {
-        await createPlan(formData)
-        toast.success("Plan creado con éxito")
+      const payload = {
+        ...formData,
+        beneficios: formData.beneficios.map(Number),
       }
+
+      if (isEditing && idPlan) {
+        await updatePlan(Number(idPlan), payload)
+        toast.success("Plan actualizado con éxito ✅")
+      } else {
+        await createPlan(payload)
+        toast.success("Plan creado con éxito 🎉")
+      }
+
       navigate("/planes")
     } catch (error) {
-      console.error("Error al guardar plan:", error)
+      console.error("❌ Error al guardar plan:", error)
       toast.error("Error al guardar el plan")
     } finally {
-      setLoading(false)
+      setIsSaving(false)
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === "checkbox" 
-        ? (e.target as HTMLInputElement).checked 
-        : type === "number" 
-        ? Number(value)
-        : value
-    }))
+  // ❌ Cancelar acción
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setClosing(true)
+    setTimeout(() => navigate("/planes"), 250)
   }
 
+  // ⏳ Loader
   if (loadingData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -99,111 +156,154 @@ const FormPlan: React.FC = () => {
     )
   }
 
+  // 🎨 Interfaz principal
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-8">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+    <div
+      className={`min-h-screen flex items-center justify-center bg-gray-100 p-6 transition-all duration-300 ${
+        closing ? "opacity-0 scale-95" : "opacity-100 scale-100"
+      }`}
+    >
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-4 bg-white rounded-xl shadow-lg w-full max-w-lg p-6 border border-gray-200"
+      >
+        <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center border-b pb-2">
           {isEditing ? "Editar Plan" : "Crear Nuevo Plan"}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Tipo de plan */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Tipo de plan
+          </label>
+          <input
+            type="text"
+            name="tipoPlan"
+            value={formData.tipoPlan}
+            onChange={handleChange}
+            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring focus:ring-blue-200 focus:outline-none"
+            placeholder="Ej: Básico, Premium, Familiar"
+            required
+          />
+        </div>
+
+        {/* Descripción */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Descripción
+          </label>
+          <textarea
+            name="descripcion"
+            value={formData.descripcion}
+            onChange={handleChange}
+            rows={3}
+            className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring focus:ring-blue-200 focus:outline-none resize-none"
+            placeholder="Describe las características del plan..."
+            required
+          />
+        </div>
+
+        {/* Beneficios */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Beneficios disponibles
+          </label>
+          <div className="border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto space-y-2">
+            {beneficios.length > 0 ? (
+              beneficios.map((b) => {
+                const id = b.idBeneficio ?? b.id_beneficio
+                const nombre = b.tipoBeneficio ?? b.tipo_beneficio
+                return (
+                  <label
+                    key={id}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={formData.beneficios.includes(id!)}
+                      onChange={() => toggleBeneficio(id!)}
+                      className="rounded text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-gray-700">{nombre}</span>
+                  </label>
+                )
+              })
+            ) : (
+              <p className="text-sm text-gray-500">
+                No hay beneficios registrados.
+              </p>
+            )}
+          </div>
+
+          <div className="flex justify-end mt-2">
+            <button
+              type="button"
+              onClick={() => navigate("/beneficios_plan/nuevo")}
+              className="text-sm text-blue-600 hover:underline flex items-center gap-1"
+            >
+              ➕ Crear nuevo beneficio
+            </button>
+          </div>
+        </div>
+
+        {/* Precio y beneficiarios */}
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tipo de Plan *
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Precio
             </label>
             <input
               type="text"
-              name="tipoPlan"
-              value={formData.tipoPlan}
+              name="precio"
+              value={formData.precio}
               onChange={handleChange}
-              placeholder="Ej: Básico, Premium, Familiar"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring focus:ring-blue-200 focus:outline-none"
+              placeholder="Ej: 150000"
               required
             />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Descripción *
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Beneficiarios
             </label>
-            <textarea
-              name="descripcion"
-              value={formData.descripcion}
+            <input
+              type="number"
+              name="cantidadBeneficiarios"
+              value={formData.cantidadBeneficiarios}
               onChange={handleChange}
-              placeholder="Describe los beneficios y características del plan..."
-              rows={4}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:ring focus:ring-blue-200 focus:outline-none"
+              placeholder="1"
+              min="1"
               required
             />
           </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Precio *
-              </label>
-              <input
-                type="number"
-                name="precio"
-                value={formData.precio}
-                onChange={handleChange}
-                placeholder="0"
-                min="0"
-                step="1000"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
+        {/* Estado */}
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            name="estado"
+            checked={formData.estado}
+            onChange={handleChange}
+            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <label className="ml-2 text-sm text-gray-700">Plan activo</label>
+        </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Beneficiarios *
-              </label>
-              <input
-                type="number"
-                name="cantidadBeneficiarios"
-                value={formData.cantidadBeneficiarios}
-                onChange={handleChange}
-                placeholder="1"
-                min="1"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
+        {/* Botones */}
+        <div className="flex justify-end gap-3 pt-4 border-t mt-4">
+          <div onClick={handleCancel}>
+            <BtnCancelar />
           </div>
-
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="estado"
-              checked={formData.estado}
-              onChange={handleChange}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <label className="ml-2 block text-sm text-gray-700">
-              Plan activo
-            </label>
+          <div
+            onClick={!isSaving ? handleSubmit : undefined}
+            className={`${isSaving ? "opacity-60 cursor-not-allowed" : ""}`}
+          >
+            <BtnAgregar />
           </div>
-
-          <div className="flex justify-end gap-3 pt-6 border-t">
-            <button
-              type="button"
-              onClick={() => navigate("/planes")}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition disabled:opacity-50"
-              disabled={loading}
-            >
-              {loading ? "Guardando..." : isEditing ? "Actualizar Plan" : "Crear Plan"}
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   )
 }
