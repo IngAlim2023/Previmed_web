@@ -15,4 +15,5 @@ export interface Paciente {
   habilitar?: boolean;
   doctor: string;
   plan: string;
+  usuarioId?: string;
 }
