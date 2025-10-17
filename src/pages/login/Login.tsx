@@ -4,6 +4,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { login } from "../../services/autentication";
 import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 interface UsuarioCredenciales {
   numero_documento: string;
@@ -21,21 +22,26 @@ const Login: React.FC = () => {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
-        if (parsedUser.rol.nombreRol === "Médico") navigate("/home/medico");
-        else if (parsedUser.rol.nombreRol === "Asesor") navigate("/home/asesor");
-        else if (parsedUser.rol.nombreRol === "Administrador") navigate("/usuarios");
-        else navigate("/home/paciente");
+        const idRol = parsedUser?.rol?.idRol;
+
+        if (idRol === 3) navigate("/home/medico");
+        else if (idRol === 2) navigate("/home/asesor");
+        else if (idRol === 1) navigate("/usuarios");
+        else if (idRol === 4) navigate("/home/paciente");
+        else navigate("/");
       }
     }
   }, [isAuthenticated, navigate]);
 
   const onSubmit: SubmitHandler<UsuarioCredenciales> = async (data) => {
     try {
+      toast.loading("Verificando credenciales...", { id: "login" }); 
       const res = await login(data);
       const respu = await res?.json();
 
       if (respu.message !== "Acceso permitido") {
         setIsAuthenticated(false);
+        toast.error("Credenciales incorrectas. Verifica tu documento o contraseña.", { id: "login" });
         return;
       }
 
@@ -47,14 +53,22 @@ const Login: React.FC = () => {
       setUser(respu.data);
       setIsAuthenticated(true);
 
+      toast.dismiss("login");
+      toast.success(`¡Bienvenido ${respu.data?.nombre || ""}!`);
+
+      const idRol = respu.data?.rol?.idRol;
+
       // ✅ Redirigir según rol
-      if (respu.data.rol.nombreRol === "Médico") navigate("/home/medico");
-      else if (respu.data.rol.nombreRol === "Asesor") navigate("/home/asesor");
-      else if (respu.data.rol.nombreRol === "Administrador") navigate("/usuarios");
-      else navigate("/home/paciente");
+      if (idRol === 3) navigate("/home/medico");
+      else if (idRol === 2) navigate("/home/asesor");
+      else if (idRol === 1) navigate("/usuarios");
+      else if (idRol === 4) navigate("/home/paciente");
+      else navigate("/");
     } catch (e) {
       console.error("Error en login:", e);
       setIsAuthenticated(false);
+      toast.dismiss("login");
+      toast.error("Ocurrió un error al iniciar sesión. Intenta nuevamente.");
     }
   };
 

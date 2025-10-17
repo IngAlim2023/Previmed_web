@@ -7,7 +7,7 @@ interface DataLogin{
 
 export const login = async (data:DataLogin) => {
   try {
-    const auth = await fetch(`${URL_BACK}login`, {
+    const auth = await fetch(`${URL_BACK}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials:"include",
