@@ -1,11 +1,17 @@
 import { createContext, useState, type ReactNode, useContext, useEffect } from "react";
 import Cookies from "js-cookie";
 
+// ✅ Tipo de rol
+type Rol = {
+  nombreRol: string;
+};
+
+// ✅ Tipo de usuario
 type User = {
   id: string | null;
   documento: string | null;
-  rol?: any | null;
-  nombre?: string | null;
+  rol: Rol | null;
+  nombre: string | null;
 };
 
 interface Context {
@@ -20,16 +26,19 @@ interface Context {
 export const AuthContext = createContext<Context | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // ✅ Inicializamos desde localStorage
+  // ✅ Inicializar desde localStorage
   const savedUser = localStorage.getItem("user");
-  const initialUser: User = savedUser ? JSON.parse(savedUser) : { id: null, documento: null, rol: null };
+  const initialUser: User = savedUser
+    ? JSON.parse(savedUser)
+    : { id: null, documento: null, rol: null, nombre: null };
+
   const initialAuth = !!savedUser;
 
   const [auth, setAuth] = useState<boolean>(initialAuth);
   const [user, setUser] = useState<User>(initialUser);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(initialAuth);
 
-  // Extra: sincronizar con cookies si las usas
+  // ✅ Leer desde cookies si existen
   useEffect(() => {
     const savedAuth = Cookies.get("auth");
     const savedUserCookie = Cookies.get("user");
@@ -39,10 +48,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAuth(true);
       setIsAuthenticated(true);
       setUser(parsedUser);
-      // guardar también en localStorage
       localStorage.setItem("user", savedUserCookie);
     }
   }, []);
+
+  // ✅ Guardar automáticamente cuando cambia el usuario
+  useEffect(() => {
+    if (user && user.id) {
+      Cookies.set("user", JSON.stringify(user));
+      Cookies.set("auth", "true");
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+  }, [user]);
 
   return (
     <AuthContext.Provider
