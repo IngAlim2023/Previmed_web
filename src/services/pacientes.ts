@@ -169,3 +169,18 @@ export const getUsuarioDeBeneficiario = async (id: number) => {
     return { message: "Error", error: e?.message || "Network error" };
   }
 };
+
+export const registroCompletoTitular = async(data:any) => {
+  try {
+    const res = await fetch(url('/paciente/crear-titular'), {
+      method: 'POST', 
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+    const resFinal = await res.json()
+    // resFinal contiene data y message
+    return resFinal
+  } catch (error) {
+    console.log('error al crear el titular = ', error)
+  }
+}
