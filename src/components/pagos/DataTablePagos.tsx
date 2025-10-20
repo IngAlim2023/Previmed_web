@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DataTable from "react-data-table-component";
 import toast from "react-hot-toast";
 import { ColDataTablePagos, PagoInterface } from "../../interfaces/Pagos";
@@ -18,17 +18,26 @@ const DataTablePagos: React.FC = () => {
   const [pago, setPago] = useState<PagoInterface | null>(null);
   const [buscarPago, setBuscarPago] = useState<string>("");
 
+  // Evita doble ejecución del efecto en React 18 StrictMode
+  const fetchedOnce = useRef(false);
+
   const getPagos = async (showToast = false) => {
     try {
       const data = await getPagosService();
       setPagos(data.data);
-      if (showToast) toast.success("Pagos cargados exitosamente");
+      if (showToast) {
+        toast.success("Pagos cargados exitosamente", { id: "pagos-cargados" });
+      }
     } catch (error) {
-      if (showToast) toast.error("Error al cargar los pagos");
+      if (showToast) {
+        toast.error("Error al cargar los pagos", { id: "pagos-cargados" });
+      }
     }
   };
 
   useEffect(() => {
+    if (fetchedOnce.current) return;
+    fetchedOnce.current = true;
     getPagos(true);
   }, []);
 
@@ -37,7 +46,7 @@ const DataTablePagos: React.FC = () => {
     try {
       await deletePago(id);
       toast.success("Pago eliminado correctamente");
-      getPagos();
+      getPagos(); // recarga sin toast
     } catch {
       toast.error("Error al eliminar el registro de pago");
     }
@@ -64,16 +73,21 @@ const DataTablePagos: React.FC = () => {
     { name: "Monto", selector: (row) => `$${row.monto}`, sortable: true },
     { name: "Forma de pago", selector: (row) => row.formaPago?.tipoPago || "", sortable: true },
     {
-  name: "Acciones",
-  cell: (row) => (
-    <div className="flex gap-2 p-2 space-x-1 w-full justify-center">
-      <div title="Ver detalles" onClick={() => { setPago(row); setDetalles(true); }}><BtnLeer /></div>
-      <div title="Editar" onClick={() => { setPago(row); setForm(true); }}><BtnEditar /></div>
-      <div title="Eliminar" onClick={() => eliminarPago(row.idRegistro)}><BtnEliminar /></div>
-    </div>
-  ),
-
-}
+      name: "Acciones",
+      cell: (row) => (
+        <div className="flex gap-2 p-2 space-x-1 w-full justify-center">
+          <div title="Ver detalles" onClick={() => { setPago(row); setDetalles(true); }}>
+            <BtnLeer />
+          </div>
+          <div title="Editar" onClick={() => { setPago(row); setForm(true); }}>
+            <BtnEditar />
+          </div>
+          <div title="Eliminar" onClick={() => eliminarPago(row.idRegistro)}>
+            <BtnEliminar />
+          </div>
+        </div>
+      ),
+    },
   ];
 
   const pagosFiltrados = pagos
@@ -92,7 +106,8 @@ const DataTablePagos: React.FC = () => {
         <div className="w-full max-w-6xl bg-white rounded-lg shadow-xl p-4 overflow-x-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-600 flex items-center">
-              <HiOutlineDocumentCurrencyDollar className="w-10 h-auto text-blue-600 mr-4" />Pagos
+              <HiOutlineDocumentCurrencyDollar className="w-10 h-auto text-blue-600 mr-4" />
+              Pagos
             </h2>
             <input
               type="text"
