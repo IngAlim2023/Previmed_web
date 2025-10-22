@@ -1,7 +1,8 @@
 import { Visita } from "../interfaces/visitas";
 
-const URL_BACK = import.meta.env.VITE_URL_BACK;
-const API_URL = `${URL_BACK}visitas`;
+const rawUrl = import.meta.env.VITE_URL_BACK || "";
+const URL_BACK = rawUrl.endsWith("/") ? rawUrl.slice(0, -1) : rawUrl;
+const API_URL = `${URL_BACK}/visitas`;
 
 // ✅ Recibir: backend manda camelCase dentro de msj → transformamos a snake_case
 export const getVisitas = async (): Promise<Visita[]> => {
@@ -74,4 +75,27 @@ export const updateVisita = async (id: number, visita: Visita): Promise<Visita> 
 export const deleteVisita = async (id: number): Promise<void> => {
   const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
   if (!res.ok) throw new Error("Error al eliminar visita");
+};
+
+export const getVisitasPorMedico = async (idMedico: number): Promise<Visita[]> => {
+  const url = `${API_URL}/medico/${idMedico}`.replace(/([^:]\/)\/+/g, "$1");
+  console.log("🔗 URL usada para obtener visitas del médico:", url);
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Error al obtener visitas por médico");
+
+  const json = await res.json();
+  console.log("📦 Respuesta del backend (visitas):", json);
+
+  return (json.msj ?? []).map((v: any) => ({
+    id_visita: v.idVisita,
+    fecha_visita: v.fechaVisita,
+    descripcion: v.descripcion,
+    direccion: v.direccion,
+    estado: v.estado,
+    telefono: v.telefono,
+    paciente_id: v.pacienteId,
+    medico_id: v.medicoId,
+    barrio_id: v.barrioId,
+  }));
 };

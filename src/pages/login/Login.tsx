@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import logo from "../../assets/logo.png";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { login } from "../../services/autentication";
+import { getUsuarioById } from "../../services/usuarios";
 import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
@@ -16,56 +17,127 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { setUser, setIsAuthenticated, isAuthenticated } = useAuthContext();
 
-  // ✅ Si ya está autenticado, redirige automáticamente
+  // ✅ Si ya hay sesión activa, redirige una sola vez
   useEffect(() => {
-    if (isAuthenticated) {
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        const idRol = parsedUser?.rol?.idRol;
+    const storedUser = localStorage.getItem("user");
+    if (isAuthenticated && storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      const rol = (parsedUser?.rol?.nombreRol ?? "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 
-        if (idRol === 3) navigate("/home/medico");
-        else if (idRol === 2) navigate("/home/asesor");
-        else if (idRol === 1) navigate("/usuarios");
-        else if (idRol === 4) navigate("/home/paciente");
-        else navigate("/");
-      }
+      console.log("🔁 [Login] Redirigiendo sesión previa con rol:", rol);
+
+      if (rol === "medico") navigate("/home/medico");
+      else if (rol === "asesor") navigate("/home/asesor");
+      else if (rol === "administrador") navigate("/usuarios");
+      else if (rol === "paciente") navigate("/home/paciente");
+      else navigate("/");
     }
-  }, [isAuthenticated, navigate]);
+  }, []); // ← solo al montar
 
+  // ✅ Enviar credenciales y procesar login
   const onSubmit: SubmitHandler<UsuarioCredenciales> = async (data) => {
+    console.log("📤 [Login] Enviando credenciales:", data);
+
     try {
-      toast.loading("Verificando credenciales...", { id: "login" }); 
+      toast.loading("Verificando credenciales...", { id: "login" });
+
       const res = await login(data);
       const respu = await res?.json();
+      console.log("📥 [Login] Respuesta backend:", respu);
 
-      if (respu.message !== "Acceso permitido") {
+      if (!respu || respu.message !== "Acceso permitido") {
+        console.warn("⚠️ [Login] Credenciales incorrectas");
         setIsAuthenticated(false);
-        toast.error("Credenciales incorrectas. Verifica tu documento o contraseña.", { id: "login" });
+        toast.error("Credenciales incorrectas.", { id: "login" });
         return;
       }
 
-      // ✅ Guardar en localStorage
-      localStorage.setItem("user", JSON.stringify(respu.data));
+      // 🔹 Datos crudos del backend
+      const backendUser = respu.data;
+      console.log("📦 [Login] Usuario recibido del backend:", backendUser);
+
+      // 🔹 Aseguramos nombre y rol incluso si faltan en la respuesta
+      const nombreRaw =
+        backendUser?.nombre ??
+        backendUser?.usuario?.nombre ??
+        backendUser?.nombres ??
+        backendUser?.first_name ?? "";
+      const apellidoRaw =
+        backendUser?.apellido ??
+        backendUser?.usuario?.apellido ??
+        backendUser?.apellidos ??
+        backendUser?.last_name ?? "";
+      let nombreCompleto = `${nombreRaw} ${apellidoRaw}`.trim();
+
+      const rolNombre =
+        backendUser?.rol?.nombreRol ??
+        backendUser?.rol_nombre ??
+        backendUser?.usuario?.rol?.nombreRol ??
+        backendUser?.rol ??
+        "Desconocido";
+
+      // 🔹 Intento extra: consultar usuario por ID si no hay nombre
+      const posibleId =
+        backendUser?.id ??
+        backendUser?.id_usuario ??
+        backendUser?.usuario?.id_usuario ??
+        null;
+
+      if (!nombreCompleto && posibleId) {
+        try {
+          const det = await getUsuarioById(String(posibleId));
+          const du = det?.data ?? det ?? {};
+          const n = du?.nombre ?? du?.first_name ?? "";
+          const a = du?.apellido ?? du?.last_name ?? "";
+          nombreCompleto = `${n} ${a}`.trim();
+        } catch {
+          // Silencioso: seguimos con fallback por si falla
+        }
+      }
+
+      // 🔹 Usuario normalizado para AuthContext
+      const normalizedUser = {
+        id: posibleId,
+        documento:
+          backendUser?.numero_documento ??
+          backendUser?.documento ??
+          backendUser?.usuario?.numero_documento ??
+          null,
+        nombre: nombreCompleto || backendUser?.nombre || "Usuario sin nombre",
+        rol: { nombreRol: rolNombre },
+      };
+
+      console.log("✅ [Login] Usuario normalizado:", normalizedUser);
+
+      // 🔹 Guardar datos persistentes
+      localStorage.setItem("user", JSON.stringify(normalizedUser));
       localStorage.setItem("token", respu.token ?? "");
 
-      // ✅ Guardar en contexto
-      setUser(respu.data);
+      // 🔹 Actualizar contexto global
+      setUser(normalizedUser);
       setIsAuthenticated(true);
 
       toast.dismiss("login");
-      toast.success(`¡Bienvenido ${respu.data?.nombre || ""}!`);
+      toast.success(`¡Bienvenido ${normalizedUser.nombre}!`);
 
-      const idRol = respu.data?.rol?.idRol;
+      // 🔹 Redirección según rol
+      const rol = (normalizedUser.rol?.nombreRol ?? "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+      console.log("🧩 [Login] Rol detectado:", rol);
 
-      // ✅ Redirigir según rol
-      if (idRol === 3) navigate("/home/medico");
-      else if (idRol === 2) navigate("/home/asesor");
-      else if (idRol === 1) navigate("/usuarios");
-      else if (idRol === 4) navigate("/home/paciente");
+      if (rol === "medico") navigate("/home/medico");
+      else if (rol === "asesor") navigate("/home/asesor");
+      else if (rol === "administrador") navigate("/usuarios");
+      else if (rol === "paciente") navigate("/home/paciente");
       else navigate("/");
+
     } catch (e) {
-      console.error("Error en login:", e);
+      console.error("❌ [Login] Error general:", e);
       setIsAuthenticated(false);
       toast.dismiss("login");
       toast.error("Ocurrió un error al iniciar sesión. Intenta nuevamente.");
@@ -75,18 +147,18 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        {/* Logo */}
+        {/* 🔹 Logo */}
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Logo Previmed" className="h-22 object-contain" />
         </div>
 
-        {/* Mensaje de bienvenida */}
+        {/* 🔹 Encabezado */}
         <div className="text-left mb-8">
           <h2 className="text-2xl font-semibold text-lgreen">Hola</h2>
           <p className="text-gray-600">Bienvenido a Previmed</p>
         </div>
 
-        {/* Formulario */}
+        {/* 🔹 Formulario */}
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
           <input
             type="text"

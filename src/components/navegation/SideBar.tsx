@@ -39,6 +39,10 @@ type PropsSideBar = {
 const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
   const navigate = useNavigate();
   const { setUser, setIsAuthenticated, user } = useAuthContext();
+
+  // 🧭 Verificar qué llega del contexto
+  console.log("🧭 Usuario en Sidebar:", user);
+
   // ✅ Todas las rutas con roles
   const routes: RouteItem[] = [
     // 🔹 ADMINISTRADOR
@@ -64,30 +68,29 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
     { path: "/pagos", label: "Registros Pagos", icon: <FaMoneyBill />, roles: ["Asesor"] },
     { path: "/barrios", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Administrador", "Asesor"] },
 
-    // 🔹MÉDICO
-    {path:"/home/medico", label:"Inicio Médico", icon: <FaUserMd />, roles: ["Medico"]},
-    {path:"visitas/medico", label:"Mis Visitas", icon:<FaCalendarAlt/>,roles:["Medico"]},
-
+    // 🔹 MÉDICO
+    { path: "/home/medico", label: "Inicio Médico", icon: <FaUserMd />, roles: ["Medico"] },
+    { path: "/visitas/medico", label: "Mis Visitas", icon: <FaCalendarAlt />, roles: ["Medico"] },
+    { path: "/historial/medico", label: "Historial Médico", icon: <FaHistory />, roles: ["Medico"] },
   ];
 
-  // ✅ Filtrar rutas según el rol actual del usuario (versión robusta)
-const filteredRoutes = routes.filter((route) => {
-  const rolActual = (user.rol?.nombreRol || "")
-    .toLowerCase()
-    .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, ""); // elimina tildes y espacios
+  // ✅ Filtrar rutas según el rol actual del usuario
+  const filteredRoutes = routes.filter((route) => {
+    const rolActual = (user.rol?.nombreRol || "")
+      .toLowerCase()
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
 
-  return route.roles.some(
-    (r) =>
-      r
-        .toLowerCase()
-        .trim()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") === rolActual
-  );
-});
-
+    return route.roles.some(
+      (r) =>
+        r
+          .toLowerCase()
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") === rolActual
+    );
+  });
 
   // ✅ Cerrar sesión
   const handleLogout = () => {
@@ -118,9 +121,13 @@ const filteredRoutes = routes.filter((route) => {
 
       {/* INFO DEL USUARIO */}
       {!cerrado && (
-        <div className="px-6 py-2 border-b border-gray-300">
-          <h2 className="text-xl font-bold text-blue-500">{user.nombre}</h2>
-          <p className="text-md text-gray-400">{user.rol?.nombreRol}</p>
+        <div className="px-6 py-3 border-b border-gray-300 text-center">
+          <h2 className="text-xl font-bold text-blue-600">
+            {user?.nombre ? user.nombre : "Usuario"}
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            {user.rol?.nombreRol ? user.rol.nombreRol : "Sin rol"}
+          </p>
         </div>
       )}
 
@@ -139,7 +146,7 @@ const filteredRoutes = routes.filter((route) => {
 
         {/* LOGOUT */}
         <div
-          className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-blue-200 cursor-pointer transition"
+          className="flex items-center gap-3 px-3 py-2 mt-2 rounded-lg hover:bg-blue-200 cursor-pointer transition"
           onClick={handleLogout}
         >
           <LuLogOut className="text-lg" />

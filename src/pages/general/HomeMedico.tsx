@@ -10,7 +10,7 @@ interface Medico {
   nombre: string;
   disponible: boolean;
   estado: boolean;
-  enVisita: boolean; // 🔹 nuevo campo lógico (solo frontend)
+  enVisita: boolean;
   pacientes: number;
   experiencia: string;
   imagenUrl: string;
@@ -18,12 +18,13 @@ interface Medico {
 }
 
 const HomeMedico: React.FC = () => {
-  const { user } = useAuthContext();
+  const { user, setUser } = useAuthContext();
   const [medico, setMedico] = useState<Medico | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  const API_URL = import.meta.env.VITE_URL_BACK;
+  const RAW_URL = String(import.meta.env.VITE_URL_BACK || "");
+  const API_URL = RAW_URL.replace(/\/+$/, "");
 
   const getProfileImage = (nombre: string, genero?: string): string => {
     if (genero) {
@@ -42,8 +43,10 @@ const HomeMedico: React.FC = () => {
         if (!res.ok) throw new Error("Error al obtener lista de médicos");
 
         const data = await res.json();
+
         const medicoEncontrado = data.data.find(
-          (m: any) => m.usuario_id === user.id
+          (m: any) =>
+            m.usuario_id === user.id || m.usuario.id_usuario === user.id
         );
 
         if (!medicoEncontrado) {
@@ -52,13 +55,14 @@ const HomeMedico: React.FC = () => {
         }
 
         const nombreCompleto = `${medicoEncontrado.usuario.nombre} ${medicoEncontrado.usuario.apellido}`;
+        const visitaActiva = localStorage.getItem("visita_activa");
 
         setMedico({
           id: medicoEncontrado.id_medico,
           nombre: nombreCompleto,
           disponible: medicoEncontrado.disponibilidad,
           estado: medicoEncontrado.estado,
-          enVisita: false, // 🔹 inicialmente no está en visita
+          enVisita: !!visitaActiva,
           pacientes: 120,
           experiencia: "10 años",
           imagenUrl: getProfileImage(
@@ -67,6 +71,13 @@ const HomeMedico: React.FC = () => {
           ),
           descripcion:
             "Recuerda que nuestros pacientes son muy importantes. Brinda siempre una atención de calidad.",
+        });
+
+        setUser({
+          id: user.id,
+          documento: user.documento,
+          rol: { nombreRol: "Medico" },
+          nombre: nombreCompleto,
         });
       } catch (error) {
         console.error(error);
@@ -77,19 +88,28 @@ const HomeMedico: React.FC = () => {
     };
 
     if (user.id) fetchMedico();
-  }, [user.id, API_URL]);
+  }, [user.id, API_URL, setUser]);
 
-  // 🔹 Simular inicio / fin de visita médica
+  // 🔹 Escucha cambios en localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const visitaActiva = localStorage.getItem("visita_activa");
+      setMedico((prev) =>
+        prev ? { ...prev, enVisita: !!visitaActiva } : prev
+      );
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  // 🔹 Iniciar / Finalizar visita médica (solo un toast)
   const toggleVisita = async () => {
     if (!medico) return;
     try {
       setUpdating(true);
 
       const nuevoEnVisita = !medico.enVisita;
-
-      // 🔹 Lógica principal
-      // Si está en visita -> disponible pero inactivo
-      // Si no está en visita -> disponible y activo
       const nuevoEstado = nuevoEnVisita ? false : true;
 
       const body = {
@@ -97,13 +117,31 @@ const HomeMedico: React.FC = () => {
         estado: nuevoEstado,
       };
 
-      const res = await fetch(`${API_URL}/medicos/${medico.id}`, {
+      const res = await fetch(`${API_URL}/medicos/${medico.id}`.replace(/([^:]\/)+\/+/, "$1"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) throw new Error("Error al cambiar estado");
+      if (!res.ok) throw new Error("Error al cambiar estado del médico");
+
+      if (!nuevoEnVisita) {
+        // Finaliza la visita activa
+        const idVisitaActiva = localStorage.getItem("visita_activa");
+        if (idVisitaActiva) {
+          await fetch(`${API_URL}/visitas/${idVisitaActiva}`.replace(/([^:]\/)+\/+/, "$1"), {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ estado: false }),
+          });
+          localStorage.removeItem("visita_activa");
+          window.dispatchEvent(new Event("storage"));
+        }
+      } else {
+        // Inicia visita
+        localStorage.setItem("visita_activa", medico.id.toString());
+        window.dispatchEvent(new Event("storage"));
+      }
 
       setMedico({
         ...medico,
@@ -111,10 +149,11 @@ const HomeMedico: React.FC = () => {
         estado: nuevoEstado,
       });
 
+      // ✅ Un solo toast central
       toast.success(
         nuevoEnVisita
-          ? "El médico está en una visita (inactivo temporalmente)"
-          : "El médico ha terminado la visita y está activo nuevamente"
+          ? "Has iniciado una visita médica."
+          : "Has finalizado la visita médica."
       );
     } catch (error) {
       console.error(error);
@@ -124,14 +163,48 @@ const HomeMedico: React.FC = () => {
     }
   };
 
-  // 🔹 Cambiar disponibilidad (activo/inactivo general)
+  // 🔹 Confirmación antes de cambiar disponibilidad
+  const confirmarCambioDisponibilidad = () => {
+    if (!medico) return;
+
+    const mensaje = medico.disponible
+      ? "¿Deseas dejar de estar disponible?"
+      : "¿Estás seguro que deseas iniciar a trabajar?";
+
+    toast.custom(
+      (t) => (
+        <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-4 flex flex-col items-center space-y-3">
+          <p className="text-gray-800 font-semibold">{mensaje}</p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                toast.dismiss(t.id);
+                toggleDisponibilidad();
+              }}
+              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm font-semibold"
+            >
+              Sí
+            </button>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm font-semibold"
+            >
+              No
+            </button>
+          </div>
+        </div>
+      ),
+      { duration: 5000 }
+    );
+  };
+
+  // 🔹 Cambiar disponibilidad general
   const toggleDisponibilidad = async () => {
     if (!medico) return;
     try {
       setUpdating(true);
 
       const nuevaDisponibilidad = !medico.disponible;
-
       const body = {
         disponibilidad: nuevaDisponibilidad,
         estado: nuevaDisponibilidad ? true : false,
@@ -144,6 +217,11 @@ const HomeMedico: React.FC = () => {
       });
 
       if (!res.ok) throw new Error("Error al cambiar disponibilidad");
+
+      if (!nuevaDisponibilidad) {
+        localStorage.removeItem("visita_activa");
+        window.dispatchEvent(new Event("storage"));
+      }
 
       setMedico({
         ...medico,
@@ -181,7 +259,6 @@ const HomeMedico: React.FC = () => {
       </div>
     );
 
-  // 🔹 Color dinámico según estado general
   const estadoColor = !medico.disponible
     ? "bg-red-500 hover:bg-red-600"
     : medico.enVisita
@@ -256,9 +333,9 @@ const HomeMedico: React.FC = () => {
 
             {/* Botones */}
             <div className="mt-6 flex flex-col md:flex-row gap-3 justify-center md:justify-start">
-              {/* Botón disponibilidad */}
+              {/* Botón disponibilidad con confirmación */}
               <button
-                onClick={toggleDisponibilidad}
+                onClick={confirmarCambioDisponibilidad}
                 disabled={updating}
                 className={`text-white font-bold py-2 px-6 rounded-full shadow-md transform transition-all duration-300 hover:scale-105 ${
                   medico.disponible

@@ -81,10 +81,11 @@ export default function UsuariosPage() {
         sortable: true,
       },
       {
-        name: "Rol",
-        selector: (row) => (row.rol.nombreRol ?? "-") as any,
-        sortable: true,
-      },
+  name: "Rol",
+  selector: (row) => row.rol?.nombreRol ?? "-",
+  sortable: true,
+},
+
       {
         name: "Habilitado",
         selector: (row) => row.habilitar ? (<p className="text-green-500 font-semibold">SI</p>) : (<p className="text-red-500 font-semibold">NO</p>),
