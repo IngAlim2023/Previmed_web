@@ -31,7 +31,7 @@ interface Usuario {
   estado_civil?: string;
   numero_hijos?: string;
   estrato?: number;
-  eps_id: number;
+  eps_id?: number | null;
   autorizacion_datos: boolean;
 }
 
@@ -98,7 +98,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
     <InputComponent
       label="Nombre"
       required
-      errors={errors?.[prefix]?.usuario?.nombre}
+      errors={errors?.usuario?.nombre}
       {...register(`${prefix}.usuario.nombre`, { required: "El nombre es requerido" })}
       placeholder="Ingrese el nombre"
     />
@@ -112,7 +112,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
     <InputComponent
       label="Apellido"
       required
-      errors={errors?.[prefix]?.usuario?.apellido}
+      errors={errors?.usuario?.apellido}
       {...register(`${prefix}.usuario.apellido`, { required: "El apellido es requerido" })}
       placeholder="Ingrese el apellido"
     />
@@ -126,7 +126,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
     <SelectComponent
       label="Tipo de Documento"
       required
-      errors={errors?.[prefix]?.usuario?.tipo_documento}
+      errors={errors?.usuario?.tipo_documento}
       {...register(`${prefix}.usuario.tipo_documento`, { required: "Tipo de documento requerido" })}
       options={tiposDocumento}
     />
@@ -135,7 +135,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
       label="Número de Documento"
       required
       type="number"
-      errors={errors?.[prefix]?.usuario?.numero_documento}
+      errors={errors?.usuario?.numero_documento}
       {...register(`${prefix}.usuario.numero_documento`, { required: "Número de documento requerido" })}
       placeholder="Ingrese el número de documento"
     />
@@ -144,8 +144,18 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
       label="Fecha de Nacimiento"
       required
       type="date"
-      errors={errors?.[prefix]?.usuario?.fecha_nacimiento}
-      {...register(`${prefix}.usuario.fecha_nacimiento`, { required: "Fecha de nacimiento requerida" })}
+      max={new Date(new Date().setDate(new Date().getDate() - 1)).toISOString().split("T")[0]}
+      errors={errors?.usuario?.fecha_nacimiento}
+      {...register(`${prefix}.usuario.fecha_nacimiento`, 
+        { required: "Fecha de nacimiento requerida",
+            validate: (value:string) => {
+              const fecha = new Date(value);
+              const limite = new Date();
+              limite.setDate(limite.getDate() - 1);
+              return fecha <= limite || "La fecha no puede ser posterior a hoy";
+            }
+        })
+      }
     />
 
     <SelectComponent
@@ -164,7 +174,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
       label="Correo electronico"
       required
       type="email"
-      errors={errors?.[prefix]?.usuario?.email}
+      errors={errors?.usuario?.email}
       {...register(`${prefix}.usuario.email`, {
         required: "El correo es requerido",
       })}
@@ -175,7 +185,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
       label="Contraseña"
       required
       type="password"
-      errors={errors?.titular?.usuario?.password}
+      errors={errors?.usuario?.password}
       {...register(`${prefix}.usuario.password`, {
         required: "La contraseña es requerida",
         minLength: {
@@ -189,7 +199,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
     <InputComponent
       label="Dirección"
       required
-      errors={errors?.[prefix]?.usuario?.direccion}
+      errors={errors?.usuario?.direccion}
       {...register(`${prefix}.usuario.direccion`, { required: "La dirección es requerida" })}
       placeholder="Cra .. # ... - .. , barrio"
     />
@@ -235,9 +245,9 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
       <span>Autorización de datos personales *</span>
     </label>
     
-    {errors?.[prefix]?.usuario?.autorizacion_datos && (
+    {errors?.usuario?.autorizacion_datos && (
       <span className="col-span-1 md:col-span-2 text-xs text-red-500 -mt-4">
-        {errors[prefix].usuario.autorizacion_datos.message}
+        {errors.usuario.autorizacion_datos.message}
       </span>
     )}
 
@@ -283,7 +293,15 @@ const DatosContrato = ({ register, control, watch, selectPlanes, selectFormasCon
       type="date"
       errors={errors?.contrato?.fecha_inicio}
       max={watch("contrato.fecha_fin")}
-      {...register("contrato.fecha_inicio", { required: "Fecha de inicio requerida" })}
+      {...register("contrato.fecha_inicio", 
+        { required: "Fecha de inicio requerida",
+          validate: (value:any) => {
+            const fechaInicio = new Date(value);
+            const fechaFin = new Date(watch("contrato.fecha_fin"));
+            return (fechaInicio < fechaFin || "La fecha de inicio debe ser inferior a la fecha de fin");
+          }
+        })
+      }
     />
 
     <InputComponent
@@ -292,7 +310,15 @@ const DatosContrato = ({ register, control, watch, selectPlanes, selectFormasCon
       type="date"
       errors={errors?.contrato?.fecha_fin}
       min={watch("contrato.fecha_inicio")}
-      {...register("contrato.fecha_fin", { required: "Fecha de fin requerida" })}
+      {...register("contrato.fecha_fin", 
+        { required: "Fecha de fin requerida",
+          validate: (value:any) => {
+            const fechaFin = new Date(value);
+            const fechaInicio = new Date(watch("contrato.fecha_inicio"))
+            return (fechaFin > fechaInicio || "La fecha de fin debe ser posterior a la fecha de inicio");
+          }
+        })
+      }
     />
 
     <ReactSelectComponent
@@ -329,7 +355,14 @@ const FormularioPagos = ({ register, control, watch, selectFormas, errors }: any
       type="date"
       errors={errors?.pago?.fecha_inicio}
       max={watch("pago.fecha_fin")}
-      {...register("pago.fecha_inicio", { required: "Fecha de inicio requerida" })}
+      {...register("pago.fecha_inicio", 
+        { required: "Fecha de inicio requerida",
+          validate: (value:any) => {
+            const fechaInicio = new Date(value);
+            const fechaFin = new Date(watch("pago.fecha_fin"));
+            return (fechaInicio < fechaFin || "La fecha de inicio debe ser inferior a la fecha de fin");
+          }
+        })}
     />
 
     <InputComponent
@@ -338,7 +371,14 @@ const FormularioPagos = ({ register, control, watch, selectFormas, errors }: any
       type="date"
       errors={errors?.pago?.fecha_fin}
       min={watch("pago.fecha_inicio")}
-      {...register("pago.fecha_fin", { required: "Fecha de fin requerida" })}
+      {...register("pago.fecha_fin", 
+        { required: "Fecha de fin requerida",
+          validate: (value:any) => {
+            const fechaFin = new Date(value);
+            const fechaInicio = new Date(watch("pago.fecha_inicio"))
+            return (fechaFin > fechaInicio || "La fecha de fin debe ser posterior a la fecha de inicio");
+          }
+        })}
     />
 
     <ReactSelectComponent
@@ -380,10 +420,10 @@ const FormularioPacientes = () => {
       titular: {
         usuario: {
           rol_id: 4,
-          autorizacion_datos: false
+          autorizacion_datos: false,
         },
         paciente: {
-          activo: false,
+          activo: true,
           beneficiario: false,
           direccion_cobro: ""
         }
@@ -423,7 +463,11 @@ const FormularioPacientes = () => {
     setValue("contrato.numero_contrato", `CT-${Date.now()}`);
     setValue("contrato.fecha_inicio", new Date().toISOString().split("T")[0]);
     setValue("pago.fecha_inicio", new Date().toISOString().split("T")[0]);
-  }, [setValue]);
+    trigger('contrato.fecha_inicio')
+    trigger('contrato.fecha_fin')
+    trigger('pago.fecha_inicio')
+    trigger('pago.fecha_fin')
+  }, [setValue, watch('contrato.fecha_fin'), watch('pago.fecha_fin')]);
 
   const validateStep = async () => {
     let fieldsToValidate: string[] = [];
@@ -452,7 +496,27 @@ const FormularioPacientes = () => {
         ];
         break;
       case 3: // Beneficiarios - opcional
-        return true;
+        if (fields.length === 0) {
+          return true; // Si no hay beneficiarios, es válido (es opcional)
+        }
+  
+        // Validar cada beneficiario
+        const beneficiarioFields: string[] = [];
+        fields.forEach((_, index) => {
+          beneficiarioFields.push(
+            `beneficiarios.${index}.usuario.nombre`,
+            `beneficiarios.${index}.usuario.apellido`,
+            `beneficiarios.${index}.usuario.tipo_documento`,
+            `beneficiarios.${index}.usuario.numero_documento`,
+            `beneficiarios.${index}.usuario.fecha_nacimiento`,
+            `beneficiarios.${index}.usuario.email`,
+            `beneficiarios.${index}.usuario.password`,
+            `beneficiarios.${index}.usuario.direccion`,
+            `beneficiarios.${index}.usuario.autorizacion_datos`
+          );
+        });
+        const result = await trigger(beneficiarioFields as any);
+        return result;
       case 4: // Validar datos de pago
         fieldsToValidate = [
           "pago.numero_contrato",
@@ -570,9 +634,18 @@ const FormularioPacientes = () => {
     if (isStepValid) {
       if (paso < 4) setPaso(paso + 1);
     } else {
-      toast.error("Por favor complete todos los campos marcados en rojo");
+      toast.error("Por favor llena o verifica los campos marcados en rojo");
       // Forzar scroll hacia arriba para ver los errores
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => {
+        const errorSpan = document.querySelector('span.text-red-500.text-xs');
+        if (errorSpan) {
+          const inputContainer = errorSpan.closest('.flex.flex-col');
+          const input = inputContainer?.querySelector('input, select');
+          if (input) {
+            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 200);
     }
   };
 
@@ -588,7 +661,7 @@ const FormularioPacientes = () => {
             register={register}
             control={control}
             selectEps={selectEps}
-            errors={errors}
+            errors={errors?.titular}
             prefix="titular"
           />
         );
@@ -617,7 +690,7 @@ const FormularioPacientes = () => {
                     register={register}
                     control={control}
                     selectEps={selectEps}
-                    errors={errors}
+                    errors={errors?.beneficiarios?.[index] || {}}
                     prefix={`beneficiarios.${index}`}
                   />
                 </div>
@@ -653,7 +726,7 @@ const FormularioPacientes = () => {
                   tipo_documento: "",
                   estado_civil: "",
                   numero_hijos: "",
-                  eps_id: 0,
+                  eps_id: null,
                   autorizacion_datos: false
                 },
                 paciente: {
