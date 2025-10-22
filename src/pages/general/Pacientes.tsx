@@ -86,7 +86,7 @@ const Pacientes: React.FC = () => {
             >
             <BtnLeer/>
           </div>
-          {user.rol.nombreRol == 'Administrador'? (
+          {user.rol?.nombreRol == 'Administrador'? (
             <>
               <div onClick={() => handleEdit(row)}>
                 <BtnEditar/>
