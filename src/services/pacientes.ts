@@ -181,6 +181,20 @@ export const registroCompletoTitular = async(data:any) => {
     // resFinal contiene data y message
     return resFinal
   } catch (error) {
-    console.log('error al crear el titular = ', error)
+    return('Error al crear el titular')
+  }
+}
+
+// trae el titular y sus beneficiarios, los usuarios con ese id del context
+export const getPacientesId = async(id: string) => {
+  try {
+    const res = await fetch(url('/usuarios/pacientes/'+id), {
+      method:'GET',
+      headers: { "Content-Type": "application/json" }
+    })
+    const data = res.json()
+    return data
+  } catch (error) {
+    return 'Error al traer los usuarios'
   }
 }

@@ -1,13 +1,13 @@
 export interface Visita {
-  id_visita: number
+  id_visita?: number
   fecha_visita: string
   descripcion: string
   direccion: string
   estado: boolean
   telefono: string
-  paciente_id: number
-  medico_id: number
-  barrio_id: number
+  paciente_id: number | null
+  medico_id: number | null
+  barrio_id: number | null
 }
 
 export interface ConfirmDialogProps {
