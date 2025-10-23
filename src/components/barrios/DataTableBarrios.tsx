@@ -84,24 +84,37 @@ const DataTableBarrios: React.FC = () => {
     }
   };
 
-  const handleToggle = async (b: DataBarrio) => {
-    try {
-      const updated = await toggleHabilitarBarrio(b);
-      setBarrios(prev => prev.map(x => x.idBarrio === updated.idBarrio ? updated : x));
-      toast.success("Estado actualizado");
-    } catch {
-      toast.error("No se pudo cambiar el estado");
-    }
-  };
+  // Si deseas habilitar un toggle en la tabla, reutiliza esta función y conéctala desde la columna
+  // const handleToggle = async (b: DataBarrio) => {
+  //   try {
+  //     const updated = await toggleHabilitarBarrio(b);
+  //     setBarrios(prev => prev.map(x => x.idBarrio === updated.idBarrio ? updated : x));
+  //     toast.success("Estado actualizado");
+  //   } catch {
+  //     toast.error("No se pudo cambiar el estado");
+  //   }
+  // };
 
   const columns = [
-    { name: "Nombre", selector: (row: DataBarrio) => row.nombreBarrio, sortable: true },
+    {
+      name: "Nombre",
+      selector: (row: DataBarrio) => row.nombreBarrio,
+      sortable: true,
+      wrap: true,
+      grow: 0,
+      width: "55%",
+      style: { paddingRight: "10px" },
+    },
     {
       name: "Estado",
       selector: (row: DataBarrio) => (row.habilitar ? "Habilitado" : "Deshabilitado"),
       sortable: true,
+      center: true,
+      grow: 0,
+      width: "25%",
+      style: { paddingRight: "14px" },
       cell: (row: DataBarrio) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 justify-center w-full">
           <span
             className={`inline-block w-2.5 h-2.5 rounded-full ${row.habilitar ? "bg-green-500" : "bg-red-500"}`}
             aria-label={row.habilitar ? "Habilitado" : "Deshabilitado"}
@@ -109,7 +122,6 @@ const DataTableBarrios: React.FC = () => {
           <span>{row.habilitar ? "Habilitado" : "Deshabilitado"}</span>
         </div>
       ),
-      width: "200px",
     },
     {
       name: "Acciones",
