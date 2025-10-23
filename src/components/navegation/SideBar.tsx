@@ -72,6 +72,11 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
     { path: "/home/medico", label: "Inicio Médico", icon: <FaUserMd />, roles: ["Medico"] },
     { path: "/visitas/medico", label: "Mis Visitas", icon: <FaCalendarAlt />, roles: ["Medico"] },
     { path: "/historial/medico", label: "Historial Médico", icon: <FaHistory />, roles: ["Medico"] },
+
+    // 🔹 PACIENTE
+   { path: "/home/paciente", label: "Inicio Paciente", icon: <FaUserFriends />, roles: ["Paciente"] },
+   { path: "/solicitar-visita", label: "Solicitar Visita", icon: <FaBriefcaseMedical />, roles: ["Paciente"] },
+   { path: "/historial/paciente", label: "Historial de Visitas", icon: <FaHistory />, roles: ["Paciente"] }
   ];
 
   // ✅ Filtrar rutas según el rol actual del usuario

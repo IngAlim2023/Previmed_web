@@ -1,7 +1,8 @@
 import { PlanXBeneficio, CrearPlanXBeneficioForm } from "../interfaces/planxbeneficios"
 
 const BASE_URL = import.meta.env.VITE_URL_BACK
-const URL = `${BASE_URL}planxbeneficios`
+const url = (path: string) => `${BASE_URL}`.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, "")
+const URL = url("planxbeneficios")
 
 // 🔹 Crear relación plan ↔ beneficio
 export const createPlanBeneficio = async (
