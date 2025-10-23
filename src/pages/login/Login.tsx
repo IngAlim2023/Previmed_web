@@ -27,11 +27,9 @@ const Login: React.FC = () => {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
 
-      console.log("🔁 [Login] Redirigiendo sesión previa con rol:", rol);
-
       if (rol === "medico") navigate("/home/medico");
       else if (rol === "asesor") navigate("/home/asesor");
-      else if (rol === "administrador") navigate("/usuarios");
+      else if (rol === "administrador") navigate("/home/admin");
       else if (rol === "paciente") navigate("/home/paciente");
       else navigate("/");
     }
@@ -39,17 +37,13 @@ const Login: React.FC = () => {
 
   // ✅ Enviar credenciales y procesar login
   const onSubmit: SubmitHandler<UsuarioCredenciales> = async (data) => {
-    console.log("📤 [Login] Enviando credenciales:", data);
-
     try {
       toast.loading("Verificando credenciales...", { id: "login" });
 
       const res = await login(data);
       const respu = await res?.json();
-      console.log("📥 [Login] Respuesta backend:", respu);
 
       if (!respu || respu.message !== "Acceso permitido") {
-        console.warn("⚠️ [Login] Credenciales incorrectas");
         setIsAuthenticated(false);
         toast.error("Credenciales incorrectas.", { id: "login" });
         return;
@@ -57,7 +51,6 @@ const Login: React.FC = () => {
 
       // 🔹 Datos crudos del backend
       const backendUser = respu.data;
-      console.log("📦 [Login] Usuario recibido del backend:", backendUser);
 
       // 🔹 Aseguramos nombre y rol incluso si faltan en la respuesta
       const nombreRaw =
@@ -110,8 +103,6 @@ const Login: React.FC = () => {
         rol: { nombreRol: rolNombre },
       };
 
-      console.log("✅ [Login] Usuario normalizado:", normalizedUser);
-
       // 🔹 Guardar datos persistentes
       localStorage.setItem("user", JSON.stringify(normalizedUser));
       localStorage.setItem("token", respu.token ?? "");
@@ -128,16 +119,14 @@ const Login: React.FC = () => {
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "");
-      console.log("🧩 [Login] Rol detectado:", rol);
 
       if (rol === "medico") navigate("/home/medico");
       else if (rol === "asesor") navigate("/home/asesor");
-      else if (rol === "administrador") navigate("/usuarios");
+      else if (rol === "administrador") navigate("/home/admin");
       else if (rol === "paciente") navigate("/home/paciente");
       else navigate("/");
 
     } catch (e) {
-      console.error("❌ [Login] Error general:", e);
       setIsAuthenticated(false);
       toast.dismiss("login");
       toast.error("Ocurrió un error al iniciar sesión. Intenta nuevamente.");

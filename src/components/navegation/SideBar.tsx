@@ -14,8 +14,8 @@ import {
   FaGift,
   FaWpforms,
   FaHospital,
-  FaUserShield,
   FaTachometerAlt,
+  FaHome,
   FaBars,
 } from "react-icons/fa";
 import { LuLogOut } from "react-icons/lu";
@@ -40,42 +40,40 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
   const navigate = useNavigate();
   const { setUser, setIsAuthenticated, user } = useAuthContext();
 
-  // 🧭 Verificar qué llega del contexto
-  console.log("🧭 Usuario en Sidebar:", user);
-
   // ✅ Todas las rutas con roles
   const routes: RouteItem[] = [
     // 🔹 ADMINISTRADOR
+    { path: "/home/admin", label: "Inicio", icon: <FaHome />, roles: ["Administrador"] },
     { path: "/usuarios", label: "Usuarios", icon: <FaUsers />, roles: ["Administrador"] },
     { path: "/medicos", label: "Médicos", icon: <FaUserMd />, roles: ["Administrador"] },
     { path: "/pagos", label: "Pagos", icon: <FaMoneyBill />, roles: ["Administrador"] },
     { path: "/planes", label: "Planes", icon: <FaClipboardList />, roles: ["Administrador"] },
     { path: "/visitas", label: "Visitas", icon: <FaCalendarAlt />, roles: ["Administrador"] },
-    { path: "/historial/visitas", label: "Historial Visitas", icon: <FaHistory />, roles: ["Administrador"] },
     { path: "/pacientes", label: "Pacientes", icon: <FaUserFriends />, roles: ["Administrador", "Asesor"] },
-    { path: "/contrato", label: "Contrato", icon: <FaFileContract />, roles: ["Administrador"] },
-    { path: "/beneficiarios", label: "Beneficiarios", icon: <FaUserFriends />, roles: ["Administrador"] },
     { path: "/contratos", label: "Contratos", icon: <FaFileAlt />, roles: ["Administrador"] },
     { path: "/beneficios_plan", label: "Beneficios Plan", icon: <FaGift />, roles: ["Administrador"] },
     { path: "/solicitudes", label: "Solicitudes", icon: <FaBriefcaseMedical />, roles: ["Administrador"] },
     { path: "/formas_pago", label: "Formas de Pago", icon: <FaWpforms />, roles: ["Administrador"] },
     { path: "/eps", label: "EPS", icon: <FaHospital />, roles: ["Administrador"] },
-    { path: "/roles", label: "Roles", icon: <FaUserShield />, roles: ["Administrador"] },
-    { path: "/panel_control", label: "Panel de Control", icon: <FaTachometerAlt />, roles: ["Administrador"] },
+/*     { path: "/roles", label: "Roles", icon: <FaUserShield />, roles: ["Administrador"] },
+    { path: "/panel_control", label: "Panel de Control", icon: <FaTachometerAlt />, roles: ["Administrador"] }, */
 
     // 🔹 ASESOR
+    { path: "/home/asesor", label: "Inicio", icon: <FaHome />, roles: ["Asesor"] },
     { path: "/contratos", label: "Membresías", icon: <FaClipboardList />, roles: ["Asesor"] },
     { path: "/pagos", label: "Registros Pagos", icon: <FaMoneyBill />, roles: ["Asesor"] },
     { path: "/barrios", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Administrador", "Asesor"] },
 
     // 🔹 MÉDICO
-    { path: "/home/medico", label: "Inicio Médico", icon: <FaUserMd />, roles: ["Medico"] },
+    { path: "/home/medico", label: "Inicio", icon: <FaHome />, roles: ["Medico"] },
     { path: "/visitas/medico", label: "Mis Visitas", icon: <FaCalendarAlt />, roles: ["Medico"] },
     { path: "/historial/medico", label: "Historial Médico", icon: <FaHistory />, roles: ["Medico"] },
 
     // 🔹 PACIENTE
-   { path: "/home/paciente", label: "Inicio Paciente", icon: <FaUserFriends />, roles: ["Paciente"] },
+   { path: "/home/paciente", label: "Inicio", icon: <FaHome />, roles: ["Paciente"] },
    { path: "/solicitar-visita", label: "Solicitar Visita", icon: <FaBriefcaseMedical />, roles: ["Paciente"] },
+   { path: "/contrato", label: "Contrato", icon: <FaFileContract />, roles: ["Paciente"] },
+   { path: "/beneficiarios", label: "Beneficiarios", icon: <FaUserFriends />, roles: ["Paciente"] },
    { path: "/historial/paciente", label: "Historial de Visitas", icon: <FaHistory />, roles: ["Paciente"] }
   ];
 
