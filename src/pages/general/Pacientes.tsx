@@ -4,15 +4,21 @@ import {
   readPacientes,
 } from "../../services/pacientes";
 import DataTable, { TableColumn } from "react-data-table-component";
-import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
+import { FaPlus, FaUsers } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import BtnEliminar from "../../components/botones/BtnEliminar";
+import BtnEditar from "../../components/botones/BtnEditar";
+import BtnLeer from "../../components/botones/BtnLeer";
+import { useAuthContext } from "../../context/AuthContext";
 
 interface Paciente {
   id: number;
   usuario: {
     nombre: string;
+    segundoNombre: string;
     apellido: string;
+    segundoApellido: string;
     email: string;
     numeroDocumento: string;
   };
@@ -23,20 +29,19 @@ const Pacientes: React.FC = () => {
   const [data, setData] = useState<Paciente[]>([]);
   const [idDelete, setIdDelete] = useState<number>(0);
   const [open, setOpen] = useState<boolean>(false);
-  const [accion, setAccion] = useState<boolean>(false);
+  const [buscar, setBuscar] = useState<string>('');
+  const {user} = useAuthContext();
 
   useEffect(() => {
     const load = async () => {
       const dat = await readPacientes();
-
       setData(dat.data || []);
     };
     load();
-  }, [accion]);
+  }, []);
 
   const handleEdit = (row: Paciente) => {
     console.log("Editar paciente", row);
-    // Aquí puedes navegar a una vista de edición o abrir un modal
   };
 
   const handleDelete = async (row: Paciente) => {
@@ -44,15 +49,15 @@ const Pacientes: React.FC = () => {
     setOpen(true);
   };
 
-  const columns: TableColumn<Paciente>[] = [
+  const columns: TableColumn<any>[] = [
     {
-      name: "Nombre",
-      selector: (row) => row.usuario.nombre,
+      name: "Nombres",
+      selector: (row) => `${row.usuario.nombre} ${row.usuario.segundo_nombre??''}`,
       sortable: true,
     },
     {
-      name: "Apellido",
-      selector: (row) => row.usuario.apellido,
+      name: "Apellidos",
+      selector: (row) => `${row.usuario.apellido} ${row.usuario.segundo_apellido??''}`,
       sortable: true,
     },
     {
@@ -66,21 +71,41 @@ const Pacientes: React.FC = () => {
       sortable: true,
     },
     {
+      name: "Cargo",
+      selector: (row) => row.pacienteId == null? (<p className="bg-blue-100 text-blue-600 px-2 rounded-full">TITULAR</p>) : (<p className="bg-gray-100 text-gray-600 px-2 rounded-full">BENEFICIARIO</p>),
+      sortable: true,
+    },
+    {
       name: "Opciones",
+      minWidth: "260px",
       cell: (row) => (
-        <div className="flex gap-2">
-          <button
+        <div className="flex">
+          <div
+            title="Ver detalles"
             onClick={() => handleEdit(row)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md flex items-center gap-1 transition"
-          >
-            <FaEdit /> Editar
-          </button>
-          <button
-            onClick={() => handleDelete(row)}
-            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md flex items-center gap-1 transition"
-          >
-            <FaTrash /> Eliminar
-          </button>
+            >
+            <BtnLeer/>
+          </div>
+          {user.rol?.nombreRol == 'Administrador'? (
+            <>
+              <div onClick={() => handleEdit(row)}>
+                <BtnEditar/>
+              </div>
+              <div onClick={() => handleDelete(row)}>
+                <BtnEliminar/>
+              </div>
+              </>
+            ):
+            (<></>)}
+            {
+              row.pacienteId == null? ( 
+              <button
+              onClick={() => navigate('/beneficiarios', {state: {row}})}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-2 m-1 rounded-md flex items-center transition"
+            >
+              Beneficiarios
+            </button>) : (<></>)
+            }
         </div>
       ),
     },
@@ -97,53 +122,58 @@ const Pacientes: React.FC = () => {
     return toast.success("Paciente eliminado");
   };
 
+  const pacientesFiltrados = data
+    .filter((pac) =>
+      pac.usuario.nombre?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
+      pac.usuario.segundoNombre?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
+      pac.usuario.apellido?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
+      pac.usuario.segundoApellido?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
+      pac.usuario.email?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
+      pac.usuario.numeroDocumento?.toString().toLowerCase().includes(buscar.toLowerCase())
+    );
+
   return (
-    <div className="p-6 md:p-10 bg-gray-100 min-h-screen">
+    <div className="py-6 px-4 bg-blue-50 min-h-screen">
       <div className="bg-white shadow-lg rounded-xl p-6">
         <div className="flex p-2 justify-between items-center">
-          <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-            📋 Lista de Pacientes
+          <h2 className="text-2xl font-semibold text-gray-600 flex items-center">
+            <FaUsers className="w-10 h-auto text-blue-600 mr-4" />Pacientes
           </h2>
+
+          <input
+            type="text"
+            placeholder="Buscar..."
+            value={buscar}
+            onChange={(e) => setBuscar(e.target.value)}
+            className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
+          />
+
           <button
             onClick={() => navigate("/formularioPacientes")}
-            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md flex items-center gap-1 transition"
+            className="bg-green-500 hover:bg-green-600 text-white px-3 p-2 rounded-md flex items-center gap-2 transition text-lg"
           >
-            <FaPlus /> Crear
+            <FaPlus /> Agregar Titular
           </button>
         </div>
         <DataTable
           columns={columns}
-          data={data}
+          data={pacientesFiltrados}
           pagination
           highlightOnHover
           striped
+          noDataComponent={'No hay resultados'}
           responsive
-          customStyles={{
-            headCells: {
-              style: {
-                fontWeight: "bold",
-                fontSize: "14px",
-                backgroundColor: "#f3f4f6",
-              },
-            },
-            rows: {
-              style: {
-                fontSize: "14px",
-                minHeight: "60px",
-              },
-            },
-          }}
         />
       </div>
       {open && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           {/* Contenido del modal */}
           <div className="bg-white rounded-2xl shadow-lg w-96 p-6 relative">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Eliminar paciente
             </h2>
             <p className="text-gray-600 mb-6">
-              Este es un ejemplo de modal con Tailwind y React.
+              Estas seguro de eliminar este paciente ?
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -162,8 +192,7 @@ const Pacientes: React.FC = () => {
                 Confirmar
               </button>
             </div>
-
-            {/* Botón cerrar (X) arriba a la derecha */}
+            
             <button
               onClick={() => {
                 setOpen(false);

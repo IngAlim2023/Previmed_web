@@ -1,13 +1,16 @@
 const URL_BACK = import.meta.env.VITE_URL_BACK;
+
+const url = (path: string) =>
+  `${URL_BACK}`.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, "");
+
+/* ===== PACIENTES (CRUD básico) ===== */
 export const readPacientes = async () => {
   try {
-    const info = await fetch(`${URL_BACK}pacientes`, {
+    const info = await fetch(url("/pacientes"), {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
-
-    if (!info.ok) throw new Error("Error al leer pacientes");
-
+    if (!info.ok) throw new Error(`HTTP ${info.status}`);
     return await info.json();
   } catch (e) {
     console.error("Error en readPacientes:", e);
@@ -15,84 +18,183 @@ export const readPacientes = async () => {
   }
 };
 
-
-export const createPaciente = async (data:any) =>{
-  try{
-    const info = await fetch(`${URL_BACK}pacientes`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data)
-      });
-      const res = await info.json()
-      return res
-    } catch(e){
-      return {msg: 'Error'}
-  }
-}
-
-export const deletePaciente = async ( id:number) =>{
-  try{
-    const info = await fetch(`${URL_BACK}pacientes/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        }
-      });
-      const res = await info.json()
-      return res
-    } catch(e){
-      return {msg: 'Error'}
-  }
-}
-
-export const getTitulares = async() => {
+export const createPaciente = async (data: any) => {
   try {
-    const titulares = await fetch(`${URL_BACK}pacientes/titular`,{
-      method:"GET",
-      headers: { "Content-Type": "application/json" }
+    const info = await fetch(url("/pacientes"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
-
-    if(!titulares.ok) throw new Error("Error al obtener los titulares");
-
-    return titulares.json();
-  } catch (e) {
-    return {msj:'Error'}
+    const res = await info.json();
+    if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
+    return res;
+  } catch (e: any) {
+    return { message: "Error", error: e?.message || "Network error" };
   }
-  
-}
+};
+
+export const deletePaciente = async (id: number) => {
+  try {
+    const info = await fetch(url(`/pacientes/${id}`), {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await info.json();
+    if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
+    return res;
+  } catch (e: any) {
+    return { message: "Error", error: e?.message || "Network error" };
+  }
+};
+
+/* ===== TITULARES (lista) =====
+   Algunos despliegues exponen /titular (root) y otros /pacientes/titular.
+   Hacemos fallback y filtramos a verdaderos titulares en el front. */
+export const getTitulares = async () => {
+  const hit = async (p: string) => {
+    try {
+      const r = await fetch(url(p), { headers: { "Content-Type": "application/json" } });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) return null;
+      return j;
+    } catch {
+      return null;
+    }
+  };
+
+  // intenta /titular, si no /pacientes/titular
+  const a = await hit("/titular");
+  const b = a ?? (await hit("/pacientes/titular"));
+
+  const arr = Array.isArray(b?.data) ? b.data : Array.isArray(b) ? b : [];
+  // devolvemos tal cual (el front filtra beneficiario === false e id_paciente válido)
+  return { data: arr };
+};
+
+/* ===== BENEFICIARIOS (root) ===== */
 export const readBeneficiarios = async () => {
   try {
-    const info = await fetch(`${URL_BACK}pacientes/beneficiarios`, {
+    const info = await fetch(url("/beneficiarios"), {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
-
-    // Si el servidor devuelve 500 o error vacío
-    if (!info.ok) {
-      console.warn("⚠️ El servidor respondió con error (", info.status, ")");
-      return { data: [] };
-    }
-
     const res = await info.json();
-
-    // Si el backend devuelve {"message":"Error","error":""}
-    if (res.message === "Error") {
-      console.warn("⚠️ Backend devolvió mensaje de error vacío");
+    if (!info.ok) {
+      console.warn("readBeneficiarios:", res?.error || `HTTP ${info.status}`);
       return { data: [] };
     }
-
-    // Si no hay datos válidos
-    if (!Array.isArray(res) && !Array.isArray(res.data)) {
-      console.warn("⚠️ No hay datos válidos en la respuesta");
-      return { data: [] };
-    }
-
-    // Si viene res.data (estructura común)
-    return { data: Array.isArray(res) ? res : res.data };
+    if (Array.isArray(res)) return { data: res };
+    if (Array.isArray(res?.data)) return { data: res.data };
+    return { data: [] };
   } catch (e) {
     console.error("❌ Error en readBeneficiarios:", e);
     return { data: [] };
   }
 };
+
+export const createBeneficiario = async (data: any) => {
+  try {
+    const info = await fetch(url("/beneficiarios"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const res = await info.json();
+    if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
+    return res; // { message, data }
+  } catch (e: any) {
+    console.error("Error en createBeneficiario:", e);
+    return { message: "Error", error: e?.message || "Network error" };
+  }
+};
+
+export const deleteBeneficiario = async (id: number) => {
+  try {
+    const info = await fetch(url(`/beneficiarios/${id}`), {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await info.json();
+    if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
+    return res;
+  } catch (e: any) {
+    console.error("Error en deleteBeneficiario:", e);
+    return { message: "Error", error: e?.message || "Network error" };
+  }
+};
+
+export const desvincularBeneficiario = async (beneficiario_id: number, desactivar = true) => {
+  try {
+    const info = await fetch(url("/beneficiarios/desvincular"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ beneficiario_id, desactivar }),
+    });
+    const res = await info.json();
+    if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
+    return res;
+  } catch (e: any) {
+    console.error("Error en desvincularBeneficiario:", e);
+    return { message: "Error", error: e?.message || "Network error" };
+  }
+};
+
+export const asociarBeneficiario = async (beneficiario_id: number, titular_id: number) => {
+  try {
+    const info = await fetch(url("/beneficiarios/asociar"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ beneficiario_id, titular_id }),
+    });
+    const res = await info.json();
+    if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
+    return res;
+  } catch (e: any) {
+    console.error("Error en asociarBeneficiario:", e);
+    return { message: "Error", error: e?.message || "Network error" };
+  }
+};
+
+export const getUsuarioDeBeneficiario = async (id: number) => {
+  try {
+    const info = await fetch(url(`/beneficiarios/${id}/usuario`), {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const res = await info.json();
+    if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
+    return res; // { data: { usuario_id, usuario }, message? }
+  } catch (e: any) {
+    console.error("Error en getUsuarioDeBeneficiario:", e);
+    return { message: "Error", error: e?.message || "Network error" };
+  }
+};
+
+export const registroCompletoTitular = async(data:any) => {
+  try {
+    const res = await fetch(url('/paciente/crear-titular'), {
+      method: 'POST', 
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    })
+    const resFinal = await res.json()
+    // resFinal contiene data y message
+    return resFinal
+  } catch (error) {
+    return('Error al crear el titular')
+  }
+}
+
+// trae el titular y sus beneficiarios, los usuarios con ese id del context
+export const getPacientesId = async(id: string) => {
+  try {
+    const res = await fetch(url('/usuarios/pacientes/'+id), {
+      method:'GET',
+      headers: { "Content-Type": "application/json" }
+    })
+    const data = res.json()
+    return data
+  } catch (error) {
+    return 'Error al traer los usuarios'
+  }
+}

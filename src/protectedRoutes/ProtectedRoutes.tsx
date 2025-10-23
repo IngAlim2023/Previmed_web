@@ -3,9 +3,19 @@ import { useAuthContext } from "../context/AuthContext";
 import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoutes: React.FC = () => {
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, isLoading } = useAuthContext();
 
-  if (!isAuthenticated) return <Navigate to="/" replace />;
+  // ⏳ Espera a que el contexto termine de cargar
+  if (isLoading) {
+    return <div className="text-center p-8 text-gray-500">Cargando sesión...</div>;
+  }
+
+  // 🚫 Si no hay sesión, redirige al login/landing
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  // ✅ Si está autenticado, deja entrar
   return <Outlet />;
 };
 

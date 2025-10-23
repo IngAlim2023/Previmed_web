@@ -17,8 +17,48 @@ import BtnLeer from "../botones/BtnLeer";
 import BtnEditar from "../botones/BtnEditar";
 import BtnEliminar from "../botones/BtnEliminar";
 import BtnCerrar from "../botones/BtnCerrar";
-
 import BarrioForm from "./BarrioForm";
+
+const customStyles = {
+  table: { style: { width: "100%" } },
+  headRow: {
+    style: {
+      backgroundColor: "#f8fafc",
+      borderTopLeftRadius: "0.55rem",
+      borderTopRightRadius: "0.75rem",
+      minHeight: "2rem",
+    },
+  },
+  headCells: {
+    style: {
+      fontWeight: 700,
+      color: "#0f172a",
+      fontSize: "0.85rem",
+      paddingTop: "0.15rem",
+      paddingBottom: "0.15rem",
+    },
+  },
+  rows: {
+    style: {
+      minHeight: "1.9rem",
+      fontSize: "0.9rem",
+    },
+    highlightOnHoverStyle: { backgroundColor: "#f1f5f9" },
+  },
+  cells: {
+    style: {
+      paddingTop: "0.15rem",
+      paddingBottom: "0.15rem",
+    },
+  },
+  pagination: {
+    style: {
+      borderTop: "1px solid #e2e8f0",
+      paddingTop: "0.15rem",
+      fontSize: "0.85rem",
+    },
+  },
+} as const;
 
 const DataTableBarrios: React.FC = () => {
   const [barrios, setBarrios] = useState<DataBarrio[]>([]);
@@ -95,6 +135,7 @@ const DataTableBarrios: React.FC = () => {
   //   }
   // };
 
+
   const columns = [
     {
       name: "Nombre",
@@ -135,8 +176,11 @@ const DataTableBarrios: React.FC = () => {
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
+      right: true,
+      grow: 0,
+      width: "190px",         
     },
-  ];
+  ] as const;
 
   const filtered = barrios.filter((b) => {
     const term = search.toLowerCase();
@@ -148,52 +192,75 @@ const DataTableBarrios: React.FC = () => {
   });
 
   return (
-    <div>
-      {/* Buscador */}
-      <input
-        type="text"
-        placeholder="Buscar por nombre, ciudad o comuna…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="border px-3 py-2 rounded mb-4 w-full"
-      />
+    <div className="w-full">
+      {/* Card */}
+      <div className="bg-white rounded-2xl shadow-lg border border-slate-200">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 p-3 border-b border-slate-200">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-800">Barrios</h2>
+            <p className="text-xs text-slate-500">Gestiona los barrios registrados</p>
+          </div>
 
-      {/* Botón agregar */}
-      <div className="mb-4 flex justify-end">
-        <div onClick={openCreate}><BtnAgregar /></div>
+          {/* Buscador + Agregar */}
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            <div className="relative w-full md:w-80">
+              <span className="absolute left-3 top-2 text-slate-400 text-xs">🔎</span>
+              <input
+                type="text"
+                placeholder="Buscar por nombre, ciudad o comuna…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+            <div onClick={openCreate}>
+              <BtnAgregar verText />
+            </div>
+          </div>
+        </div>
+
+        {/* Tabla */}
+        <div className="p-2">
+          <DataTable
+            columns={columns as any}
+            data={filtered}
+            pagination
+            highlightOnHover
+            striped
+            responsive
+            dense
+            customStyles={customStyles}
+            noDataComponent={
+              <div className="py-6 text-slate-500 text-sm text-center">
+                No hay barrios disponibles
+              </div>
+            }
+          />
+        </div>
       </div>
 
-      {/* Tabla */}
-      <DataTable
-        columns={columns as any}
-        data={filtered}
-        pagination
-        highlightOnHover
-        striped
-        noDataComponent="No hay barrios disponibles"
-      />
 
-      {/* Modal Detalles */}
       {modalDetalles && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[520px] max-h-[85vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Detalles del Barrio</h2>
-            <div className="space-y-1">
-              <p><strong>Nombre:</strong> {modalDetalles.nombreBarrio}</p>
-              <p><strong>Latitud:</strong> {modalDetalles.latitud ?? "-"}</p>
-              <p><strong>Longitud:</strong> {modalDetalles.longitud ?? "-"}</p>
-              <p><strong>Habilitado:</strong> {modalDetalles.habilitar ? "Sí" : "No"}</p>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center z-50">
+          <div className="bg-white p-5 rounded-xl w-[520px] max-w-[92vw] max-height-[85vh] shadow-2xl">
+            <h2 className="text-base font-semibold mb-3 text-slate-800">Detalles del Barrio</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1.5 gap-x-6 text-slate-700 text-sm">
+              <p><span className="font-medium text-slate-500">Nombre:</span> {modalDetalles.nombreBarrio}</p>
+              <p><span className="font-medium text-slate-500">Latitud:</span> {modalDetalles.latitud ?? "-"}</p>
+              <p><span className="font-medium text-slate-500">Longitud:</span> {modalDetalles.longitud ?? "-"}</p>
+              <p><span className="font-medium text-slate-500">Habilitado:</span> {modalDetalles.habilitar ? "Sí" : "No"}</p>
             </div>
-            <div className="text-right mt-4" onClick={() => setModalDetalles(null)}>
-              <BtnCerrar verText text="px-4" />
+            <div className="mt-4 flex justify-end" onClick={() => setModalDetalles(null)}>
+              <BtnCerrar verText text="px-4 py-1 text-sm" />
             </div>
           </div>
         </div>
       )}
 
-      {/* Modal Form (Agregar/Editar) */}
+
       {modalFormOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-[1px] flex items-center justify-center z-50">
           <BarrioForm
             initialData={editing ?? undefined}
             onSubmit={handleSave}

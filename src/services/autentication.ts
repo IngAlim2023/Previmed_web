@@ -7,7 +7,8 @@ interface DataLogin{
 
 export const login = async (data:DataLogin) => {
   try {
-    const auth = await fetch(`${URL_BACK}login`, {
+    const url = `${URL_BACK}/login`.replace(/([^:]\/)\/+/g, "$1");
+    const auth = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials:"include",

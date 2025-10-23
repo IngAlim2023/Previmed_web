@@ -81,19 +81,20 @@ export default function UsuariosPage() {
         sortable: true,
       },
       {
-        name: "Rol",
-        selector: (row) => (row.rolId ?? "-") as any,
-        sortable: true,
-      },
+  name: "Rol",
+  selector: (row) => row.rol?.nombreRol ?? "-",
+  sortable: true,
+},
+
       {
         name: "Habilitado",
-        selector: (row) => (row.habilitar ? "Sí" : "No"),
+        selector: (row) => row.habilitar ? (<p className="text-green-500 font-semibold">SI</p>) : (<p className="text-red-500 font-semibold">NO</p>),
         sortable: true,
       },
       {
         name: "Acciones",
         // damos espacio para que no se oculte el botón
-        style: { minWidth: "260px" },
+        minWidth: "260px",
         cell: (row) => (
           <div className="flex gap-2 justify-center items-center">
             <div onClick={() => setViewing(row)}>
@@ -149,7 +150,7 @@ export default function UsuariosPage() {
   }, [usuarios, search]);
 
   return (
-    <div className="p-6">
+    <div className="p-6 bg-blue-50">
       {/* Header con botón y buscador */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Gestión de Usuarios</h1>
@@ -225,10 +226,10 @@ export default function UsuariosPage() {
               <p><strong>Número Hijos:</strong> {viewing.numeroHijos}</p>
               <p><strong>Estrato:</strong> {viewing.estrato}</p>
               <p><strong>Género:</strong> {viewing.genero}</p>
-              <p><strong>EPS:</strong> {viewing.epsId}</p>
-              <p><strong>Rol:</strong> {viewing.rolId}</p>
-              <p><strong>Autorización Datos:</strong> {viewing.autorizacionDatos ? "Sí" : "No"}</p>
-              <p><strong>Habilitado:</strong> {viewing.habilitar ? "Sí" : "No"}</p>
+              <p><strong>EPS:</strong> {viewing.eps.nombreEps}</p>
+              <p><strong>Rol:</strong> {viewing.rol.nombreRol}</p>
+              <p><strong>Autorización Datos:</strong> {viewing.autorizacionDatos ? (<p className="text-green-500 font-semibold">SI</p>) : (<p className="text-red-500 font-semibold">NO</p>)}</p>
+              <p><strong>Habilitado:</strong> {viewing.habilitar ? (<p className="text-green-500 font-semibold">SI</p>) : (<p className="text-red-500 font-semibold">NO</p>)}</p>
             </div>
 
             <div className="flex justify-end mt-8">

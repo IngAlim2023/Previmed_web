@@ -1,18 +1,18 @@
 const URL_BACK = import.meta.env.VITE_URL_BACK
+const url = (path: string) => `${URL_BACK}`.replace(/\/+$/, "") + "/" + path.replace(/^\/+/, "")
 
 // 🔹 Obtener todos los beneficios
 export const getBeneficios = async () => {
   try {
-    const res = await fetch(`${URL_BACK}beneficios/read`)
+    const res = await fetch(url("beneficios/read"))
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
 
     const data = await res.json()
-    const beneficios = Array.isArray(data)
-      ? data.map((b) => ({
-          id_beneficio: b.idBeneficio ?? b.id_beneficio,
-          tipo_beneficio: b.tipoBeneficio ?? b.tipo_beneficio,
-        }))
-      : []
+    const list = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : []
+    const beneficios = list.map((b: any) => ({
+      id_beneficio: b.idBeneficio ?? b.id_beneficio,
+      tipo_beneficio: b.tipoBeneficio ?? b.tipo_beneficio,
+    }))
 
     console.log("📦 Beneficios recibidos:", beneficios)
     return beneficios
@@ -27,7 +27,7 @@ export const createBeneficio = async (data: any) => {
   try {
     console.log("📤 Enviando al backend:", data)
 
-    const res = await fetch(`${URL_BACK}beneficios/register`, {
+    const res = await fetch(url("beneficios/register"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       // ✅ el backend espera tipo_beneficio, no tipoBeneficio
@@ -56,7 +56,7 @@ export const createBeneficio = async (data: any) => {
 // 🔹 Actualizar beneficio
 export const updateBeneficio = async (id: number, data: any) => {
   try {
-    const res = await fetch(`${URL_BACK}beneficios/update/${id}`, {
+    const res = await fetch(url(`beneficios/update/${id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -78,7 +78,7 @@ export const updateBeneficio = async (id: number, data: any) => {
 // 🔹 Eliminar beneficio
 export const deleteBeneficio = async (id: number) => {
   try {
-    const res = await fetch(`${URL_BACK}beneficios/delete/${id}`, { method: "DELETE" })
+    const res = await fetch(url(`beneficios/delete/${id}`), { method: "DELETE" })
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
   } catch (error) {
     console.error("❌ Error al eliminar beneficio:", error)

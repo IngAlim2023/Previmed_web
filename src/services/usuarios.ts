@@ -1,7 +1,9 @@
 import { DataUsuario } from "../interfaces/usuario";
 
-const URL_BACK = import.meta.env.VITE_URL_BACK;
-const API_URL = `${URL_BACK}usuarios`;
+const RAW = String(import.meta.env.VITE_URL_BACK || "");
+const BASE = RAW.replace(/\/+$/, "");
+const API_URL = `${BASE}/usuarios`;
+const url = (path: string) => `${BASE}/${String(path).replace(/^\/+/, "")}`;
 
 const toSnake = (u: Partial<DataUsuario>) => ({
   nombre: u.nombre,
@@ -30,6 +32,12 @@ export const getUsuarios = async (): Promise<DataUsuario[]> => {
   return res.json();
 };
 
+export const getUsuarioById = async (id: string): Promise<any> => {
+  const res = await fetch(url(`/usuarios/${id}`));
+  if (!res.ok) throw new Error("Error al obtener usuario por id");
+  return res.json();
+};
+
 export const createUsuario = async (usuario: Partial<DataUsuario>) => {
   const res = await fetch(API_URL, {
     method: "POST",
@@ -41,7 +49,7 @@ export const createUsuario = async (usuario: Partial<DataUsuario>) => {
 };
 
 export const updateUsuario = async (id: string, usuario: Partial<DataUsuario>) => {
-  const res = await fetch(`${API_URL}/${id}`, {
+  const res = await fetch(`${API_URL}/${id}`.replace(/([^:]\/)\/+/g, "$1"), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(toSnake(usuario)),
@@ -51,6 +59,6 @@ export const updateUsuario = async (id: string, usuario: Partial<DataUsuario>) =
 };
 
 export const deleteUsuario = async (id: string) => {
-  const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+  const res = await fetch(`${API_URL}/${id}`.replace(/([^:]\/)\/+/g, "$1"), { method: "DELETE" });
   if (!res.ok) throw new Error("Error al eliminar usuario");
 };

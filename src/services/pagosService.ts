@@ -1,7 +1,9 @@
-const URL_BACK = import.meta.env.VITE_URL_BACK;
+const RAW = String(import.meta.env.VITE_URL_BACK || "");
+const BASE = RAW.replace(/\/+$/, "");
+const url = (path: string) => `${BASE}/${String(path).replace(/^\/+/, "")}`;
 
 export const getPagos = async () => {
-  const response = await fetch(`${URL_BACK}registros-pago`, {
+  const response = await fetch(url("/registros-pago"), {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });
@@ -23,14 +25,13 @@ export const createPago = async (pago: any) => {
   formData.append("membresia_id", String(membresiaId));
   formData.append("forma_pago_id", String(formaPagoId));
 
-  const response = await fetch(`${URL_BACK}registro-pago`, {
+  const response = await fetch(url("/registro-pago"), {
     method: "POST",
     body: formData
   });
   if (!response.ok) throw new Error("Error al crear el pago");
   return response.json();
 };
-
 
 export const updatePago = async (pago: any, id: number) => {
   const formData = new FormData();
@@ -43,7 +44,7 @@ export const updatePago = async (pago: any, id: number) => {
   formData.append("monto", String(pago.monto));
   formData.append("membresia_id", String(membresiaId));
   formData.append("forma_pago_id", String(formaPagoId));
-  const response = await fetch(`${URL_BACK}registro-pago/${id}`, {
+  const response = await fetch(url(`/registro-pago/${id}`), {
     method: "PUT",
     body: formData
   });
@@ -52,7 +53,7 @@ export const updatePago = async (pago: any, id: number) => {
 };
 
 export const deletePago = async (id: number) => {
-  const response = await fetch(`${URL_BACK}registro-pago/${id}`, {
+  const response = await fetch(url(`/registro-pago/${id}`), {
     method: "DELETE",
     headers: { "Content-Type": "application/json" }
   });
@@ -61,7 +62,7 @@ export const deletePago = async (id: number) => {
 };
 
 export const getFormasPago = async () => {
-  const response = await fetch(`${URL_BACK}formas_pago/read`, {
+  const response = await fetch(url("/formas_pago/read"), {
     method: "GET",
     headers: { "Content-Type": "application/json" }
   });
