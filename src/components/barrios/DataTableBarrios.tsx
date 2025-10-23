@@ -16,7 +16,6 @@ import BtnAgregar from "../botones/BtnAgregar";
 import BtnLeer from "../botones/BtnLeer";
 import BtnEditar from "../botones/BtnEditar";
 import BtnEliminar from "../botones/BtnEliminar";
-import BtnCambiar from "../botones/BtnCambiar";
 import BtnCerrar from "../botones/BtnCerrar";
 
 import BarrioForm from "./BarrioForm";
@@ -67,15 +66,18 @@ const DataTableBarrios: React.FC = () => {
   const handleSave = async (payload: Partial<DataBarrio>) => {
     try {
       if (editing?.idBarrio) {
-        await updateBarrio(editing.idBarrio, payload);
+        const updated = await updateBarrio(editing.idBarrio, payload);
+        // Refrescar estado local inmediatamente
+        setBarrios(prev => prev.map(b => b.idBarrio === updated.idBarrio ? updated : b));
         toast.success("Barrio actualizado");
       } else {
-        await createBarrio(payload);
+        const created = await createBarrio(payload);
+        setBarrios(prev => [...prev, created]);
         toast.success("Barrio creado");
       }
       setModalFormOpen(false);
       setEditing(null);
-      fetchBarrios();
+      // fetchBarrios(); // ya actualizamos localmente
     } catch (e) {
       console.error(e);
       toast.error("No se pudo guardar");
@@ -84,9 +86,9 @@ const DataTableBarrios: React.FC = () => {
 
   const handleToggle = async (b: DataBarrio) => {
     try {
-      await toggleHabilitarBarrio(b);
+      const updated = await toggleHabilitarBarrio(b);
+      setBarrios(prev => prev.map(x => x.idBarrio === updated.idBarrio ? updated : x));
       toast.success("Estado actualizado");
-      fetchBarrios();
     } catch {
       toast.error("No se pudo cambiar el estado");
     }
@@ -94,7 +96,21 @@ const DataTableBarrios: React.FC = () => {
 
   const columns = [
     { name: "Nombre", selector: (row: DataBarrio) => row.nombreBarrio, sortable: true },
-    { name: "Habilitado", selector: (row: DataBarrio) => (row.habilitar ? "Sí" : "No"), sortable: true },
+    {
+      name: "Estado",
+      selector: (row: DataBarrio) => (row.habilitar ? "Habilitado" : "Deshabilitado"),
+      sortable: true,
+      cell: (row: DataBarrio) => (
+        <div className="flex items-center gap-2">
+          <span
+            className={`inline-block w-2.5 h-2.5 rounded-full ${row.habilitar ? "bg-green-500" : "bg-red-500"}`}
+            aria-label={row.habilitar ? "Habilitado" : "Deshabilitado"}
+          />
+          <span>{row.habilitar ? "Habilitado" : "Deshabilitado"}</span>
+        </div>
+      ),
+      width: "200px",
+    },
     {
       name: "Acciones",
       cell: (row: DataBarrio) => (

@@ -61,7 +61,7 @@ export const getPlanById = async (idPlan: number): Promise<Plan> => {
 // 🔹 Crear plan y asociar beneficios
 export const createPlan = async (data: NuevoPlanForm): Promise<Plan> => {
   try {
-    // 1️⃣ Crear plan base
+    // Crear plan base
     const res = await fetch(PLANES_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -88,14 +88,15 @@ export const createPlan = async (data: NuevoPlanForm): Promise<Plan> => {
 
     if (!idPlan) throw new Error("No se obtuvo el ID del plan creado")
 
-    // 2️⃣ Asociar beneficios si existen
+    // Asociar beneficios si existen (deduplicando IDs)
     if (Array.isArray(data.beneficios) && data.beneficios.length > 0) {
-      for (const idBeneficio of data.beneficios) {
+      const uniqueIds = Array.from(new Set(data.beneficios.map((x) => Number(x))))
+      for (const idBeneficio of uniqueIds) {
         await createPlanBeneficio(idPlan, Number(idBeneficio))
       }
     }
 
-    // 3️⃣ Obtener plan completo con beneficios asociados
+    // Obtener plan completo con beneficios asociados
     const planBase = await getPlanById(idPlan)
     const planCompleto = await attachBeneficios(planBase)
     console.log("✅ Plan creado con beneficios asociados:", planCompleto)
@@ -133,18 +134,19 @@ export const updatePlan = async (
     if (!res.ok) throw new Error("Error al actualizar plan")
     await res.json()
 
-    // 3️⃣ Reasociar beneficios
+    //  Reasociar beneficios (deduplicando IDs)
     if (Array.isArray(data.beneficios)) {
       await deletePlanBeneficios(idPlan).catch(() =>
         console.warn("⚠️ No había beneficios previos que eliminar")
       )
 
-      for (const idBeneficio of data.beneficios) {
+      const uniqueIds = Array.from(new Set(data.beneficios.map((x) => Number(x))))
+      for (const idBeneficio of uniqueIds) {
         await createPlanBeneficio(idPlan, Number(idBeneficio))
       }
     }
 
-    // 4️⃣ Obtener plan actualizado con beneficios
+    // Obtener plan actualizado con beneficios
     const planBase = await getPlanById(idPlan)
     return await attachBeneficios(planBase)
   } catch (error) {
