@@ -31,6 +31,8 @@ import FormPlan from "./components/planes/FormPlan";
 import FormBeneficioPage from "./pages/administrador/FormBeneficioPage";
 import VisitasPorMedico from "./pages/general/VisitasPorMedico";
 import HistorialVisitasMedico from "./pages/general/HistorialVisitasMedico";
+import HistorialVisitasPaciente from "./pages/general/HistorialVisitasPaciente";
+import SolicitarVisitaPaciente from "./pages/general/SolicitarVisitaPaciente";
 
 function App() {
   return (
@@ -58,9 +60,11 @@ function App() {
             <Route path="/pagos" element={<Pagos />} />
             <Route path="/visitas" element={<Visitas />} />
             <Route path="/visitas/medico" element={<VisitasPorMedico />} />
+            <Route path="/solicitar-visita" element={<SolicitarVisitaPaciente />} />
             <Route path="/historial/medico" element={<HistorialVisitasMedico/>} /> 
             <Route path="/medicos" element={<Medicos />} />
             <Route path="/contratos" element={<Contratos />} />
+            <Route path="/historial/paciente" element={<HistorialVisitasPaciente />} />
             <Route path="/beneficios_plan" element={<BeneficiosPlan />} />
             <Route path="/beneficios_plan/nuevo" element={<FormBeneficioPage />} />
             <Route path="/solicitudes" element={<Solicitudes />} />
