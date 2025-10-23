@@ -1,10 +1,12 @@
+import { InputHTMLAttributes } from "react";
+
 type PropsInput = {
   label: string;
   required?: boolean;
   errors?: {
     message?: string;
   };
-} 
+} & InputHTMLAttributes<HTMLInputElement>;
 
 const InputComponent:React.FC<PropsInput> = ({ label, required = false, errors, ...props }) => {
   return (

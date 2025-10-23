@@ -1,3 +1,5 @@
+import { SelectHTMLAttributes } from "react";
+
 type PropsSelect = {
   label: string;
   options: any[];
@@ -5,7 +7,7 @@ type PropsSelect = {
   errors?: {
     message?: string;
   };
-} 
+}  & SelectHTMLAttributes<HTMLSelectElement>;
 
 const SelectComponent:React.FC<PropsSelect> = ({ label, options, required = false, errors, ...props }) => {
   return (
