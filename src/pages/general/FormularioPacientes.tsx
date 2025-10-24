@@ -596,7 +596,7 @@ const FormularioPacientes = () => {
         },
         paciente: {
           ...data.titular.paciente,
-          beneficiario: false
+          beneficiario: data.titular.paciente.beneficiario
         }
       },
       contrato: data.contrato,
