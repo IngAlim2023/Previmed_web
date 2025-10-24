@@ -1,7 +1,8 @@
-import { TbArrowsExchange2 } from 'react-icons/tb'
-import { OpcionesBotones } from '../../interfaces/botones'
+import React from "react";
+import { TbArrowsExchange2 } from "react-icons/tb";
+import { OpcionesBotones } from "../../interfaces/botones";
 
-const BtnCambiar:React.FC<OpcionesBotones> = ({verText, text}) => {
+const BtnCambiar: React.FC<OpcionesBotones> = ({ verText, text }) => {
   return (
     <>
           <button
@@ -28,4 +29,4 @@ const BtnCambiar:React.FC<OpcionesBotones> = ({verText, text}) => {
   )
 }
 
-export default BtnCambiar
+export default BtnCambiar;

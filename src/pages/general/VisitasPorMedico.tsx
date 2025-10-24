@@ -119,7 +119,7 @@ const VisitasPorMedico: React.FC = () => {
 
   // 🔹 Columnas de la tabla
   const columns = [
-    { name: "ID", selector: (row: Visita) => row.id_visita, sortable: true },
+    { name: "ID", selector: (row: Visita) => row.id_visita ?? "", sortable: true },
     {
       name: "Fecha",
       selector: (row: Visita) =>
@@ -137,10 +137,16 @@ const VisitasPorMedico: React.FC = () => {
     {
       name: "Acciones",
       cell: (row: Visita) => {
-        const esActiva = visitaActiva === row.id_visita.toString()
+        const esActiva = row.id_visita !== undefined && visitaActiva === row.id_visita.toString()
         return (
           <button
-            onClick={() => handleToggleVisita(row.id_visita)}
+            onClick={() => {
+              if (typeof row.id_visita === "number") {
+                handleToggleVisita(row.id_visita)
+              } else {
+                toast.error("ID de visita no válido")
+              }
+            }}
             className={`px-3 py-1 rounded-md text-white font-semibold transition-all ${
               esActiva
                 ? "bg-yellow-500 hover:bg-yellow-600"

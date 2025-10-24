@@ -6,8 +6,6 @@ const BtnActualizar: React.FC<OpcionesBotones> = ({ verText, text }) => {
   return (
     <button
       className={`
-        flex items-center
-        justify-center
         ${text}
         relative overflow-hidden
         text-green-600 font-bold p-2 m-1 border-1 border-green-600 rounded-md
@@ -21,8 +19,8 @@ const BtnActualizar: React.FC<OpcionesBotones> = ({ verText, text }) => {
         hover:shadow-none
       `}
     >
-      <MdUpdate className="mr-1" />
-      {verText && "Actualizar"}
+      <MdUpdate className="text-base" />
+      {verText && <span>Actualizar</span>}
     </button>
   );
 };
