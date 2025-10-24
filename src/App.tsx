@@ -33,6 +33,7 @@ import VisitasPorMedico from "./pages/general/VisitasPorMedico";
 import HistorialVisitasMedico from "./pages/general/HistorialVisitasMedico";
 import HistorialVisitasPaciente from "./pages/general/HistorialVisitasPaciente";
 import SolicitarVisitaPaciente from "./pages/general/SolicitarVisitaPaciente";
+import AdminHome from "./pages/administrador/HomeAdmin";
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
             <Route path="/home/medico" element={<HomeMedico />} />
             <Route path="/home/asesor" element={<HomeAsesor />} />
             <Route path="/home/paciente" element={<HomePacientes />} />
+            <Route path="/home/admin" element={<AdminHome />} />
             <Route path="/usuarios" element={<Usuarios />} />
             <Route path="/visitas" element={<Visitas />} />
             <Route path="/historial/visitas" element={<HistorialVisitas />} />
