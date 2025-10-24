@@ -37,10 +37,24 @@ const DetallesPlan: React.FC<Props> = ({ plan, setShowDetalles }) => {
     }).format(number)
   }
 
-  // 🧩 Beneficios asociados (seguro ante null o undefined)
-  const beneficios = Array.isArray((plan as any).planXBeneficios)
-    ? (plan as any).planXBeneficios
-    : []
+  // 🧩 Beneficios asociados (seguro ante null o undefined) con deduplicación por ID
+  const beneficios = (() => {
+    const raw = Array.isArray((plan as any).planXBeneficios)
+      ? (plan as any).planXBeneficios
+      : []
+    const map = new Map(
+      raw.map((b: any) => {
+        const id =
+          b.beneficio?.idBeneficio ??
+          b.beneficio?.id_beneficio ??
+          b.beneficioId ??
+          b.beneficio_id ??
+          Math.random()
+        return [id, b]
+      })
+    )
+    return Array.from(map.values())
+  })()
 
   return (
     <div

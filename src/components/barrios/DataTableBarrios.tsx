@@ -106,30 +106,34 @@ const DataTableBarrios: React.FC = () => {
   const handleSave = async (payload: Partial<DataBarrio>) => {
     try {
       if (editing?.idBarrio) {
-        await updateBarrio(editing.idBarrio, payload);
+        const updated = await updateBarrio(editing.idBarrio, payload);
+        // Refrescar estado local inmediatamente
+        setBarrios(prev => prev.map(b => b.idBarrio === updated.idBarrio ? updated : b));
         toast.success("Barrio actualizado");
       } else {
-        await createBarrio(payload);
+        const created = await createBarrio(payload);
+        setBarrios(prev => [...prev, created]);
         toast.success("Barrio creado");
       }
       setModalFormOpen(false);
       setEditing(null);
-      fetchBarrios();
+      // fetchBarrios(); // ya actualizamos localmente
     } catch (e) {
       console.error(e);
       toast.error("No se pudo guardar");
     }
   };
 
-  const handleToggle = async (b: DataBarrio) => {
-    try {
-      await toggleHabilitarBarrio(b);
-      toast.success("Estado actualizado");
-      fetchBarrios();
-    } catch {
-      toast.error("No se pudo cambiar el estado");
-    }
-  };
+  // Si deseas habilitar un toggle en la tabla, reutiliza esta función y conéctala desde la columna
+  // const handleToggle = async (b: DataBarrio) => {
+  //   try {
+  //     const updated = await toggleHabilitarBarrio(b);
+  //     setBarrios(prev => prev.map(x => x.idBarrio === updated.idBarrio ? updated : x));
+  //     toast.success("Estado actualizado");
+  //   } catch {
+  //     toast.error("No se pudo cambiar el estado");
+  //   }
+  // };
 
 
   const columns = [
@@ -143,24 +147,21 @@ const DataTableBarrios: React.FC = () => {
       style: { paddingRight: "10px" },
     },
     {
-      name: "Habilitado",
-      selector: (row: DataBarrio) => (row.habilitar ? "Sí" : "No"),
+      name: "Estado",
+      selector: (row: DataBarrio) => (row.habilitar ? "Habilitado" : "Deshabilitado"),
       sortable: true,
-      center: true,           
+      center: true,
       grow: 0,
-      width: "25%",            
+      width: "25%",
       style: { paddingRight: "14px" },
       cell: (row: DataBarrio) => (
-        <span
-          className={`px-2 py-0.5 rounded text-xs font-medium ${
-            row.habilitar ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-600"
-          }`}
-          onClick={() => handleToggle(row)}
-          title="Click para cambiar"
-          style={{ cursor: "pointer" }}
-        >
-          {row.habilitar ? "Sí" : "No"}
-        </span>
+        <div className="flex items-center gap-2 justify-center w-full">
+          <span
+            className={`inline-block w-2.5 h-2.5 rounded-full ${row.habilitar ? "bg-green-500" : "bg-red-500"}`}
+            aria-label={row.habilitar ? "Habilitado" : "Deshabilitado"}
+          />
+          <span>{row.habilitar ? "Habilitado" : "Deshabilitado"}</span>
+        </div>
       ),
     },
     {

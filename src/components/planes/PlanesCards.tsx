@@ -129,7 +129,20 @@ const PlanesCards: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredData.map((plan) => {
-            const beneficios = (plan as any).planXBeneficios || []
+            const beneficiosRaw = (plan as any).planXBeneficios || []
+            // Deduplicación por id de beneficio para evitar repetidos
+            const beneficiosMap = new Map(
+              beneficiosRaw.map((b: any) => {
+                const id =
+                  b.beneficio?.idBeneficio ??
+                  b.beneficio?.id_beneficio ??
+                  b.beneficioId ??
+                  b.beneficio_id ??
+                  `${plan.idPlan}-${Math.random()}`
+                return [id, b]
+              })
+            )
+            const beneficios = Array.from(beneficiosMap.values())
             const isExpanded = expandedCard === plan.idPlan
             const beneficiosMostrar = isExpanded
               ? beneficios
