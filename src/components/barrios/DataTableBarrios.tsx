@@ -9,7 +9,6 @@ import {
   deleteBarrio,
   createBarrio,
   updateBarrio,
-  toggleHabilitarBarrio,
 } from "../../services/barrios";
 
 import BtnAgregar from "../botones/BtnAgregar";

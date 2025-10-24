@@ -1,7 +1,7 @@
 // src/components/beneficiarios/BeneficiariosTable.tsx
 import React from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
-import { FaTrash, FaUser } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import BtnEliminar from "../botones/BtnEliminar";
 
 interface Usuario {

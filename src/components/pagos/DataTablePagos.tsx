@@ -53,14 +53,14 @@ const DataTablePagos: React.FC = () => {
   };
 
   const formatNombre = (row: PagoInterface) => {
-    const usuario = row.membresia.membresiaPaciente[0]?.paciente?.usuario;
+    const usuario = (row.membresia as any)?.membresiaPaciente?.[0]?.paciente?.usuario;
     if (!usuario) return "";
     return [usuario.nombre, usuario.segundoNombre, usuario.apellido, usuario.segundoApellido]
       .filter(Boolean)
       .join(" ");
   };
 
-  const formatFecha = (fecha: string) => {
+  const formatFecha = (fecha: string | Date) => {
     if (!fecha) return "";
     return new Date(fecha).toLocaleDateString("es-CO");
   };
@@ -92,13 +92,18 @@ const DataTablePagos: React.FC = () => {
 
   const pagosFiltrados = pagos
     .sort((a, b) => new Date(b.fechaPago).getTime() - new Date(a.fechaPago).getTime())
-    .filter((pago) =>
-      formatNombre(pago).toLowerCase().includes(buscarPago.toLowerCase()) ||
-      pago.monto?.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
-      pago.idRegistro?.toString().toLowerCase().includes(buscarPago.toLowerCase()) ||
-      formatFecha(pago.fechaPago).includes(buscarPago) ||
-      pago.membresia.numeroContrato?.toLowerCase().includes(buscarPago.toLowerCase())
-    );
+    .filter((pago) => {
+      const search = buscarPago.toLowerCase();
+      const numeroContrato = (pago.membresia as any)?.numeroContrato;
+      const numeroContratoStr = numeroContrato != null ? String(numeroContrato).toLowerCase() : "";
+      return (
+        formatNombre(pago).toLowerCase().includes(search) ||
+        pago.monto?.toString().toLowerCase().includes(search) ||
+        pago.idRegistro?.toString().toLowerCase().includes(search) ||
+        formatFecha(pago.fechaPago).toLowerCase().includes(search) ||
+        numeroContratoStr.includes(search)
+      );
+    });
 
   return (
     <>
