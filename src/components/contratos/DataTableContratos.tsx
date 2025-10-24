@@ -15,11 +15,14 @@ import BtnCancelar from "../botones/BtnCancelar"
 
 import FormContrato from "./FormContrato"
 import DetallesContrato from "./DetallesContrato"
+import { useAuthContext } from "../../context/AuthContext"
+import BtnDescargarPdf from "../botones/BtnDescargarPdf"
 
 const DataTableContratos: React.FC = () => {
   const [contratos, setContratos] = useState<
     (Membresia & { planNombre?: string; titularNombre?: string })[]
   >([])
+  const {user} = useAuthContext()
   const [planes, setPlanes] = useState<Plan[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -187,20 +190,27 @@ const DataTableContratos: React.FC = () => {
     {
       name: "Acciones",
       cell: (row) => (
-        <div className="flex gap-2 p-2">
+        <div className="flex p-2">
+          <div onClick={() => { setContratoSeleccionado(row); setShowDetalles(true) }}>
+            <BtnDescargarPdf />
+          </div>
           <div onClick={() => { setContratoSeleccionado(row); setShowDetalles(true) }}>
             <BtnLeer />
           </div>
-          <div onClick={() => { setEditing(row); setShowForm(true) }}>
-            <BtnEditar />
-          </div>
-          <div onClick={() => handleEliminar(row.idMembresia)}>
-            <BtnEliminar />
-          </div>
+          {user.rol?.nombreRol != "Administrador"? (<></>) : (
+            <>
+              <div onClick={() => { setEditing(row); setShowForm(true) }}>
+                <BtnEditar />
+              </div>
+              <div onClick={() => handleEliminar(row.idMembresia)}>
+                <BtnEliminar />
+              </div>
+            </>
+          )}
         </div>
       ),
       button: true,
-      minWidth: "180px",
+      minWidth: "200px",
     },
   ]
 
