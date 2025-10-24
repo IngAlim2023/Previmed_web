@@ -11,6 +11,7 @@ import BtnEliminar from "../../components/botones/BtnEliminar";
 import BtnEditar from "../../components/botones/BtnEditar";
 import BtnLeer from "../../components/botones/BtnLeer";
 import { useAuthContext } from "../../context/AuthContext";
+import BtnDescargarPdf from "../../components/botones/BtnDescargarPdf";
 
 interface Paciente {
   id: number;
@@ -77,9 +78,15 @@ const Pacientes: React.FC = () => {
     },
     {
       name: "Opciones",
-      minWidth: "260px",
+      minWidth: "310px",
       cell: (row) => (
         <div className="flex">
+          <div
+            title="Descargar contrato"
+            onClick={() => handleEdit(row)}
+            >
+            <BtnDescargarPdf/>
+          </div>
           <div
             title="Ver detalles"
             onClick={() => handleEdit(row)}

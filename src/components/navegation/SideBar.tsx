@@ -22,6 +22,7 @@ import { LuLogOut } from "react-icons/lu";
 import { useAuthContext } from "../../context/AuthContext";
 import Cookies from "js-cookie";
 import type { JSX } from "react";
+import { BsClockHistory } from "react-icons/bs";
 
 // ✅ Tipo de dato para las rutas
 interface RouteItem {
@@ -60,7 +61,7 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
 
     // 🔹 ASESOR
     { path: "/home/asesor", label: "Inicio", icon: <FaHome />, roles: ["Asesor"] },
-    { path: "/contratos", label: "Membresías", icon: <FaClipboardList />, roles: ["Asesor"] },
+    { path: "/contratos", label: "Contratos", icon: <FaClipboardList />, roles: ["Asesor"] },
     { path: "/pagos", label: "Registros Pagos", icon: <FaMoneyBill />, roles: ["Asesor"] },
     { path: "/barrios", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Administrador", "Asesor"] },
 
@@ -74,7 +75,8 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
    { path: "/solicitar-visita", label: "Solicitar Visita", icon: <FaBriefcaseMedical />, roles: ["Paciente"] },
    { path: "/contrato", label: "Contrato", icon: <FaFileContract />, roles: ["Paciente"] },
    { path: "/beneficiarios", label: "Beneficiarios", icon: <FaUserFriends />, roles: ["Paciente"] },
-   { path: "/historial/paciente", label: "Historial de Visitas", icon: <FaHistory />, roles: ["Paciente"] }
+   { path: "/historial/paciente", label: "Historial de Visitas", icon: <FaHistory />, roles: ["Paciente"] },
+   { path: "/historial/pagos", label: "Historial de pagos", icon: <BsClockHistory />, roles: ["Paciente"] }
   ];
 
   // ✅ Filtrar rutas según el rol actual del usuario

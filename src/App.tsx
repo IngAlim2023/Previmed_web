@@ -34,6 +34,7 @@ import HistorialVisitasMedico from "./pages/general/HistorialVisitasMedico";
 import HistorialVisitasPaciente from "./pages/general/HistorialVisitasPaciente";
 import SolicitarVisitaPaciente from "./pages/general/SolicitarVisitaPaciente";
 import AdminHome from "./pages/administrador/HomeAdmin";
+import HistorialPagos from "./pages/general/HistorialPagos";
 
 function App() {
   return (
@@ -76,6 +77,7 @@ function App() {
             <Route path="/panel_control" element={<Roles />} />
             <Route path="/barrios" element={<Barrios />} />
             <Route path="/beneficiarios" element={<Beneficiarios/>}/>
+            <Route path="/historial/pagos" element={<HistorialPagos/>}/>
             <Route
               path="/formularioPacientes"
               element={<FormularioPacientes />}
