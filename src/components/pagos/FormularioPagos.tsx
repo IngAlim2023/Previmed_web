@@ -1,3 +1,4 @@
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
 import Select from "react-select";
@@ -19,12 +20,12 @@ type Props = {
 
 type FormValues = {
   foto?: FileList;
-  membresia_id?: number;
+  membresia_id?: number | string;
   fecha_pago?: string;
   fecha_inicio?: string;
   fecha_fin?: string;
-  forma_pago_id?: number;
-  monto?: number;
+  forma_pago_id?: number | string;
+  monto?: number | string;
 };
 
 const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) => {
@@ -108,16 +109,21 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
     }
   }, [pago, reset]);
 
+  // Observe 'foto' value once and use that as dependency to avoid passing watch(...) in deps
+  const fotoValue = watch("foto");
   useEffect(() => {
-    const file = watch("foto")?.[0];
+    const file = fotoValue?.[0];
     if (file) {
       const url = URL.createObjectURL(file);
       setPreview(url);
-      return () => URL.revokeObjectURL(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
     } else {
       setPreview(null);
     }
-  }, [watch("foto")]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fotoValue]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -128,7 +134,7 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, []);
+  }, [setPago, setForm]);
 
   const onSubmit = async (data: any) => {
     setIsSaving(true);
@@ -137,7 +143,8 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
         ? await updatePago(data, pago.idRegistro)
         : await createPago(data);
 
-      toast.success(response.message);
+      // proteger en caso de que response.message no exista
+      toast.success(response?.message || "Operación exitosa");
       setPagos((prev: any) =>
         pago
           ? prev.map((p: any) => (p.idRegistro === pago.idRegistro ? response.data : p))
@@ -145,7 +152,7 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
       );
       setPago(null);
       setForm(false);
-    } catch {
+    } catch (err) {
       toast.error(pago ? "Error al actualizar el pago" : "Error al registrar el pago");
     } finally {
       setIsSaving(false);
@@ -162,21 +169,22 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
         label: `${usuario.nombre ?? ""} ${usuario.segundoNombre ?? ""} ${usuario.apellido ?? ""} ${usuario.segundoApellido ?? ""} - ${usuario.numeroDocumento ?? ""}`
       };
     })
-    .filter(Boolean);
+    .filter((x): x is { value: any; label: string } => Boolean(x));
 
   const opcionesFormaPago = formasPago.map(fp => ({
     value: fp.idFormaPago,
     label: fp.tipoPago
   }));
 
-  // 🔍 Logs para debuggear valores al editar
+  // Logs para debugging: usar getValues en lugar de watch(...) en las dependencias
   useEffect(() => {
     if (pago) {
       console.log("🔍 Opciones de forma de pago:", opcionesFormaPago);
-      console.log("🔍 Valor actual de forma_pago_id:", watch("forma_pago_id"));
-      console.log("🔍 Valor actual de membresia_id:", watch("membresia_id"));
+      console.log("🔍 Valor actual de forma_pago_id:", getValues("forma_pago_id"));
+      console.log("🔍 Valor actual de membresia_id:", getValues("membresia_id"));
     }
-  }, [pago, opcionesFormaPago, watch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pago, opcionesFormaPago]);
 
   return (
     <div className="fixed inset-0 bg-black/80 flex justify-center items-start overflow-y-auto z-50">

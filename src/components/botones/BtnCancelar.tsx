@@ -5,23 +5,24 @@ const BtnCancelar: React.FC<OpcionesBotones> = ({ verText, text }) => {
   return (
     <button
       className={`
-        flex items-center
-        justify-center
         ${text}
-        relative overflow-hidden
-        text-gray-600 font-bold p-2 m-1 border border-gray-600 rounded-md
-        shadow-[2px_2px_2px_rgba(75,85,99,0.99)]
-        transition-all duration-700 ease-in-out
-        hover:text-white
-        bg-gradient-to-r from-gray-600 to-gray-600
-        bg-no-repeat bg-[length:50%_0%] bg-right-bottom
-        hover:bg-[length:200%_100%]
-        hover:cursor-pointer
-        hover:shadow-none
+        flex items-center gap-2 justify-center
+        px-5 py-2.5
+        text-sm font-semibold
+        rounded-lg
+        border border-gray-500
+        text-gray-600
+        bg-gradient-to-r from-gray-100 to-gray-200
+        shadow-sm
+        transition-all duration-300 ease-in-out
+        hover:from-gray-600 hover:to-gray-700 hover:text-white
+        hover:shadow-md hover:scale-[1.03]
+        active:scale-95
+        focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1
       `}
     >
-      <ImCancelCircle className="mr-1" />
-      {verText && "Cancelar"}
+      <ImCancelCircle className="text-base" />
+      {verText && <span>Cancelar</span>}
     </button>
   );
 };

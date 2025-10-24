@@ -70,10 +70,11 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
         direccion: visita.direccion,
         estado: visita.estado ? "true" : "false",
         telefono: visita.telefono,
-        paciente_id: visita.paciente_id,
-        medico_id: visita.medico_id,
-        barrio_id: visita.barrio_id,
+        paciente_id: visita.paciente_id ?? 0,
+        medico_id: visita.medico_id ?? 0,
+        barrio_id: visita.barrio_id ?? 0,
       })
+
     }
   }, [visita, reset])
 
@@ -129,8 +130,13 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
       }
 
       if (visita) {
-        await updateVisita(visita.id_visita, payload)
-        toast.success("Visita actualizada")
+        const id = visita.id_visita
+        if (typeof id !== "number") {
+          toast.error("ID de la visita inválido")
+        } else {
+          await updateVisita(id, payload)
+          toast.success("Visita actualizada")
+        }
       } else {
         await createVisita(payload)
         toast.success("Visita creada")

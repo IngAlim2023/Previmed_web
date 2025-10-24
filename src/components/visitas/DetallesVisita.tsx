@@ -25,10 +25,12 @@ const DetallesVisita: React.FC<Props> = ({ visita, setDetalles }) => {
     })
 
     // 🔹 Buscar médico por ID
-    medicoService
-      .getById(visita.medico_id)
+visita.medico_id != null
+  ? medicoService.getById(visita.medico_id)
       .then((m) => setMedico(m))
       .catch(() => setMedico(null))
+  : setMedico(null)
+
 
     // 🔹 Buscar barrio por ID (normalizando ids como string/number)
     getBarrios()

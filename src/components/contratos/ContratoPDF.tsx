@@ -1,6 +1,29 @@
 import { jsPDF } from 'jspdf'
 
-export const generarPDF = (usuario) => {
+type Usuario = {
+  nombre?: string
+  numeroDocumento?: string
+  direccion?: string
+  barrio?: string
+  telefono?: string
+  email?: string
+  cupoMaximo?: string | number
+}
+
+type GenerarPDFResult =
+  | {
+      success: true
+      mensaje: string
+      archivo: string
+      numeroContrato: string
+    }
+  | {
+      success: false
+      mensaje: string
+      error?: string
+    }
+
+export const generarPDF = (usuario: Usuario): GenerarPDFResult => {
   try {
     const doc = new jsPDF()
     
@@ -14,7 +37,7 @@ export const generarPDF = (usuario) => {
     let y = 20 // posición vertical
     
     // Función helper para campos con auto-llenado
-    const agregarCampo = (etiqueta, valor, posY) => {
+    const agregarCampo = (etiqueta: string, valor: string | number | undefined, posY: number) => {
       // Etiqueta en negrita
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(11)
@@ -23,7 +46,8 @@ export const generarPDF = (usuario) => {
       // Valor o línea para llenar
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(11)
-      const valorFinal = valor || '_'.repeat(30) // Si está vacío, pone línea
+      const valorStr = typeof valor === 'number' ? String(valor) : (valor || '')
+      const valorFinal = valorStr || '_'.repeat(30) // Si está vacío, pone línea
       doc.text(valorFinal, 20, posY + 5)
       
       return posY + 15 // retorna nueva posición Y
@@ -129,20 +153,21 @@ export const generarPDF = (usuario) => {
       numeroContrato: numeroContrato
     }
     
-  } catch (error) {
+  } catch (error: any) {
+    // Mantener el console para depuración
     console.error('Error al generar PDF:', error)
     return {
       success: false,
       mensaje: 'Error al generar el PDF',
-      error: error.message
+      error: error?.message
     }
   }
 }
 
 // === FUNCIÓN DE USO FÁCIL ===
-export const generarContratoCompleto = (datosBasicos) => {
+export const generarContratoCompleto = (datosBasicos: Record<string, any>): GenerarPDFResult => {
   // Función que toma datos mínimos y completa el resto automáticamente
-  const usuarioCompleto = {
+  const usuarioCompleto: Usuario = {
     nombre: datosBasicos.nombre,
     numeroDocumento: datosBasicos.cedula || datosBasicos.numeroDocumento,
     direccion: datosBasicos.direccion,

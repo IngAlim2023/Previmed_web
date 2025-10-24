@@ -10,8 +10,10 @@ const FormSolicitudes: React.FC<PropsSolicitudes> = ({}) => {
     handleSubmit,
     formState: { errors },
   } = useForm<PostSolicitud>();
-
-  const enviarSolicitud = (data: PostSolicitud) => {};
+  
+  const enviarSolicitud = (data: PostSolicitud) => {
+    console.log("Solicitud enviada:", data);
+  };
 
   const [form, setForm] = useState<boolean>(false);
 
@@ -48,11 +50,12 @@ const FormSolicitudes: React.FC<PropsSolicitudes> = ({}) => {
           Formulario de Solicitud
         </h2>
         <p>
-            Sí deseas adquirir nuestros servicios, enviar alguna solicitud, queja o sujerencia, puedes hacerlo,
+            Sí deseas adquirir nuestros servicios, enviar alguna solicitud, queja o sugerencia, puedes hacerlo,
             llena el siguiente formulario y espera un pronta respuesta.  
         </p>
         <div className="flex justify-center items-center">
         <button 
+        type="button" /* Changed: evita que el botón actúe como submit */
         className="w-1/2 bg-blue-600 text-lg text-white rounded-xl cursor-pointer mb-4"
         onClick={()=>setForm(!form)
         }>{form? 'Ocultar formulario':'Mostrar formulario'}</button>
@@ -196,7 +199,7 @@ const FormSolicitudes: React.FC<PropsSolicitudes> = ({}) => {
           <textarea
             {...register("descripcion")}
             className="w-full mt-1 px-3 py-2 border border-gray-300 rounded"
-          />
+          ></textarea>
         </div>
 
         {/* Autorización de datos */}

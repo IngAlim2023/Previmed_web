@@ -1,17 +1,14 @@
-import React from 'react'
+import React from "react";
 import { MdOutlineModeEdit } from "react-icons/md";
-import { OpcionesBotones } from '../../interfaces/botones';
+import { OpcionesBotones } from "../../interfaces/botones";
 
-const BtnEditar:React.FC<OpcionesBotones> = ({verText, text}) => {
+const BtnEditar: React.FC<OpcionesBotones> = ({ verText, text }) => {
   return (
     <button
       className={`
-        flex items-center
-        justify-center
         ${text}
         relative overflow-hidden
-        text-amber-500 font-bold p-2 m-1 border-1 border-amber-500 rounded-md
-        shadow-[2px_2px_2px_rgba(245,158,11,0.99)]
+        text-amber-500 font-bold p-1.5 m-1 border-1 border-amber-500 rounded-md
         transition-all duration-700 ease-in-out
         hover:text-white
         bg-linear-to-r from-amber-500 to-amber-500
@@ -21,10 +18,10 @@ const BtnEditar:React.FC<OpcionesBotones> = ({verText, text}) => {
         hover:shadow-none
         `}
     >
-        <MdOutlineModeEdit className='mr-1' />
-        {verText && "Editar"}
+      <MdOutlineModeEdit className="text-xl" />
+      {verText && <span>Editar</span>}
     </button>
-  )
-}
+  );
+};
 
-export default BtnEditar
+export default BtnEditar;

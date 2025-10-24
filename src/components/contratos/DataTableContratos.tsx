@@ -205,82 +205,87 @@ const DataTableContratos: React.FC = () => {
   ]
 
   return (
-    <div className="min-h-screen flex items-center justify-center w-full px-4 py-8 bg-blue-50">
-      <div className="w-full max-w-6xl bg-white rounded-lg shadow-xl p-4 overflow-x-auto">
-        {/* 🔹 Encabezado con ícono y botón igual que en “Visitas” */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-gray-600 flex items-center">
-            <HiOutlineDocumentText className="w-10 h-auto text-blue-600 mr-4" />
-            Contratos
-          </h2>
+  <div className="min-h-screen flex items-center justify-center w-full px-4 py-8 bg-blue-50">
+    <div className="w-full max-w-6xl bg-white rounded-lg shadow-xl p-6 overflow-x-auto">
+      {/* 🔹 Encabezado */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+        <h2 className="text-2xl font-semibold text-gray-700 flex items-center">
+          <HiOutlineDocumentText className="w-8 h-8 text-blue-600 mr-3" />
+          Contratos
+        </h2>
 
+        <div className="flex items-center gap-3 w-full sm:w-auto">
           <input
             type="text"
             placeholder="Buscar contrato..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="p-2 border border-gray-300 rounded-xl focus:outline-none"
+            className="w-full sm:w-72 px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm transition"
           />
 
           <div onClick={handleNuevo}>
-            {/* 👇 igual que en Visitas */}
             <BtnAgregar verText={true} />
           </div>
         </div>
-
-        <DataTable
-          columns={columns}
-          data={filteredContratos}
-          pagination
-          highlightOnHover
-          striped
-          progressPending={loading}
-          noDataComponent="No hay contratos registrados"
-        />
       </div>
 
-      {showForm && (
+      {/* 🔹 Tabla (sin columna ID) */}
+      <DataTable
+        columns={columns.filter((col) => col.name !== "ID")} // 👈 Ocultamos columna ID
+        data={filteredContratos}
+        pagination
+        highlightOnHover
+        striped
+        progressPending={loading}
+        noDataComponent="No hay contratos registrados"
+      />
+    </div>
+
+    {/* 🔹 Modal de formulario */}
+    {showForm && (
+      <div
+        className={`fixed inset-0 flex justify-center items-center z-50 transition-all duration-300 ${
+          closingModal
+            ? "opacity-0 bg-gray-900/0"
+            : "opacity-100 bg-gray-900/60 backdrop-blur-sm"
+        }`}
+      >
         <div
-          className={`fixed inset-0 flex justify-center items-center z-50 transition-all duration-300 ${
-            closingModal
-              ? "opacity-0 bg-gray-900/0"
-              : "opacity-100 bg-gray-900/60 backdrop-blur-sm"
+          className={`bg-white rounded-2xl shadow-2xl w-[600px] max-w-[95%] p-6 relative border border-gray-200 transform transition-all duration-300 ${
+            closingModal ? "scale-95 opacity-0" : "scale-100 opacity-100"
           }`}
         >
-          <div
-            className={`bg-white rounded-2xl shadow-2xl w-[600px] max-w-[95%] p-6 relative border border-gray-200 transform transition-all duration-300 ${
-              closingModal ? "scale-95 opacity-0" : "scale-100 opacity-100"
-            }`}
-          >
-            <div className="absolute top-3 right-3" onClick={closeModal}>
-              <BtnCerrar />
-            </div>
-
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center border-b pb-2">
-              {editing ? "Editar Contrato" : "Nuevo Contrato"}
-            </h2>
-
-            <FormContrato
-              contrato={editing}
-              setShowForm={setShowForm}
-              onSuccess={async (saved) => {
-                await handleOnSuccess(saved)
-                closeModal()
-              }}
-              planes={planes}
-            />
+          <div className="absolute top-3 right-3" onClick={closeModal}>
+            <BtnCerrar />
           </div>
-        </div>
-      )}
 
-      {showDetalles && (
-        <DetallesContrato
-          contrato={contratoSeleccionado}
-          setShowDetalles={setShowDetalles}
-        />
-      )}
-    </div>
-  )
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center border-b pb-2">
+            {editing ? "Editar Contrato" : "Nuevo Contrato"}
+          </h2>
+
+          <FormContrato
+            contrato={editing}
+            setShowForm={setShowForm}
+            onSuccess={async (saved) => {
+              await handleOnSuccess(saved);
+              closeModal();
+            }}
+            planes={planes}
+          />
+        </div>
+      </div>
+    )}
+
+    {/* 🔹 Modal de detalles */}
+    {showDetalles && (
+      <DetallesContrato
+        contrato={contratoSeleccionado}
+        setShowDetalles={setShowDetalles}
+      />
+    )}
+  </div>
+);
+
 }
 
 export default DataTableContratos

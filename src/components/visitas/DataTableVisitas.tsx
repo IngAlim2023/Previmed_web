@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import DataTable from "react-data-table-component"
+import DataTable, { TableColumn } from "react-data-table-component"
 import toast from "react-hot-toast"
 import Select from "react-select"
 import { Visita } from "../../interfaces/visitas"
@@ -13,7 +13,6 @@ import FormularioVisitas from "./FormularioVisitas"
 import DetallesVisita from "./DetallesVisita"
 import ConfirmDialog from "./ConfirmDialog"
 import { HiOutlineClipboardList } from "react-icons/hi"
-import type { MedicoResponse } from "../../interfaces/medicoInterface"
 import { FiEdit3 } from "react-icons/fi"
 
 const DataTableVisitas: React.FC = () => {
@@ -45,27 +44,29 @@ const DataTableVisitas: React.FC = () => {
     }
   }
 
-  // 🔁 Cargar médicos (todos y disponibles)
+  // 🔁 Cargar médicos
   const fetchMedicos = async () => {
     setLoadingMedicos(true)
     try {
       const [pagTodos, pagDisp] = await Promise.all([
         medicoService.getAll(),
-        medicoService.getAll({ disponibilidad: true, estado: true })
+        medicoService.getAll({ disponibilidad: true, estado: true }),
       ])
 
-      const todos = pagTodos.data.map(m => ({
-        value: m.id_medico,
-        label: `${m.usuario.nombre} ${m.usuario.apellido}`
+      const todos = pagTodos.data.map((m: any) => ({
+        value: m.id_medico as number,
+        label: `${m.usuario.nombre} ${m.usuario.apellido}`,
       }))
-      const disponibles = pagDisp.data.map(m => ({
-        value: m.id_medico,
-        label: `${m.usuario.nombre} ${m.usuario.apellido}`
+
+      const disponibles = pagDisp.data.map((m: any) => ({
+        value: m.id_medico as number,
+        label: `${m.usuario.nombre} ${m.usuario.apellido}`,
       }))
 
       setMedicosTodos(todos)
       setMedicosDisp(disponibles)
-    } catch {
+    } catch (error) {
+      console.error(error)
       toast.error("Error al cargar médicos")
     } finally {
       setLoadingMedicos(false)
@@ -77,26 +78,30 @@ const DataTableVisitas: React.FC = () => {
     fetchMedicos()
   }, [])
 
-  // 🔄 Cambiar estado de visita
+  // 🔄 Cambiar estado
   const toggleEstado = async (row: Visita) => {
+    if (!row.id_visita) return
     try {
       const nuevaVisita = { ...row, estado: !row.estado }
       await updateVisita(row.id_visita, nuevaVisita)
       toast.success("Estado actualizado")
       fetchVisitas()
-    } catch {
+    } catch (error) {
+      console.error(error)
       toast.error("Error al actualizar estado")
     }
   }
 
-  // 💾 Guardar médico seleccionado
-  const guardarMedico = async (visita: Visita, id_medico: number | null) => {
+  // 💾 Guardar médico
+  const guardarMedico = async (visita: Visita, medico_id: number | null) => {
+    if (!visita.id_visita) return
     try {
-      await updateVisita(visita.id_visita, { ...visita, id_medico })
+      await updateVisita(visita.id_visita, { ...visita, medico_id })
       toast.success("Médico actualizado")
       setCambiandoMedicoId(null)
       fetchVisitas()
-    } catch {
+    } catch (error) {
+      console.error(error)
       toast.error("Error al actualizar médico")
     }
   }
@@ -108,12 +113,13 @@ const DataTableVisitas: React.FC = () => {
   }
 
   const confirmDelete = async () => {
-    if (!visitaAEliminar) return
+    if (!visitaAEliminar?.id_visita) return
     try {
       await deleteVisita(visitaAEliminar.id_visita)
       toast.success("Visita eliminada correctamente")
       fetchVisitas()
-    } catch {
+    } catch (error) {
+      console.error(error)
       toast.error("Error al eliminar visita")
     } finally {
       setShowConfirm(false)
@@ -121,82 +127,105 @@ const DataTableVisitas: React.FC = () => {
     }
   }
 
-  // 🔍 Filtro de búsqueda
-  const filteredData = visitas.filter(v =>
-    v.descripcion.toLowerCase().includes(search.toLowerCase())
+  // 🔍 Filtro búsqueda
+  const filteredData = visitas.filter((v) =>
+    v.descripcion?.toLowerCase().includes(search.toLowerCase())
   )
 
-  // 📋 Columnas de la tabla
-  const columns = [
-    { name: "ID", selector: (row: Visita) => row.id_visita, sortable: true, width: "80px" },
-    { name: "Fecha", selector: (row: Visita) => row.fecha_visita, sortable: true, cell: (row: Visita) => new Date(row.fecha_visita).toLocaleDateString("es-CO") },
-    { name: "Descripción", selector: (row: Visita) => row.descripcion, sortable: true, grow: 2 },
-    { name: "Teléfono", selector: (row: Visita) => row.telefono, sortable: true },
+  // 📋 Columnas
+  const columns: TableColumn<Visita>[] = [
+    {
+      name: "ID",
+      selector: (row) => row.id_visita ?? 0, // 👈 asegura que nunca sea undefined
+      sortable: true,
+      width: "80px",
+    },
+    {
+      name: "Fecha",
+      selector: (row) => row.fecha_visita ?? "",
+      sortable: true,
+      cell: (row) =>
+        row.fecha_visita
+          ? new Date(row.fecha_visita).toLocaleDateString("es-CO")
+          : "Sin fecha",
+    },
+    { name: "Descripción", selector: (row) => row.descripcion ?? "", sortable: true, grow: 2 },
+    { name: "Teléfono", selector: (row) => row.telefono ?? "", sortable: true },
     {
       name: "Estado",
-      cell: (row: Visita) => (
+      cell: (row) => (
         <button
           onClick={() => toggleEstado(row)}
-          className={`px-3 py-1 rounded-full text-sm font-semibold border transition ${row.estado ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200" : "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"}`}
+          className={`px-3 py-1 rounded-full text-sm font-semibold border transition ${
+            row.estado
+              ? "bg-green-100 text-green-700 border-green-300 hover:bg-green-200"
+              : "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
+          }`}
         >
           {row.estado ? "Activo" : "Inactivo"}
         </button>
       ),
       sortable: true,
-      center: true
+      center: true,
     },
     {
-  name: "Médico",
-  cell: (row: Visita) => {
-    const actual = medicosTodos.find(m => m.value === row.medico_id)
+      name: "Médico",
+      cell: (row) => {
+        const actual = medicosTodos.find((m) => m.value === row.medico_id)
 
-    // 🔄 Modo edición: mostramos el Select
-    if (cambiandoMedicoId === row.id_visita) {
-      return (
-        <Select
-          autoFocus
-          defaultValue={actual || null}
-          options={medicosDisp}
-          onChange={opt => guardarMedico(row, opt?.value ?? null)}
-          onBlur={() => setCambiandoMedicoId(null)}
-          placeholder="Seleccione un médico"
-          isClearable
-          className="w-56 text-sm"
-          noOptionsMessage={() => "No hay médicos disponibles"}
-        />
-      )
-    }
+        if (cambiandoMedicoId === (row.id_visita ?? null)) {
+          return (
+            <Select
+              autoFocus
+              defaultValue={actual || null}
+              options={medicosDisp}
+              onChange={(opt) => guardarMedico(row, opt?.value ?? null)}
+              onBlur={() => setCambiandoMedicoId(null)}
+              placeholder="Seleccione un médico"
+              isClearable
+              className="w-56 text-sm"
+              noOptionsMessage={() => "No hay médicos disponibles"}
+            />
+          )
+        }
 
-    // 👁️ Modo visual: nombre + ícono de editar
-    return (
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-700">
-          {actual?.label ?? <span className="italic text-gray-400">Sin asignar</span>}
-        </span>
-        <button
-          onClick={() => setCambiandoMedicoId(row.id_visita)}
-          disabled={loadingMedicos || medicosDisp.length === 0}
-          className="text-blue-500 hover:text-blue-700 transition-colors"
-          title="Cambiar médico"
-        >
-          <FiEdit3 className="w-4 h-4" />
-        </button>
-      </div>
-    )
-  },
-  center: true
-},
+        return (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-700">
+              {actual?.label ?? (
+                <span className="italic text-gray-400">Sin asignar</span>
+              )}
+            </span>
+            <button
+              onClick={() => setCambiandoMedicoId(row.id_visita ?? null)}
+              disabled={loadingMedicos || medicosDisp.length === 0}
+              className="text-blue-500 hover:text-blue-700 transition-colors"
+              title="Cambiar médico"
+            >
+              <FiEdit3 className="w-4 h-4" />
+            </button>
+          </div>
+        )
+      },
+      center: true,
+    },
     {
       name: "Acciones",
-      cell: (row: Visita) => (
+      cell: (row) => (
         <div className="flex gap-2 p-2">
-          <div onClick={() => { setVisita(row); setDetalles(true) }}><BtnLeer /></div>
-          <div onClick={() => { setVisita(row); setForm(true) }}><BtnEditar /></div>
-          <div onClick={() => handleDelete(row)}><BtnEliminar /></div>
+          <div onClick={() => { setVisita(row); setDetalles(true) }}>
+            <BtnLeer />
+          </div>
+          <div onClick={() => { setVisita(row); setForm(true) }}>
+            <BtnEditar />
+          </div>
+          <div onClick={() => handleDelete(row)}>
+            <BtnEliminar />
+          </div>
         </div>
       ),
       button: true,
-      minWidth: "180px"
+      minWidth: "180px",
     },
   ]
 
@@ -212,7 +241,7 @@ const DataTableVisitas: React.FC = () => {
             type="text"
             placeholder="Buscar por descripción..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-64 p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <div onClick={() => { setVisita(null); setForm(true) }}>
@@ -231,8 +260,12 @@ const DataTableVisitas: React.FC = () => {
         />
       </div>
 
-      {form && <FormularioVisitas visita={visita} setForm={setForm} onSuccess={fetchVisitas} />}
-      {detalles && <DetallesVisita visita={visita} setDetalles={setDetalles} />}
+      {form && (
+        <FormularioVisitas visita={visita} setForm={setForm} onSuccess={fetchVisitas} />
+      )}
+      {detalles && (
+        <DetallesVisita visita={visita} setDetalles={setDetalles} />
+      )}
 
       <ConfirmDialog
         show={showConfirm}

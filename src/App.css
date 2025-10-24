@@ -1,14 +1,21 @@
+/* eslint-disable */
+/* stylelint-disable */
+/* Ignorar reglas desconocidas (para Tailwind 4) */
 @import "tailwindcss";
+
+/* stylelint-disable unknownAtRules */
 @theme {
     --color-lgreen: #20C997;
-    --color-lblue:#00C9FF;
+    --color-lblue: #00C9FF;
 }
+/* stylelint-enable unknownAtRules */
 
-#root{
+
+#root {
     width: 100%;
 }
 
-/*Estilo para el scroll de la sidebar*/
+/* Estilo para el scroll de la sidebar */
 ::-webkit-scrollbar {
   width: 4px;
 }
@@ -18,6 +25,6 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #d1d5db; 
+  background-color: #d1d5db;
   border-radius: 20px;
 }
