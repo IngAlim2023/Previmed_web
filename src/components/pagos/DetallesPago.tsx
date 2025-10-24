@@ -1,0 +1,77 @@
+import { PagoInterface } from "../../interfaces/Pagos";
+
+type PropsDetalles = {
+  setDetalles: (value: boolean) => void;
+  setPago: (value: PagoInterface | null) => void;
+  pago: any;
+};
+
+const DetallesPago: React.FC<PropsDetalles> = ({ setDetalles, pago, setPago }) => {
+  const {nombre, segundoNombre, apellido, segundoApellido} = pago.membresia.membresiaPaciente[0]?.paciente?.usuario;
+  return (
+    <>
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
+        <div className="w-full lg:w-2/3 bg-white shadow-md rounded-2xl overflow-hidden p-6 border border-gray-100">
+          <div className="flex flex-col md:flex-row items-center">
+            {pago.foto ? (
+              <img
+                src={pago.foto}
+                className="w-full h-80 rounded-md object-contain md:col-auto"
+              />
+            ) : (
+              <div className="w-full h-48 flex items-center justify-center bg-gray-100 text-gray-500 rounded-md border md:col-auto">
+                Sin imagen
+              </div>
+            )}
+            <div className="w-full text-center">
+              <h2 className="text-xl font-bold text-gray-800 mb-2">
+                Recibo #{pago.idRegistro}
+              </h2>
+              <p className="text-sm text-gray-500">
+                Contrato: #{pago.membresia.numeroContrato}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-500">Titular</p>
+              <p className="font-medium text-gray-700">{`${nombre} ${segundoNombre?segundoNombre:''} ${apellido} ${segundoApellido?segundoApellido:''}`}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Fecha de Pago</p>
+              <p className="font-medium text-gray-700">
+                {new Date(pago.fechaInicio).toLocaleDateString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Periodo (inicio - fin)</p>
+              <p className="font-medium text-gray-700">
+                {new Date(pago.fechaInicio).toLocaleDateString()} -{" "}
+                {new Date(pago.fechaFin).toLocaleDateString()}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Forma de Pago</p>
+              <p className="font-medium text-gray-700">{pago.formaPago.tipoPago}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Monto</p>
+              <p className="font-bold text-green-600">${pago.monto}</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-center w-full mt-4">
+            <button
+              onClick={() => {setPago(null),setDetalles(false)}}
+              className="mt-4 bg-blue-600 text-white text-xl rounded-lg px-4 py-1 cursor-pointer"
+            >
+              Volver
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default DetallesPago;
