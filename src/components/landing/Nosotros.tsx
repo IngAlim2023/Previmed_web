@@ -1,6 +1,6 @@
 import { BsCheckCircleFill, BsTelephoneFill } from "react-icons/bs";
-import doctor from "../../assets/doctor.png";
-import medico_domicilio from "../../assets/medico_domicilio.jpg";
+const doctor = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411223/doctor_gasphg.png"
+const medico_domicilio = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411216/medico_domicilio_eehtzz.jpg";
 
 const Nosotros:React.FC = () => {
   return (

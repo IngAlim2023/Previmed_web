@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import asesor_img from '../../assets/asesor_img.png';
 import { IoIosDocument } from 'react-icons/io';
 import { ImLocation } from 'react-icons/im';
 import { FaBookOpen, FaChartLine } from 'react-icons/fa';
 
+const asesor_img = 'https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411224/asesor_img_nls11f.png';
 const HomeAsesor: React.FC = () => {
   const navigate = useNavigate();
 

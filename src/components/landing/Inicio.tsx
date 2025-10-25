@@ -1,4 +1,4 @@
-import doctor from "../../assets/doctor.png";
+const doctor = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411223/doctor_gasphg.png"
 
 const Inicio: React.FC = () => {
   return (

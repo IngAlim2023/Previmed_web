@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useAuthContext } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 
-import doctorHombre from "../../assets/doctor-hombre.jpeg";
-import doctorMujer from "../../assets/doctor-mujer.jpeg";
+const doctorHombre = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411224/doctor-hombre_bcfuxr.jpg";
+const doctorMujer = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411382/doctor-mujer_lbizms.jpg";
 
 interface Medico {
   id: number;

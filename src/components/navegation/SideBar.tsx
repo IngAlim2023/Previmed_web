@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import PREVIMED_Full_Color from "../../assets/PREVIMED_Full_Color.png";
 import {
   FaUsers,
   FaUserMd,
@@ -23,8 +22,10 @@ import { useAuthContext } from "../../context/AuthContext";
 import Cookies from "js-cookie";
 import type { JSX } from "react";
 import { BsClockHistory } from "react-icons/bs";
+import { IoMdHelpBuoy } from "react-icons/io";
 
-// ✅ Tipo de dato para las rutas
+const PREVIMED_Full_Color = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761360937/PREVIMED_Full_Color_zwphjh.png";
+// Tipo de dato para las rutas
 interface RouteItem {
   path: string;
   label: string;
@@ -76,7 +77,8 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
    { path: "/contrato", label: "Contrato", icon: <FaFileContract />, roles: ["Paciente"] },
    { path: "/beneficiarios", label: "Beneficiarios", icon: <FaUserFriends />, roles: ["Paciente"] },
    { path: "/historial/paciente", label: "Historial de Visitas", icon: <FaHistory />, roles: ["Paciente"] },
-   { path: "/historial/pagos", label: "Historial de pagos", icon: <BsClockHistory />, roles: ["Paciente"] }
+   { path: "/historial/pagos", label: "Historial de pagos", icon: <BsClockHistory />, roles: ["Paciente"] },
+   {path: "/solicitudes/usuario", label: "Solicitudes", icon: <IoMdHelpBuoy />, roles:["Paciente"] }
   ];
 
   // ✅ Filtrar rutas según el rol actual del usuario

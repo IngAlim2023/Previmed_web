@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import logo from "../../assets/logo.png";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { login } from "../../services/autentication";
 import { getUsuarioById } from "../../services/usuarios";
@@ -7,6 +6,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
+const logo = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411217/logo_mucors.png";
 interface UsuarioCredenciales {
   numero_documento: string;
   password: string;
@@ -17,7 +17,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const { setUser, setIsAuthenticated, isAuthenticated } = useAuthContext();
 
-  // ✅ Si ya hay sesión activa, redirige una sola vez
+  // Si ya hay sesión activa, redirige una sola vez
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (isAuthenticated && storedUser) {
@@ -35,7 +35,7 @@ const Login: React.FC = () => {
     }
   }, []); // ← solo al montar
 
-  // ✅ Enviar credenciales y procesar login
+  //  Enviar credenciales y procesar login
   const onSubmit: SubmitHandler<UsuarioCredenciales> = async (data) => {
     try {
       toast.loading("Verificando credenciales...", { id: "login" });

@@ -35,6 +35,7 @@ import HistorialVisitasPaciente from "./pages/general/HistorialVisitasPaciente";
 import SolicitarVisitaPaciente from "./pages/general/SolicitarVisitaPaciente";
 import AdminHome from "./pages/administrador/HomeAdmin";
 import HistorialPagos from "./pages/general/HistorialPagos";
+import SolicitudesVistaPaciente from "./pages/general/SolicitudesVistaPaciente";
 
 function App() {
   return (
@@ -78,6 +79,7 @@ function App() {
             <Route path="/barrios" element={<Barrios />} />
             <Route path="/beneficiarios" element={<Beneficiarios/>}/>
             <Route path="/historial/pagos" element={<HistorialPagos/>}/>
+            <Route path="/solicitudes/usuario" element={<SolicitudesVistaPaciente/>}/>
             <Route
               path="/formularioPacientes"
               element={<FormularioPacientes />}
