@@ -21,7 +21,7 @@ const BtnDescargarPdf: React.FC<OpcionesBotones> = ({verText, text}) => {
         `}
     >
         <HiOutlineDocumentDownload className="mr-1 text-lg" />
-      {verText && "Descargar"}
+      {verText && "Descargar Contrato"}
     </button>
   )
 }
