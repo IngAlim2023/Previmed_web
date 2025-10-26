@@ -1,5 +1,6 @@
-import phone_app from "../../assets/phone_app.webp";
 
+
+const phone_app = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411208/phone_app_gcstuy.webp"
 const AppMovil:React.FC = () => {
   return (
     <>

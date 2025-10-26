@@ -5,8 +5,8 @@ import { MdOutlineMedicalServices } from "react-icons/md";
 import { FaMapLocationDot } from "react-icons/fa6"; 
 import { IoIosDocument } from 'react-icons/io';
 import { BsTelephoneFill } from "react-icons/bs"
-import PREVIMED_Full_Color from "../../assets/PREVIMED_Full_Color.png";
 
+const PREVIMED_Full_Color = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761360937/PREVIMED_Full_Color_zwphjh.png";
 const NavBarLanding: React.FC = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
