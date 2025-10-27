@@ -116,39 +116,48 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
   }, [])
 
   const onSubmit = async (data: VisitaFormValues) => {
-    try {
-      const payload: Visita = {
-        id_visita: visita ? visita.id_visita : 0,
-        fecha_visita: data.fecha_visita,
-        descripcion: data.descripcion,
-        direccion: data.direccion,
-        estado: data.estado === "true",
-        telefono: data.telefono,
-        paciente_id: Number(data.paciente_id),
-        medico_id: Number(data.medico_id),
-        barrio_id: Number(data.barrio_id),
-      }
+  console.log("🚀 onSubmit ejecutado", data);
 
-      if (visita) {
-        const id = visita.id_visita
-        if (typeof id !== "number") {
-          toast.error("ID de la visita inválido")
-        } else {
-          await updateVisita(id, payload)
-          toast.success("Visita actualizada")
-        }
+  // ✅ Mostrar mensaje inmediato
+  toast.success("Visita Agregada Correctamente");
+
+  // ✅ Cerrar el modal justo después del toast
+  setForm(false);
+
+  try {
+    const payload: Visita = {
+      id_visita: visita ? visita.id_visita : 0,
+      fecha_visita: data.fecha_visita,
+      descripcion: data.descripcion,
+      direccion: data.direccion,
+      estado: data.estado === "true",
+      telefono: data.telefono,
+      paciente_id: Number(data.paciente_id),
+      medico_id: Number(data.medico_id),
+      barrio_id: Number(data.barrio_id),
+    };
+
+    if (visita) {
+      const id = visita.id_visita;
+      if (typeof id !== "number") {
+        toast.error("ID de la visita inválido");
       } else {
-        await createVisita(payload)
-        toast.success("Visita creada")
+        await updateVisita(id, payload);
+        toast.success("Visita actualizada exitosamente ✅");
       }
-
-      setForm(false)
-      onSuccess()
-    } catch (error) {
-      console.error(error)
-      toast.error("Error al guardar la visita")
+    } else {
+      await createVisita(payload);
+      toast.success("Visita agregada exitosamente 🎉");
     }
+
+    // 🔄 Refrescar la lista de visitas
+    onSuccess();
+  } catch (error) {
+    console.error("❌ Error al guardar la visita:", error);
+    toast.error("Error al guardar la visita");
   }
+};
+
 
   // 🎨 estilos para que react-select se vea igual que los inputs
   const customSelectStyles = {
@@ -212,6 +221,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
               {...register("descripcion", { required: true })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg h-20 focus:ring focus:ring-blue-200 focus:border-blue-400"
             />
+            {errors.descripcion && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Dirección */}
@@ -222,6 +232,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
               {...register("direccion", { required: true })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-400"
             />
+            {errors.direccion && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Teléfono */}
@@ -232,6 +243,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
               {...register("telefono", { required: true })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-400"
             />
+            {errors.telefono && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Paciente */}
@@ -312,15 +324,15 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
             {errors.barrio_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
-          {/* Botón */}
+          {/* ✅ Botón de enviar */}
           <div className="col-span-2 flex justify-end pt-3">
-            <div onClick={handleSubmit(onSubmit)}>
+            <button type="submit" className="focus:outline-none">
               {visita ? (
                 <BtnActualizar verText={true} text="Actualizar" />
               ) : (
                 <BtnAgregar verText={true} text="Agregar" />
               )}
-            </div>
+            </button>
           </div>
         </form>
       </div>
