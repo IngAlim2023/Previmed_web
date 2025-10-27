@@ -69,3 +69,12 @@ export const getFormasPago = async () => {
   if (!response.ok) throw new Error("Error al obtener formas de pago");
   return response.json();
 };
+
+export const getPagosMembresia = async(id:number) => {
+  const res = await fetch(url(`/registros-pago/membresia/${id}`), {
+    method: 'GET',
+    headers: { 'Content-Type' : 'application/json' }
+  })
+  const data = res.json()
+  return data;
+}
