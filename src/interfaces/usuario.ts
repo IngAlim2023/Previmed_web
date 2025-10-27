@@ -23,26 +23,26 @@ export interface DataUsuario {
   apellido: string;
   segundoApellido?: string;
   email: string;
-  password: string;
+  password?: string;
   direccion: string;
   numeroDocumento: string;
   fechaNacimiento: string;
-  numeroHijos: string;
-  estrato: string;
+  numeroHijos?: string;
+  estrato?: string;
   autorizacionDatos: boolean;
   habilitar: boolean;
-  genero: TipoGenero;
-  estadoCivil: TipoEstadoCivil;
-  tipoDocumento: TipoDocumento;
-  epsId: number | null;
+  genero: string;
+  estadoCivil: string;
+  tipoDocumento: string;
+  epsId: number;
   rolId: number;
-  rol:any;
-  eps:any;
+  eps: { idEps: number; nombreEps: string };
+  rol: { idRol: number; nombreRol: string };
 }
 
-// ------------------- Props de componentes (UI) -------------------
 export interface UsuarioFormProps {
   initialData?: DataUsuario;
-  onSubmit: (usuario: Partial<DataUsuario>) => void;
+  onSubmit: (data: Partial<DataUsuario>) => void;
   onCancel: () => void;
+  isEditing?: boolean;
 }
