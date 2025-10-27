@@ -7,7 +7,7 @@ import { getRoles } from "../../services/roles";
 import { Eps } from "../../interfaces/eps";
 import { Rol } from "../../interfaces/roles";
 import toast from "react-hot-toast";
-import BtnActualizar from "../botones/BtnActualizar";
+import BtnAgregar from "../botones/BtnAgregar";
 
 const UsuarioForm: React.FC<UsuarioFormProps> = ({
   initialData,
@@ -173,7 +173,9 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
               {...register("apellido", { required: "Apellido requerido" })}
               className={input}
             />
-            {errors.apellido && <p className={error}>{errors.apellido.message}</p>}
+            {errors.apellido && (
+              <p className={error}>{errors.apellido.message}</p>
+            )}
           </div>
           <div>
             <label className={label}>Segundo Apellido</label>
@@ -185,10 +187,22 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           <div>
             <label className={label}>Número Documento *</label>
             <input
-              type="number"
+              type="text"
+              inputMode="numeric"
+              maxLength={12}
               {...register("numeroDocumento", {
                 required: "Documento requerido",
+                pattern: {
+                  value: /^[0-9]{1,12}$/,
+                  message: "Solo números, máximo 12 dígitos",
+                },
               })}
+              onInput={(e) => {
+                // borra todo lo que no sea número y corta a 12
+                e.currentTarget.value = e.currentTarget.value
+                  .replace(/[^0-9]/g, "")
+                  .slice(0, 12);
+              }}
               className={input}
             />
             {errors.numeroDocumento && (
@@ -259,6 +273,11 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
               type="date"
               {...register("fechaNacimiento", {
                 required: "Fecha requerida",
+                validate: (value) => {
+                  const hoy = new Date();
+                  const fecha = new Date(value);
+                  return fecha <= hoy || "No puede ser una fecha futura";
+                },
               })}
               className={input}
             />
@@ -279,19 +298,58 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Número de Hijos */}
           <div>
-            <label className={label}>Número Hijos</label>
-            <input type="number" {...register("numeroHijos")} className={input} />
+            <label className={label}>Número de Hijos</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              {...register("numeroHijos", {
+                required: false,
+                pattern: {
+                  value: /^[0-9]+$/,
+                  message: "Solo números enteros positivos",
+                },
+                min: { value: 0, message: "Mínimo 0" },
+                max: { value: 20, message: "Máximo 20" },
+              })}
+              onInput={(e) => {
+                e.currentTarget.value = e.currentTarget.value.replace(
+                  /[^0-9]/g,
+                  ""
+                );
+              }}
+              className={input}
+            />
+            {errors.numeroHijos && (
+              <p className={error}>{errors.numeroHijos.message}</p>
+            )}
           </div>
           <div>
             <label className={label}>Estrato</label>
             <input
-              type="number"
-              min={1}
-              max={6}
-              {...register("estrato")}
+              type="text"
+              inputMode="numeric"
+              {...register("estrato", {
+                required: false,
+                pattern: {
+                  value: /^[0-9]+$/,
+                  message: "Solo números enteros positivos",
+                },
+                min: { value: 1, message: "Mínimo 1" },
+                max: { value: 6, message: "Máximo 6" },
+              })}
+              onInput={(e) => {
+                e.currentTarget.value = e.currentTarget.value.replace(
+                  /[^0-9]/g,
+                  ""
+                );
+              }}
               className={input}
             />
+            {errors.estrato && (
+              <p className={error}>{errors.estrato.message}</p>
+            )}
           </div>
         </div>
 
@@ -359,7 +417,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
             <BtnCancelar verText />
           </div>
           <button type="submit" disabled={loading}>
-            <BtnActualizar verText />
+            <BtnAgregar verText />
           </button>
         </div>
       </form>
