@@ -3,6 +3,7 @@ import React from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { FaUser } from "react-icons/fa";
 import BtnEliminar from "../botones/BtnEliminar";
+import BtnLeer from "../botones/BtnLeer";
 
 interface Usuario {
   idUsuario: string;
@@ -26,15 +27,16 @@ interface Beneficiario {
 interface Props {
   data: Beneficiario[];
   onDelete: (id: number) => void;
+  onRead: (row: Beneficiario) => void;
 }
 
-const BeneficiariosTable: React.FC<Props> = ({ data, onDelete }) => {
+const BeneficiariosTable: React.FC<Props> = ({ data, onDelete, onRead }) => {
   const columns: TableColumn<Beneficiario>[] = [
     {
       name: "Beneficiario",
       cell: (row) => (
         <div className="py-3 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white">
             <FaUser />
           </div>
           <div>
@@ -72,6 +74,9 @@ const BeneficiariosTable: React.FC<Props> = ({ data, onDelete }) => {
       name: "Acciones",
       cell: (row) => (
         <div className="flex items-center gap-2">
+          <button onClick={() => onRead(row)}>
+            <BtnLeer verText={false} text="" />
+          </button>
           <button onClick={() => onDelete(row.idPaciente)}>
             <BtnEliminar></BtnEliminar>
           </button>
