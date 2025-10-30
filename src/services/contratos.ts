@@ -139,3 +139,10 @@ export const getPacientes = async (): Promise<Paciente[]> => {
   const raw = await res.json().catch(() => null)
   return Array.isArray(raw) ? raw : raw?.data ?? []
 }
+
+// Obtener el contrato del usuario logueado por medio del id del usuario
+export const getContratoByUserId = async(id:string) => {
+  const res = await fetch(`${API_URL}membresiasxpacientes/user/${id}`);
+  if (!res.ok) throw new Error("Error al obtener el contrato")
+  return res.json()
+}

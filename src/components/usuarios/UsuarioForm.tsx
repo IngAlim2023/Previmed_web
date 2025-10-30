@@ -1,85 +1,168 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { DataUsuario, UsuarioFormProps } from "../../interfaces/usuario";
-import BtnAgregar from "../botones/BtnAgregar";
-import {epsService} from '../../services/epsService';
+import BtnCancelar from "../botones/BtnCancelar";
+import { epsService } from "../../services/epsService";
 import { getRoles } from "../../services/roles";
 import { Eps } from "../../interfaces/eps";
 import { Rol } from "../../interfaces/roles";
-import BtnCancelar from "../botones/BtnCancelar";
-import BtnEditar from "../botones/BtnEditar";
+import toast from "react-hot-toast";
+import BtnAgregar from "../botones/BtnAgregar";
 
 const UsuarioForm: React.FC<UsuarioFormProps> = ({
   initialData,
   onSubmit,
   onCancel,
+  isEditing = false,
 }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
+    watch,
   } = useForm<DataUsuario>({
-    defaultValues: initialData || {
-      idUsuario: "",
-      nombre: "",
-      segundoNombre: "",
-      apellido: "",
-      segundoApellido: "",
-      email: "",
-      password: "",
-      direccion: "",
-      numeroDocumento: "",
-      fechaNacimiento: "",
-      numeroHijos: "",
-      estrato: "",
-      autorizacionDatos: false,
-      habilitar: true,
-      genero: "Masculino",
-      estadoCivil: "Soltero",
-      tipoDocumento: "Cédula de Ciudadanía",
-      epsId: 1,
-      rolId: 1,
-    },
+    mode: "onChange",
   });
 
   const [roles, setRoles] = useState<Rol[]>([]);
   const [eps, setEps] = useState<Eps[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const getData = async() => {
-    const resRol = await getRoles();
-    const resEps =await epsService.getAll();
+  // Vigilar cambios en los selects
+  const selectedEpsId = watch("epsId");
+  const selectedRolId = watch("rolId");
 
-    setEps(resEps);
-    setRoles(resRol);
-  }
+  // Cargar roles y EPS una sola vez
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [rolesData, epsData] = await Promise.all([
+          getRoles(),
+          epsService.getAll(),
+        ]);
+        setRoles(rolesData);
+        setEps(epsData.filter((x: Eps) => x.estado));
+      } catch (error) {
+        toast.error("Error al cargar datos del formulario");
+      }
+    };
+    fetchData();
+  }, []);
 
-  useEffect(()=>{
-    getData()
-  }, [])
+  // Resetear formulario cuando cambien initialData, roles o eps
+  useEffect(() => {
+    if (roles.length > 0 && eps.length > 0) {
+      if (initialData) {
+        const epsIdToSet = initialData.epsId || initialData.eps?.idEps;
+        const rolIdToSet = initialData.rolId || initialData.rol?.idRol;
 
-  // Helpers Tailwind (opcional si quieres centralizar estilos)
+        reset({
+          nombre: initialData.nombre || "",
+          segundoNombre: initialData.segundoNombre || "",
+          apellido: initialData.apellido || "",
+          segundoApellido: initialData.segundoApellido || "",
+          email: initialData.email || "",
+          password: "",
+          direccion: initialData.direccion || "",
+          numeroDocumento: initialData.numeroDocumento || "",
+          tipoDocumento: initialData.tipoDocumento || "Cédula de Ciudadanía",
+          fechaNacimiento: initialData.fechaNacimiento || "",
+          numeroHijos: initialData.numeroHijos || "",
+          estrato: initialData.estrato || "",
+          genero: initialData.genero || "Masculino",
+          estadoCivil: initialData.estadoCivil || "Soltero",
+          autorizacionDatos: initialData.autorizacionDatos || false,
+          habilitar: initialData.habilitar !== false,
+          epsId: Number(epsIdToSet) || 1,
+          rolId: Number(rolIdToSet) || 1,
+        });
+      } else {
+        reset({
+          nombre: "",
+          segundoNombre: "",
+          apellido: "",
+          segundoApellido: "",
+          email: "",
+          password: "",
+          direccion: "",
+          numeroDocumento: "",
+          tipoDocumento: "Cédula de Ciudadanía",
+          fechaNacimiento: "",
+          numeroHijos: "",
+          estrato: "",
+          genero: "Masculino",
+          estadoCivil: "Soltero",
+          autorizacionDatos: false,
+          habilitar: true,
+          epsId: 1,
+          rolId: 1,
+        });
+      }
+    }
+  }, [initialData, roles, eps, reset, isEditing]);
+
+  const onValid = (data: DataUsuario) => {
+    setLoading(true);
+
+    const payload: Partial<DataUsuario> = {
+      nombre: data.nombre,
+      segundoNombre: data.segundoNombre,
+      apellido: data.apellido,
+      segundoApellido: data.segundoApellido,
+      email: data.email,
+      direccion: data.direccion,
+      numeroDocumento: data.numeroDocumento,
+      tipoDocumento: data.tipoDocumento,
+      fechaNacimiento: data.fechaNacimiento,
+      numeroHijos: data.numeroHijos,
+      estrato: data.estrato,
+      genero: data.genero,
+      estadoCivil: data.estadoCivil,
+      autorizacionDatos: data.autorizacionDatos,
+      habilitar: data.habilitar,
+      epsId: Number(data.epsId),
+      rolId: Number(data.rolId),
+    };
+
+    // Solo agregar password si:
+    // 1. Es creación y hay password, O
+    // 2. Es edición y el usuario escribió un password nuevo
+    if (!isEditing && data.password) {
+      payload.password = data.password;
+    } else if (isEditing && data.password) {
+      payload.password = data.password;
+    }
+
+    try {
+      onSubmit(payload);
+    } catch (error) {
+      toast.error("Error al guardar usuario");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const label = "text-gray-700 font-semibold text-sm mb-1 block";
-  const input = "w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
+  const input =
+    "w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const error = "text-red-500 text-xs mt-1";
 
-
   return (
-    <div className="bg-white rounded-2xl w-full max-w-3xl">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Nombre y Apellidos */}
+    <div className="bg-white rounded-2xl w-full">
+      <form onSubmit={handleSubmit(onValid)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Nombre *</label>
             <input
               {...register("nombre", { required: "Nombre requerido" })}
               className={input}
-              placeholder="....."
             />
             {errors.nombre && <p className={error}>{errors.nombre.message}</p>}
           </div>
           <div>
             <label className={label}>Segundo Nombre</label>
-            <input {...register("segundoNombre")} className={input} placeholder="....."/>
+            <input {...register("segundoNombre")} className={input} />
           </div>
         </div>
 
@@ -89,7 +172,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
             <input
               {...register("apellido", { required: "Apellido requerido" })}
               className={input}
-              placeholder="....."
             />
             {errors.apellido && (
               <p className={error}>{errors.apellido.message}</p>
@@ -97,21 +179,31 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           </div>
           <div>
             <label className={label}>Segundo Apellido</label>
-            <input {...register("segundoApellido")} className={input} placeholder="....."/>
+            <input {...register("segundoApellido")} className={input} />
           </div>
         </div>
 
-        {/* Documento */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Número Documento *</label>
             <input
+              type="text"
+              inputMode="numeric"
+              maxLength={12}
               {...register("numeroDocumento", {
                 required: "Documento requerido",
+                pattern: {
+                  value: /^[0-9]{1,12}$/,
+                  message: "Solo números, máximo 12 dígitos",
+                },
               })}
-              type="number"
+              onInput={(e) => {
+                // borra todo lo que no sea número y corta a 12
+                e.currentTarget.value = e.currentTarget.value
+                  .replace(/[^0-9]/g, "")
+                  .slice(0, 12);
+              }}
               className={input}
-              placeholder="....."
             />
             {errors.numeroDocumento && (
               <p className={error}>{errors.numeroDocumento.message}</p>
@@ -120,14 +212,18 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           <div>
             <label className={label}>Tipo Documento</label>
             <select {...register("tipoDocumento")} className={input}>
-              <option value="Cédula de Ciudadanía">Cédula de Ciudadanía</option>
-              <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
-              <option value="Pasaporte">Pasaporte</option>
+              <option>Registro Civil</option>
+              <option>Tarjeta de Identidad</option>
+              <option>Cédula de Ciudadanía</option>
+              <option>Tarjeta de Extranjería</option>
+              <option>Cédula de Extranjería</option>
+              <option>Pasaporte</option>
+              <option>Documento de Identificación Extranjero (DIE)</option>
+              <option>Permiso Especial de Permanencia (PEP)</option>
             </select>
           </div>
         </div>
 
-        {/* Email y Password */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Email *</label>
@@ -135,38 +231,56 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
               type="email"
               {...register("email", { required: "Email requerido" })}
               className={input}
-              placeholder="....."
             />
             {errors.email && <p className={error}>{errors.email.message}</p>}
           </div>
-          <div>
-            <label className={label}>Contraseña *</label>
-            <input
-              type="password"
-              {...register("password", { required: "Contraseña requerida" })}
-              className={input}
-              placeholder="*******"
-            />
-            {errors.password && (
-              <p className={error}>{errors.password.message}</p>
-            )}
-          </div>
+          {!isEditing && (
+            <div>
+              <label className={label}>Contraseña *</label>
+              <input
+                type="password"
+                {...register("password", {
+                  required: "Contraseña requerida",
+                  minLength: {
+                    value: 6,
+                    message: "Mínimo 6 caracteres",
+                  },
+                })}
+                className={input}
+              />
+              {errors.password && (
+                <p className={error}>{errors.password.message}</p>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Dirección */}
         <div>
-          <label className={label}>Dirección</label>
-          <input {...register("direccion", {required : "Dirección requerida"})} className={input} placeholder="....."/>
-            {errors.direccion && (
-              <p className={error}>{errors.direccion.message}</p>
-            )}
+          <label className={label}>Dirección *</label>
+          <input
+            {...register("direccion", { required: "Dirección requerida" })}
+            className={input}
+          />
+          {errors.direccion && (
+            <p className={error}>{errors.direccion.message}</p>
+          )}
         </div>
 
-        {/* Fecha nacimiento y Estado Civil */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className={label}>Fecha Nacimiento</label>
-            <input type="date" {...register("fechaNacimiento", {required: "Fecha de nacimiento requerida"})} className={input} />
+            <label className={label}>Fecha Nacimiento *</label>
+            <input
+              type="date"
+              {...register("fechaNacimiento", {
+                required: "Fecha requerida",
+                validate: (value) => {
+                  const hoy = new Date();
+                  const fecha = new Date(value);
+                  return fecha <= hoy || "No puede ser una fecha futura";
+                },
+              })}
+              className={input}
+            />
             {errors.fechaNacimiento && (
               <p className={error}>{errors.fechaNacimiento.message}</p>
             )}
@@ -174,72 +288,123 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           <div>
             <label className={label}>Estado Civil</label>
             <select {...register("estadoCivil")} className={input}>
-              <option value="Soltero">Soltero</option>
-              <option value="Casado">Casado</option>
-              <option value="Divorciado">Divorciado</option>
-              <option value="Viudo">Viudo</option>
-              <option value="Unión marital">Unión marital</option>
+              <option>Soltero</option>
+              <option>Casado</option>
+              <option>Divorciado</option>
+              <option>Viudo</option>
+              <option>Unión marital</option>
             </select>
           </div>
         </div>
 
-        {/* Hijos y Estrato */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Número de Hijos */}
           <div>
-            <label className={label}>Número Hijos</label>
-            <input type="number" {...register("numeroHijos")} className={input} />
+            <label className={label}>Número de Hijos</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              {...register("numeroHijos", {
+                required: false,
+                pattern: {
+                  value: /^[0-9]+$/,
+                  message: "Solo números enteros positivos",
+                },
+                min: { value: 0, message: "Mínimo 0" },
+                max: { value: 20, message: "Máximo 20" },
+              })}
+              onInput={(e) => {
+                e.currentTarget.value = e.currentTarget.value.replace(
+                  /[^0-9]/g,
+                  ""
+                );
+              }}
+              className={input}
+            />
+            {errors.numeroHijos && (
+              <p className={error}>{errors.numeroHijos.message}</p>
+            )}
           </div>
           <div>
             <label className={label}>Estrato</label>
-            <input type="number" max={6} min={1} {...register("estrato")} className={input} />
+            <input
+              type="text"
+              inputMode="numeric"
+              {...register("estrato", {
+                required: false,
+                pattern: {
+                  value: /^[0-9]+$/,
+                  message: "Solo números enteros positivos",
+                },
+                min: { value: 1, message: "Mínimo 1" },
+                max: { value: 6, message: "Máximo 6" },
+              })}
+              onInput={(e) => {
+                e.currentTarget.value = e.currentTarget.value.replace(
+                  /[^0-9]/g,
+                  ""
+                );
+              }}
+              className={input}
+            />
+            {errors.estrato && (
+              <p className={error}>{errors.estrato.message}</p>
+            )}
           </div>
         </div>
 
-        {/* Género y EPS */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Género</label>
             <select {...register("genero")} className={input}>
-              <option value="Masculino">Masculino</option>
-              <option value="Femenino">Femenino</option>
-              <option value="Otro">Otro</option>
+              <option>Masculino</option>
+              <option>Femenino</option>
+              <option>Otro</option>
             </select>
           </div>
           <div>
-            <label className={label}>EPS (ID)</label>
+            <label className={label}>EPS</label>
             <select {...register("epsId")} className={input}>
-              {eps
-                .filter(e => e.estado)
-                .map(e => (
+              <option value="">-- Seleccionar EPS --</option>
+              {eps.length > 0 ? (
+                eps.map((e) => (
                   <option key={e.idEps} value={e.idEps}>
                     {e.nombreEps}
                   </option>
                 ))
-              }
+              ) : (
+                <option disabled>Cargando EPS...</option>
+              )}
             </select>
+            {selectedEpsId && (
+              <small className="text-gray-500">ID: {selectedEpsId}</small>
+            )}
           </div>
         </div>
 
-        {/* Rol */}
         <div>
           <label className={label}>Rol</label>
           <select {...register("rolId")} className={input}>
-            {
-              roles.map((r)=>(
-                <option value={r.id_rol}>{r.nombre_rol}</option>
+            <option value="">-- Seleccionar Rol --</option>
+            {roles.length > 0 ? (
+              roles.map((r) => (
+                <option key={r.id_rol} value={r.id_rol}>
+                  {r.nombre_rol}
+                </option>
               ))
-            }
+            ) : (
+              <option disabled>Cargando Roles...</option>
+            )}
           </select>
+          {selectedRolId && (
+            <small className="text-gray-500">ID: {selectedRolId}</small>
+          )}
         </div>
 
-        {/* Checkboxes */}
         <div className="flex gap-6">
           <label className="flex items-center gap-2">
-            <input type="checkbox" {...register("autorizacionDatos", {required: "La autorización de los datos es requerida"})} />
+            <input type="checkbox" {...register("autorizacionDatos")} />
             <span>Autorización Datos</span>
-            {errors.autorizacionDatos && (
-              <p className={error}>{errors.autorizacionDatos.message}</p>
-            )}
           </label>
           <label className="flex items-center gap-2">
             <input type="checkbox" {...register("habilitar")} />
@@ -247,16 +412,13 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           </label>
         </div>
 
-        {/* Botones personalizados */}
         <div className="flex justify-end gap-4 mt-6">
           <div onClick={onCancel}>
-            <BtnCancelar verText={true} />
+            <BtnCancelar verText />
           </div>
-          <div>
-            <button type="submit">
-              {initialData? <BtnEditar verText={true}/> : <BtnAgregar verText={true}/>}
-            </button>
-          </div>
+          <button type="submit" disabled={loading}>
+            <BtnAgregar verText />
+          </button>
         </div>
       </form>
     </div>

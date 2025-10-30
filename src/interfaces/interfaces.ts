@@ -52,19 +52,19 @@ export interface MembresiaPaciente {
 
 export interface Membresia {
   idMembresia: number
-  firma: string
+  firma?: string
   formaPago: string
   numeroContrato: string
   fechaInicio: string
   fechaFin: string
   planId:number
   estado: boolean
-  membresiaPaciente: MembresiaPaciente[]
+  membresiaPaciente?: MembresiaPaciente[]
   plan?: Plan | null
 }
 
 export interface NuevoContratoForm {
-  firma: string
+  firma: string | undefined
   forma_pago: string
   numero_contrato: string
   fecha_inicio: string
@@ -88,4 +88,11 @@ export interface SelectOption {
 export interface FormaPagoOption {
   value: "Efectivo" | "Transferencia" | "Daviplata" | "Nequi" | "Tarjeta"
   label: string
+}
+
+export interface responseContratoUser {
+  pacienteId: number;
+  membresiaId: number;
+  idMembresiaXPaciente: number;
+  membresia: Membresia;
 }

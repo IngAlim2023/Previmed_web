@@ -23,30 +23,50 @@ export const getVisitas = async (): Promise<Visita[]> => {
   }));
 };
 
-// ✅ Enviar: usamos snake_case porque así lo espera el backend
 export const createVisita = async (visita: Visita): Promise<Visita> => {
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(visita),
-  });
-  if (!res.ok) throw new Error("Error al crear visita");
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(visita),
+    });
 
-  const json = await res.json();
-  const v = json.msj; // 👈 la data real viene dentro de `msj`
+    // intentar parsear JSON (si falla, lanzar)
+    const json = await res.json().catch(() => {
+      throw new Error("No se pudo parsear la respuesta del servidor");
+    });
 
-  return {
-    id_visita: v.idVisita,
-    fecha_visita: v.fechaVisita,
-    descripcion: v.descripcion,
-    direccion: v.direccion,
-    estado: v.estado,
-    telefono: v.telefono,
-    paciente_id: v.pacienteId,
-    medico_id: v.medicoId,
-    barrio_id: v.barrioId,
-  };
+    // si status no es OK, log y lanzar error con detalle del backend si existe
+    if (!res.ok) {
+      console.error("Response no OK al crear visita:", res.status, json);
+      throw new Error(json?.msj || "Error al crear visita");
+    }
+
+    const v = json.msj;
+    if (!v) {
+      console.warn("Respuesta inesperada: no viene msj en createVisita", json);
+      throw new Error("Respuesta del servidor inválida");
+    }
+
+    console.log("✅ createVisita - visita creada:", v);
+
+    return {
+      id_visita: v.idVisita,
+      fecha_visita: v.fechaVisita,
+      descripcion: v.descripcion,
+      direccion: v.direccion,
+      estado: v.estado,
+      telefono: v.telefono,
+      paciente_id: v.pacienteId,
+      medico_id: v.medicoId,
+      barrio_id: v.barrioId,
+    };
+  } catch (error) {
+    console.error("❌ Error en createVisita:", error);
+    throw error; // relanzar para que el catch del componente lo maneje
+  }
 };
+
 
 export const updateVisita = async (id: number, visita: Visita): Promise<Visita> => {
   const res = await fetch(`${API_URL}/${id}`, {

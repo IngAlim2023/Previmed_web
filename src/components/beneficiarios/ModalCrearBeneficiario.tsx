@@ -1,6 +1,9 @@
 // src/components/beneficiarios/ModalCrearBeneficiario.tsx
 import React from "react";
-import { FaPlus } from "react-icons/fa";
+ 
+import BtnCancelar from "../botones/BtnCancelar";
+import BtnAgregar from "../botones/BtnAgregar";
+import BtnCerrar from "../botones/BtnCerrar";
 import { generos } from "../../data/generos";
 import { estadosCiviles } from "../../data/estadosCiviles";
 
@@ -32,9 +35,11 @@ const ModalCrearBeneficiario: React.FC<Props> = ({
     formData.estrato !== "";
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+    <div className="fixed inset-0 bg-gradient-to-br from-blue-50/90 via-sky-50/90 to-indigo-100/90 backdrop-blur-[1px] flex items-center justify-center z-50 px-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative overflow-y-auto max-h-[90vh]">
-        <button onClick={onCerrar} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">✕</button>
+        <div className="absolute top-3 right-3" onClick={onCerrar}>
+          <BtnCerrar verText={false} text="p-2" />
+        </div>
 
         <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">Crear beneficiario</h2>
         <p className="text-gray-500 text-sm mb-6 text-center">Completa los campos requeridos</p>
@@ -220,24 +225,15 @@ const ModalCrearBeneficiario: React.FC<Props> = ({
 
           {/* Botones */}
           <div className="col-span-2 flex justify-end gap-3 mt-6">
-            <button
-              type="button"
-              onClick={onCerrar}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={!esFormularioValido}
-              className={`px-4 py-2 rounded-lg text-white font-medium flex items-center gap-2 transition ${
-                esFormularioValido
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-green-400 cursor-not-allowed"
-              }`}
-            >
-              <FaPlus size={14} /> Guardar
-            </button>
+            <div onClick={onCerrar}>
+              <BtnCancelar verText text="" />
+            </div>
+            <div>
+              <BtnAgregar
+                verText
+                text={`${!esFormularioValido ? "opacity-50 pointer-events-none" : ""}`}
+              />
+            </div>
           </div>
         </form>
       </div>

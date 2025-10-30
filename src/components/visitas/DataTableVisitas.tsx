@@ -5,6 +5,7 @@ import Select from "react-select"
 import { Visita } from "../../interfaces/visitas"
 import { getVisitas, deleteVisita, updateVisita } from "../../services/visitasService"
 import { medicoService } from "../../services/medicoService"
+import { readPacientes } from "../../services/pacientes"
 import BtnLeer from "../botones/BtnLeer"
 import BtnEditar from "../botones/BtnEditar"
 import BtnEliminar from "../botones/BtnEliminar"
@@ -28,6 +29,10 @@ const DataTableVisitas: React.FC = () => {
   const [medicosDisp, setMedicosDisp] = useState<{ value: number; label: string }[]>([])
   const [medicosTodos, setMedicosTodos] = useState<{ value: number; label: string }[]>([])
   const [loadingMedicos, setLoadingMedicos] = useState(true)
+
+  // 🧑‍⚕️ Pacientes
+  const [pacientes, setPacientes] = useState<any[]>([])
+  const [loadingPacientes, setLoadingPacientes] = useState(true)
 
   // 🔁 Cargar visitas
   const fetchVisitas = async (showToast = false) => {
@@ -73,9 +78,24 @@ const DataTableVisitas: React.FC = () => {
     }
   }
 
+  // 🧍‍♂️ Cargar pacientes
+  const fetchPacientes = async () => {
+    setLoadingPacientes(true)
+    try {
+      const res = await readPacientes()
+      setPacientes(res.data)
+    } catch (error) {
+      console.error(error)
+      toast.error("Error al cargar pacientes")
+    } finally {
+      setLoadingPacientes(false)
+    }
+  }
+
   useEffect(() => {
     fetchVisitas(true)
     fetchMedicos()
+    fetchPacientes()
   }, [])
 
   // 🔄 Cambiar estado
@@ -127,18 +147,46 @@ const DataTableVisitas: React.FC = () => {
     }
   }
 
-  // 🔍 Filtro búsqueda
-  const filteredData = visitas.filter((v) =>
-    v.descripcion?.toLowerCase().includes(search.toLowerCase())
-  )
+  // 🔍 Buscador inteligente
+  const filteredData = visitas.filter((v) => {
+    const paciente = pacientes.find((p) => p.idPaciente === v.paciente_id)
+    const pacienteNombre = paciente
+      ? `${paciente.usuario?.nombre} ${paciente.usuario?.apellido}`.toLowerCase()
+      : ""
+    const medico = medicosTodos.find((m) => m.value === v.medico_id)
+    const medicoNombre = medico ? medico.label.toLowerCase() : ""
+    const descripcion = v.descripcion?.toLowerCase() ?? ""
+    const telefono = v.telefono?.toLowerCase() ?? ""
+
+    return (
+      pacienteNombre.includes(search.toLowerCase()) ||
+      medicoNombre.includes(search.toLowerCase()) ||
+      descripcion.includes(search.toLowerCase()) ||
+      telefono.includes(search.toLowerCase())
+    )
+  })
 
   // 📋 Columnas
   const columns: TableColumn<Visita>[] = [
     {
-      name: "ID",
-      selector: (row) => row.id_visita ?? 0, // 👈 asegura que nunca sea undefined
+      name: "Paciente",
+      cell: (row) => {
+        const paciente = pacientes.find((p) => p.idPaciente === row.paciente_id)
+        return (
+          <div className="flex flex-col text-sm">
+            <span className="font-medium text-gray-800">
+              {paciente
+                ? `${paciente.usuario?.nombre} ${paciente.usuario?.apellido}`
+                : "Sin nombre"}
+            </span>
+            <span className="text-xs text-gray-500">
+               Visita: {row.id_visita}
+            </span>
+          </div>
+        )
+      },
       sortable: true,
-      width: "80px",
+      grow: 2,
     },
     {
       name: "Fecha",
@@ -149,7 +197,7 @@ const DataTableVisitas: React.FC = () => {
           ? new Date(row.fecha_visita).toLocaleDateString("es-CO")
           : "Sin fecha",
     },
-    { name: "Descripción", selector: (row) => row.descripcion ?? "", sortable: true, grow: 2 },
+    { name: "Síntomas", selector: (row) => row.descripcion ?? "", sortable: true, grow: 2 },
     { name: "Teléfono", selector: (row) => row.telefono ?? "", sortable: true },
     {
       name: "Estado",
@@ -191,11 +239,12 @@ const DataTableVisitas: React.FC = () => {
 
         return (
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-700">
-              {actual?.label ?? (
-                <span className="italic text-gray-400">Sin asignar</span>
+              <span className="text-sm text-gray-700 whitespace-nowrap">
+                {actual?.label ?? (
+              <span className="italic text-gray-400">Sin asignar</span>
               )}
-            </span>
+                </span>
+
             <button
               onClick={() => setCambiandoMedicoId(row.id_visita ?? null)}
               disabled={loadingMedicos || medicosDisp.length === 0}
@@ -239,10 +288,10 @@ const DataTableVisitas: React.FC = () => {
           </h2>
           <input
             type="text"
-            placeholder="Buscar por descripción..."
+            placeholder="Buscar por paciente, médico o descripción..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-64 p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-72 p-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <div onClick={() => { setVisita(null); setForm(true) }}>
             <BtnAgregar verText={true} />
@@ -256,16 +305,14 @@ const DataTableVisitas: React.FC = () => {
           highlightOnHover
           striped
           noDataComponent="No hay visitas disponibles"
-          progressPending={loadingMedicos}
+          progressPending={loadingMedicos || loadingPacientes}
         />
       </div>
 
       {form && (
         <FormularioVisitas visita={visita} setForm={setForm} onSuccess={fetchVisitas} />
       )}
-      {detalles && (
-        <DetallesVisita visita={visita} setDetalles={setDetalles} />
-      )}
+      {detalles && <DetallesVisita visita={visita} setDetalles={setDetalles} />}
 
       <ConfirmDialog
         show={showConfirm}
