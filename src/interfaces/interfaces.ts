@@ -64,7 +64,7 @@ export interface Membresia {
 }
 
 export interface NuevoContratoForm {
-  firma: string
+  firma: string | undefined
   forma_pago: string
   numero_contrato: string
   fecha_inicio: string
