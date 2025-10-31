@@ -91,12 +91,130 @@ const Planes: React.FC = () => {
               onMouseLeave={() => setIsHover(false)}
             >
               {planes.length > 0 && (
-                <div
-                  key={planes[current]?.idPlan ?? current}
-                  className={`group relative overflow-hidden rounded-2xl bg-white/80 backdrop-blur-sm shadow-[0_10px_25px_-10px_rgba(0,0,0,0.18)] ring-1 ring-slate-200 transition-all duration-300 ${
-                    fading ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
-                  }`}
-                >
+                <div className="relative">
+                  {/* Mini-card PREV (mismo diseño, no interactiva) */}
+                  {planes.length > 1 && (
+                    <div
+                      className={`absolute z-0 left-[-64px] top-1/2 -translate-y-1/2 w-[68%] origin-center scale-90 transition-all duration-300 pointer-events-none`}
+                      aria-hidden
+                    >
+                      <div className="relative overflow-hidden rounded-2xl bg-white/85 backdrop-blur-sm shadow-[0_10px_25px_-10px_rgba(0,0,0,0.18)] ring-1 ring-slate-200">
+                        <div className="absolute -top-24 right-[-40px] h-48 w-48 rounded-full blur-3xl opacity-20 bg-sky-300" />
+                        <div className="p-6">
+                          <div className="flex items-start gap-4">
+                            <h3 className="text-2xl font-semibold text-slate-800 tracking-tight">
+                              {planes[(current - 1 + planes.length) % planes.length].tipoPlan}
+                            </h3>
+                          </div>
+                          <div className="mt-3 mb-4 flex items-end gap-2">
+                            <span className="text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent">
+                              {formatPrice(planes[(current - 1 + planes.length) % planes.length].precio)}
+                            </span>
+                            <span className="text-sm text-slate-500 mb-1">/ mensual</span>
+                          </div>
+                          <p className="text-slate-600 leading-relaxed line-clamp-2">
+                            {planes[(current - 1 + planes.length) % planes.length].descripcion}
+                          </p>
+                        </div>
+                        <div className="px-6">
+                          <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                        </div>
+                        <div className="p-6 pt-5">
+                          <h4 className="text-sm font-semibold text-slate-700 mb-3 uppercase tracking-wide">Incluye</h4>
+                          <ul className="text-slate-600 space-y-2">
+                            {(() => {
+                              const prevPlan = planes[(current - 1 + planes.length) % planes.length];
+                              const list = (prevPlan?.planXBeneficios ?? []) as any[];
+                              if (list.length === 0) {
+                                return (
+                                  <li className="flex items-center gap-3 text-slate-500 italic">
+                                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-200">
+                                      <FaCheckCircle className="h-3.5 w-3.5" />
+                                    </span>
+                                    <span className="text-sm">Sin beneficios</span>
+                                  </li>
+                                );
+                              }
+                              return list.slice(0, 4).map((b: any, i: number) => (
+                                <li key={`${prevPlan?.idPlan ?? 'prev'}-prev-${i}`} className="flex items-center gap-3">
+                                  <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-200">
+                                    <FaCheckCircle className="h-3.5 w-3.5" />
+                                  </span>
+                                  <span className="text-sm truncate">{b.beneficio?.tipoBeneficio ?? b.beneficio?.tipo_beneficio ?? "Beneficio"}</span>
+                                </li>
+                              ));
+                            })()}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mini-card NEXT (mismo diseño, no interactiva) */}
+                  {planes.length > 1 && (
+                    <div
+                      className={`absolute z-0 right-[-64px] top-1/2 -translate-y-1/2 w-[68%] origin-center scale-90 transition-all duration-300 pointer-events-none`}
+                      aria-hidden
+                    >
+                      <div className="relative overflow-hidden rounded-2xl bg-white/85 backdrop-blur-sm shadow-[0_10px_25px_-10px_rgba(0,0,0,0.18)] ring-1 ring-slate-200">
+                        <div className="absolute -top-24 right-[-40px] h-48 w-48 rounded-full blur-3xl opacity-20 bg-sky-300" />
+                        <div className="p-6">
+                          <div className="flex items-start gap-4 justify-end">
+                            <h3 className="text-2xl font-semibold text-slate-800 tracking-tight text-right">
+                              {planes[(current + 1) % planes.length].tipoPlan}
+                            </h3>
+                          </div>
+                          <div className="mt-3 mb-4 flex items-end gap-2 justify-end">
+                            <span className="text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-indigo-600 bg-clip-text text-transparent">
+                              {formatPrice(planes[(current + 1) % planes.length].precio)}
+                            </span>
+                            <span className="text-sm text-slate-500 mb-1">/ mensual</span>
+                          </div>
+                          <p className="text-slate-600 leading-relaxed line-clamp-2 text-right">
+                            {planes[(current + 1) % planes.length].descripcion}
+                          </p>
+                        </div>
+                        <div className="px-6">
+                          <div className="h-px w-full bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+                        </div>
+                        <div className="p-6 pt-5">
+                          <h4 className="text-sm font-semibold text-slate-700 mb-3 uppercase tracking-wide text-right">Incluye</h4>
+                          <ul className="text-slate-600 space-y-2">
+                            {(() => {
+                              const nextPlan = planes[(current + 1) % planes.length];
+                              const list = (nextPlan?.planXBeneficios ?? []) as any[];
+                              if (list.length === 0) {
+                                return (
+                                  <li className="flex items-center gap-3 text-slate-500 italic justify-end">
+                                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-200">
+                                      <FaCheckCircle className="h-3.5 w-3.5" />
+                                    </span>
+                                    <span className="text-sm">Sin beneficios</span>
+                                  </li>
+                                );
+                              }
+                              return list.slice(0, 4).map((b: any, i: number) => (
+                                <li key={`${nextPlan?.idPlan ?? 'next'}-next-${i}`} className="flex items-center gap-3 justify-end">
+                                  <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-50 text-blue-600 ring-1 ring-blue-200">
+                                    <FaCheckCircle className="h-3.5 w-3.5" />
+                                  </span>
+                                  <span className="text-sm truncate">{b.beneficio?.tipoBeneficio ?? b.beneficio?.tipo_beneficio ?? "Beneficio"}</span>
+                                </li>
+                              ));
+                            })()}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tarjeta principal */}
+                  <div
+                    key={planes[current]?.idPlan ?? current}
+                    className={`group relative z-10 overflow-hidden rounded-2xl bg-white/85 backdrop-blur-sm shadow-[0_10px_25px_-10px_rgba(0,0,0,0.18)] ring-1 ring-slate-200 transition-all duration-300 w-[66%] mx-auto ${
+                      fading ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
+                    }`}
+                  >
                   <div className="absolute -top-24 right-[-40px] h-48 w-48 rounded-full blur-3xl opacity-20 bg-sky-300" />
 
                   <div className="p-6">
@@ -139,6 +257,7 @@ const Planes: React.FC = () => {
                         </li>
                       )}
                     </ul>
+                  </div>
                   </div>
                 </div>
               )}
