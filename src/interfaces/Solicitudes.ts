@@ -1,13 +1,24 @@
+export type TipoSolicitud =
+  | 'Petición'
+  | 'Queja'
+  | 'Reclamo'
+  | 'Consulta'
+  | 'Sugerencia'
+  | 'Felicitación'
+  | 'Registro'
+  | 'Cambio de datos personales'
+  | 'Retiro';
+
 export interface PostSolicitud {
-    primer_nombre: string;
-    segundo_nombre?: string;
-    primer_apellido: string;
-    segundo_apellido?: string;
-    email:string;
-    documento:string;
-    telefono:string;
-    descripcion?:string;
-    autorizacion_datos:boolean;
-    id_tipo_solicitud:number;
-    id_usuario?:string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  documento: string;
+  telefono?: string;
+  descripcion?: string;
+  segundo_nombre?: string;
+  segundo_apellido?: string;
+  autorizacion_datos: boolean;
+  tipo_solicitud: TipoSolicitud;
+  idUsuario?: string;
 }
