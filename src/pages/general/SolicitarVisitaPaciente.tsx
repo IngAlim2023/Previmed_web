@@ -108,6 +108,7 @@ const SolicitarVisitaPaciente: React.FC = () => {
                 placeholder="Selecciona el paciente"
                 required
                 isClearable
+                noOptionsMessage="No hay pacientes disponibles"
                 control={control}
                 options={selectPacientes}
               />
@@ -117,6 +118,7 @@ const SolicitarVisitaPaciente: React.FC = () => {
                 name="medico_id"
                 placeholder="Selecciona el médico"
                 required
+                noOptionsMessage="No hay médicos disponibles"
                 control={control}
                 options={selectMedicos}
                 isClearable
@@ -127,6 +129,7 @@ const SolicitarVisitaPaciente: React.FC = () => {
                 name="barrio_id"
                 placeholder="Selecciona el barrio"
                 required
+                noOptionsMessage="No hay barrios disponibles"
                 control={control}
                 options={selectBarrios}
                 isClearable

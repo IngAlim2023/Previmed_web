@@ -11,6 +11,7 @@ interface PropsReactSelect {
   control: any;
   label: string;
   options: TypeOptions[];
+  noOptionsMessage?: string; 
   required?: boolean;
   placeholder?: string;
   isClearable?: boolean;
@@ -23,6 +24,7 @@ const ReactSelectComponent: React.FC<PropsReactSelect> = ({
   control,
   label,
   options,
+  noOptionsMessage,
   required = false,
   placeholder = "Seleccione una opción",
   isClearable = false,
@@ -44,6 +46,7 @@ const ReactSelectComponent: React.FC<PropsReactSelect> = ({
             <Select<TypeOptions>
               {...field}
               options={options}
+              noOptionsMessage={() => noOptionsMessage? noOptionsMessage : "No se encontró info"}
               placeholder={placeholder}
               value={options.find((e) => e.value === field.value) || null}
               onChange={(selected) => field.onChange(selected?.value || null)}
