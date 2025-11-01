@@ -200,17 +200,21 @@ export const getPacientesId = async(id: string) => {
 }
 
 // registrar pacientes por medio del excel
-export const importExcelPacientes = async(file: FormData) => {
+export const importExcelPacientes = async (formData: FormData) => {
   try {
-    const res = await fetch(url('/import/pacientes/excel'), {
+    const response = await fetch(url('/import/pacientes/excel'), {
       method: 'POST',
-      headers: { 'Content-type':'application/json' },
-      body: file
-    })
-    const data = res.json();
-    console.log(data)
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error en la importación');
+    }
+
+    const data = await response.json();
     return data;
   } catch (error) {
-    return 'Error al importar los dator'
+    throw error;
   }
-}
+};

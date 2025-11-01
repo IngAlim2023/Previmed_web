@@ -15,7 +15,7 @@ type FilaExcel = {
   ["Número de Documento"]: string | number;
   ["Correo Electrónico"]?: string;
   ["Dirección"]?: string;
-  ["Fecha de Nacimmiento"]: string;
+  ["Fecha de Nacimiento"]: string;
   motivo?: string;
   status?: string;
   [k: string]: unknown;
@@ -27,12 +27,20 @@ const Modal = ({
   title,
   children,
   size = "2xl",
+  omitidos = 0,
+  insertados = 0,
+  errores = 0,
+  detalles = false,
 }: {
   isOpen: boolean;
   size?: string;
   onClose: () => void;
   title: string;
+  detalles?: boolean;
   children: React.ReactNode;
+  omitidos?: number;
+  insertados?: number;
+  errores?: number;
 }) => {
   if (!isOpen) return null;
   return (
@@ -42,6 +50,19 @@ const Modal = ({
       >
         <div className="flex items-center justify-between p-4 border-b">
           <h3 className="text-lg font-semibold">{title}</h3>
+          {detalles && (
+            <>
+              <p className="rounded-full bg-green-300/60 text-green-800 px-4 py-1">
+                {insertados} Insertados
+              </p>
+              <p className="rounded-full bg-yellow-300/60 text-yellow-800 px-4 py-1">
+                {omitidos} Omitidos
+              </p>
+              <p className="rounded-full bg-red-300/60 text-red-800 px-4 py-1">
+                {errores} Errores
+              </p>
+            </>
+          )}
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -63,10 +84,15 @@ const ImportExcel = () => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<FilaExcel[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [processedData, setProcessedData] = useState<FilaExcel[]>([]);
+  const [resetKey, setResetKey] = useState(0);
+  const [resultados, setResultados] = useState({
+    insertados: 0,
+    omitidos: 0,
+    errores: 0,
+  });
 
   // Leer el Excel
   const leerExcel = async (archivo: File) => {
@@ -75,11 +101,14 @@ const ImportExcel = () => {
       const buffer = await archivo.arrayBuffer();
       const wb = XLSX.read(buffer, { type: "array" });
       const sheet = wb.Sheets[wb.SheetNames[0]];
-      const data = XLSX.utils.sheet_to_json<FilaExcel>(sheet, { defval: "", range: 4 });
+      const data = XLSX.utils.sheet_to_json<FilaExcel>(sheet, {
+        range: 4,
+        blankrows: false,
+      });
 
       setPreview(data);
       toast.success(`Archivo cargado (${data.length} filas)`);
-    } catch {
+    } catch (error) {
       toast.error("Error al leer el archivo");
     }
   };
@@ -87,7 +116,6 @@ const ImportExcel = () => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0] || null;
     setFile(selectedFile);
-    setUploadProgress(0);
 
     if (!selectedFile) {
       setPreview([]);
@@ -100,7 +128,9 @@ const ImportExcel = () => {
       setPreview([]);
       return;
     }
-
+    setProcessedData([]);
+    setResultados({ insertados: 0, omitidos: 0, errores: 0 });
+    setFile(selectedFile);
     await leerExcel(selectedFile);
   };
 
@@ -110,6 +140,10 @@ const ImportExcel = () => {
       toast.error("Primero debes seleccionar un archivo Excel");
       return;
     }
+    if (preview.length === 0) {
+      toast.error("No hay registros para importar");
+      return;
+    }
     setShowConfirmModal(true);
   };
 
@@ -117,26 +151,38 @@ const ImportExcel = () => {
   const confirmarImportacion = async () => {
     setUploading(true);
     setShowConfirmModal(false);
+    setResetKey(prev => prev + 1);
 
     try {
       const formData = new FormData();
       formData.append("excel", file!);
-      formData.append("updateIfExists", "1");
 
-      const data = await importExcelPacientes(formData);
+      const response = await importExcelPacientes(formData);
 
-      if (!data.ok) throw new Error("Error en el servidor");
+      if (!response?.ok) {
+        throw new Error(response?.message || "Error en el servidor");
+      }
 
-      setProcessedData(data.processed || []);
-      toast.success(
-        `Importación completada: ${data.inserted} insertados, ${data.updated} actualizados, ${data.skipped} omitidos`
-      );
+      setProcessedData(response.processed || []);
+      setResultados({
+        insertados: response.resultado?.insertados || 0,
+        omitidos: response.resultado?.omitidos || 0,
+        errores: response.resultado?.errores || 0,
+      });
+
+      toast.success(`Importación completada`);
       setShowResultsModal(true);
-    } catch (error) {
-      toast.error(`${error}`);
+    } catch (error: any) {
+      toast.error("Error al importar el archivo");
+      console.error("Error en importación:", error);
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleCloseResults = () => {
+    setShowResultsModal(false);
+    setPreview([])
   };
 
   return (
@@ -154,6 +200,7 @@ const ImportExcel = () => {
 
             <div className="flex items-center gap-3">
               <input
+                key={resetKey}
                 type="file"
                 accept=".xlsx,.xls"
                 onChange={handleFileChange}
@@ -161,7 +208,7 @@ const ImportExcel = () => {
                 className="mt-6 flex w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
               />
 
-              {file && (
+              {file && preview.length > 0 && !uploading && (
                 <div className="mt-6" onClick={handleAgregarClick}>
                   <BtnAgregar verText={true} />
                 </div>
@@ -173,12 +220,12 @@ const ImportExcel = () => {
             <div className="mt-4">
               <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div
-                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                  style={{ width: `${uploadProgress}%` }}
+                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 animate-pulse"
+                  style={{ width: `100%` }}
                 />
               </div>
               <p className="text-sm text-gray-600 mt-2 text-center">
-                {uploadProgress}%
+                Procesando archivo...
               </p>
             </div>
           )}
@@ -228,7 +275,8 @@ const ImportExcel = () => {
                 },
                 {
                   name: "Dirección",
-                  selector: (row: FilaExcel) => row["Dirección"] || "-",
+                  selector: (row: FilaExcel) => row["Dirección"] || "—",
+                  wrap: true,
                 },
               ]}
               data={preview}
@@ -244,13 +292,13 @@ const ImportExcel = () => {
         </div>
 
         {/* Botón de resultados */}
-        {processedData.length > 0 && (
+        {processedData.length > 0 && !showResultsModal && (
           <div className="mt-6 flex justify-end">
             <button
               onClick={() => setShowResultsModal(true)}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              Ver resultados
+              Ver ultimos resultados
             </button>
           </div>
         )}
@@ -261,7 +309,10 @@ const ImportExcel = () => {
           onClose={() => setShowConfirmModal(false)}
           title="Confirmar Importación"
         >
-          <p>¿Estás seguro de ejecutar la importación?</p>
+          <p className="text-gray-700">
+            ¿Estás seguro de ejecutar la importación de{" "}
+            <strong>{preview.length}</strong> registros?
+          </p>
           <div className="flex justify-center gap-3 mt-6">
             <button
               onClick={() => setShowConfirmModal(false)}
@@ -271,7 +322,8 @@ const ImportExcel = () => {
             </button>
             <button
               onClick={confirmarImportacion}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium"
+              disabled={uploading}
+              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium disabled:opacity-50"
             >
               Confirmar y Subir
             </button>
@@ -281,12 +333,36 @@ const ImportExcel = () => {
         {/* Modal Resultados */}
         <Modal
           isOpen={showResultsModal}
-          onClose={() => setShowResultsModal(false)}
-          title={`Resultados Procesados (${processedData.length})`}
+          onClose={handleCloseResults}
+          title="RESULTADOS"
+          detalles={true}
+          insertados={resultados.insertados}
+          omitidos={resultados.omitidos}
+          errores={resultados.errores}
           size="7xl"
         >
           <DataTable
             columns={[
+              {
+                name: "Estado",
+                cell: (row: FilaExcel) => {
+                  const status = row.status?.toLowerCase() || "";
+                  let bgColor = "bg-green-300/50 text-green-800";
+                  
+                  if (status === "omitido") {
+                    bgColor = "bg-yellow-300/50 text-yellow-800";
+                  } else if (status === "error") {
+                    bgColor = "bg-red-300/50 text-red-800";
+                  }
+                  
+                  return (
+                    <p className={`${bgColor} rounded-full px-4 py-1`}>
+                      {row.status}
+                    </p>
+                  );
+                },
+                width: "140px",
+              },
               {
                 name: "Documento",
                 selector: (row: FilaExcel) =>
@@ -304,11 +380,18 @@ const ImportExcel = () => {
               },
               {
                 name: "Dirección",
-                cell: (row: FilaExcel) => row["Dirección"] || "",
+                selector: (row: FilaExcel) => row["Dirección"] || "—",
+                wrap: true,
+              },
+              {
+                name: "Motivo",
+                selector: (row: FilaExcel) => row.motivo || "—",
+                wrap: true,
               },
             ]}
             data={processedData}
             pagination
+            paginationPerPage={10}
           />
         </Modal>
       </div>
