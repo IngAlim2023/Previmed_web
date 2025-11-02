@@ -12,6 +12,7 @@ import BtnEditar from "../../components/botones/BtnEditar";
 import BtnLeer from "../../components/botones/BtnLeer";
 import { useAuthContext } from "../../context/AuthContext";
 import BtnDescargarPdf from "../../components/botones/BtnDescargarPdf";
+import BtnExportarPacientes from "../../components/botones/BtnExportPacientes";
 
 interface Paciente {
   id: number;
@@ -155,12 +156,16 @@ const Pacientes: React.FC = () => {
             className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
           />
 
+          <div className="flex gap-2">
+          <BtnExportarPacientes/>
+
           <button
             onClick={() => navigate("/formularioPacientes")}
             className="bg-green-500 hover:bg-green-600 text-white px-3 p-2 rounded-md flex items-center gap-2 transition text-lg"
-          >
+            >
             <FaPlus /> Agregar Titular
           </button>
+          </div>
         </div>
         <DataTable
           columns={columns}

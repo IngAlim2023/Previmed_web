@@ -218,3 +218,23 @@ export const importExcelPacientes = async (formData: FormData) => {
     throw error;
   }
 };
+
+// exportar csv con los pacientes
+export const exportPacientes = async(filtro: string) => {
+  try {
+    const response = await fetch(url(`/export/pacientes/excel/${filtro}`), {
+      method: 'GET',
+      headers: { 'Accept': 'text/csv' },
+    })
+
+    if (!response.ok) {
+      throw new Error('Error al descargar el archivo');
+    }
+
+    const blob = await response.blob();
+    return blob;
+    
+  } catch (error) {
+    throw new Error('Error al descargar el archivo');
+  }
+}
