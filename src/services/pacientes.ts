@@ -198,3 +198,23 @@ export const getPacientesId = async(id: string) => {
     return 'Error al traer los usuarios'
   }
 }
+
+// registrar pacientes por medio del excel
+export const importExcelPacientes = async (formData: FormData) => {
+  try {
+    const response = await fetch(url('/import/pacientes/excel'), {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error en la importación');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
