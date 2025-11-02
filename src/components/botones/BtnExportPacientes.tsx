@@ -18,7 +18,7 @@ const BtnExportarPacientes = () => {
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `pacientes_${filtro}_${Date.now()}.xlsx`;
+      link.download = `pacientes_${filtro}_${Date.now()}.csv`;
       
       // Simular click para descargar
       document.body.appendChild(link);
