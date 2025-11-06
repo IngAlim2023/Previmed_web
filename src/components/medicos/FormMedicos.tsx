@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import BtnCancelar from "../botones/BtnCancelar";
 import BtnAgregar from "../botones/BtnAgregar";
@@ -6,11 +6,10 @@ import toast from "react-hot-toast";
 import { medicoService } from "../../services/medicoService";
 
 /** ========= Helper URL =========
- * Usa tu .env:
  * VITE_URL_BACK=https://previmedbackend-q73n.onrender.com/
- * (termina con /)
+ * (DEBE terminar en /)
  */
-const BASE = import.meta.env.VITE_URL_BACK || ""; // termina con /
+const BASE = import.meta.env.VITE_URL_BACK || "";
 const makeUrl = (path: string) => {
   const base = BASE.endsWith("/") ? BASE : BASE + "/";
   const clean = path.startsWith("/") ? path.slice(1) : path;
@@ -18,20 +17,20 @@ const makeUrl = (path: string) => {
 };
 /** ============================= */
 
-const ENDPOINT_CREAR_USUARIO_MEDICO = "medicos/usuarioM"; // <--- mantén el endpoint que ya tienes
+const ENDPOINT_CREAR_USUARIO_MEDICO = "medicos/usuarioM";
+const ENDPOINT_LISTA_EPS = "eps/read"; // único endpoint para EPS
 
 type FormValues = {
-  // Usuario
   nombre: string;
   segundoNombre?: string;
   apellido: string;
   segundoApellido?: string;
   email: string;
-  password: string; // min 8
+  password: string;
   direccion?: string;
-  numeroDocumento: string; // solo números
+  numeroDocumento: string;
   tipoDocumento?: string;
-  fechaNacimiento: string; // YYYY-MM-DD
+  fechaNacimiento: string;
   numeroHijos?: string;
   estrato?: string;
   genero?: string;
@@ -39,15 +38,36 @@ type FormValues = {
   autorizacionDatos?: boolean;
   habilitar?: boolean;
   epsId?: number | string;
-
-  // Médico
   disponibilidad: boolean;
   estado: boolean;
 };
 
+type EPS = { id_eps: number; nombre: string; estado?: boolean };
+
 interface Props {
   onCancel?: () => void;
   onSuccess?: () => void;
+}
+
+/** -------- helpers de parseo robusto -------- */
+function isPlainObject(x: any) {
+  return x && typeof x === "object" && !Array.isArray(x);
+}
+function firstArrayDeep(raw: any, depth = 0): any[] {
+  if (!raw || depth > 4) return [];
+  if (Array.isArray(raw)) return raw;
+  if (isPlainObject(raw)) {
+    const keysPrefer = ["data", "msj", "result", "rows", "items", "lista", "payload"];
+    for (const k of keysPrefer) {
+      const v = (raw as any)[k];
+      if (Array.isArray(v)) return v;
+    }
+    for (const v of Object.values(raw)) {
+      const arr = firstArrayDeep(v, depth + 1);
+      if (Array.isArray(arr)) return arr;
+    }
+  }
+  return [];
 }
 
 const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
@@ -59,6 +79,83 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
   } = useForm<FormValues>({ mode: "onChange" });
 
   const [loading, setLoading] = useState(false);
+
+  // ====== EPS: lista para el <select> ======
+  const [epsList, setEpsList] = useState<EPS[]>([]);
+  const [epsLoading, setEpsLoading] = useState(true);
+  const [epsError, setEpsError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setEpsLoading(true);
+      setEpsError(null);
+      try {
+        const url = makeUrl(ENDPOINT_LISTA_EPS);
+        console.log("[EPS] GET", url);
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+
+        const status = res.status;
+        const ct = res.headers.get("content-type") || "";
+
+        let json: any = null;
+        let textSample = "";
+        try {
+          if (ct.includes("application/json")) {
+            json = await res.json();
+          } else {
+            const txt = await res.text();
+            textSample = txt.slice(0, 180);
+          }
+        } catch {
+          const txt = await res.text().catch(() => "");
+          textSample = txt.slice(0, 180);
+        }
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${status}${textSample ? ` — ${textSample}` : ""}`);
+        }
+
+        const arr = firstArrayDeep(json);
+        const mapped: EPS[] = (arr as any[]).map((e: any): EPS => ({
+          id_eps: Number(
+            e.id_eps ?? e.idEps ?? e.ideps ?? e.id ?? e.codigo ?? e.cod_eps ?? e.codEps ?? 0
+          ),
+          nombre: String(
+            e.nombre ??
+              e.nombre_eps ??
+              e.nombreEps ??
+              e.nombreEPS ??
+              e.razon_social ??
+              e.razonSocial ??
+              e.descripcion ??
+              e.eps ??
+              e.entidad ??
+              "-"
+          ),
+          estado: typeof e.estado === "boolean" ? e.estado : undefined,
+        }))
+        .filter((e) => e.id_eps || e.nombre !== "-");
+
+        if (!mapped.length) {
+          throw new Error("La respuesta no contiene una lista de EPS (o llegó vacía).");
+        }
+
+        if (!alive) return;
+        setEpsList(mapped);
+      } catch (err: any) {
+        console.error("[EPS] Error cargando /eps/read:", err?.message || err);
+        if (!alive) return;
+        setEpsError(
+          `No se pudo cargar la lista de EPS desde /eps/read${err?.message ? ` (${err.message})` : ""}.`
+        );
+        setEpsList([]);
+      } finally {
+        if (alive) setEpsLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
 
   const label = "text-gray-700 font-semibold text-sm mb-1 block";
   const input =
@@ -82,17 +179,16 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
     }
     const id = j?.data?.id_usuario;
     if (!id) throw new Error("Respuesta sin id_usuario");
-    // *** IMPORTANTE: NO convertir a Number. Es UUID string. ***
     return String(id);
   };
 
-  /** Crear el médico usando el id_usuario (UUID string) retornado */
+  /** Crear médico con el id_usuario (UUID string) */
   const crearMedico = async (
     usuarioId: string,
     data: Pick<FormValues, "disponibilidad" | "estado">
   ) => {
     const body = {
-      usuario_id: usuarioId, // <-- se envía tal cual, string UUID
+      usuario_id: usuarioId,
       disponibilidad: !!data.disponibilidad,
       estado: data.estado === undefined ? true : !!data.estado,
     };
@@ -104,7 +200,6 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
     try {
       setLoading(true);
 
-      // Validaciones rápidas del front
       if (!data.fechaNacimiento) {
         toast.error("La fecha de nacimiento es obligatoria");
         return;
@@ -118,7 +213,10 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
         return;
       }
 
-      // Armar payload acorde al validador del backend (snake_case)
+      // ⚠️ Limpiar epsId (evitar NaN)
+      const epsIdNum = Number(data.epsId);
+      const epsIdFinal = Number.isFinite(epsIdNum) ? epsIdNum : undefined;
+
       const payloadUsuario = {
         nombre: data.nombre?.trim() || undefined,
         segundo_nombre: data.segundoNombre?.trim() || undefined,
@@ -133,16 +231,16 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
         genero: data.genero || undefined,
         estado_civil: data.estadoCivil || undefined,
         tipo_documento: data.tipoDocumento || undefined,
-        eps_id: data.epsId ? Number(data.epsId) : undefined,
+        eps_id: epsIdFinal, // <-- solo se envía si es número válido
         estrato: data.estrato || undefined,
         numero_hijos: data.numeroHijos || undefined,
         fecha_nacimiento: data.fechaNacimiento, // YYYY-MM-DD
       };
 
-      // 1) Crear usuario y obtener UUID string
-      const idUsuario = await crearUsuarioMedico(payloadUsuario);
+      // Opcional: ver el payload real antes de enviar
+      // console.log("[POST /medicos/usuarioM] payloadUsuario =>", payloadUsuario);
 
-      // 2) Crear médico con ese UUID string
+      const idUsuario = await crearUsuarioMedico(payloadUsuario);
       await crearMedico(idUsuario, {
         disponibilidad: data.disponibilidad,
         estado: data.estado,
@@ -186,10 +284,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Nombre *</label>
-            <input
-              {...register("nombre", { required: "Nombre requerido" })}
-              className={input}
-            />
+            <input {...register("nombre", { required: "Nombre requerido" })} className={input} />
             {errors.nombre && <p className={error}>{errors.nombre.message}</p>}
           </div>
           <div>
@@ -201,10 +296,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Apellido *</label>
-            <input
-              {...register("apellido", { required: "Apellido requerido" })}
-              className={input}
-            />
+            <input {...register("apellido", { required: "Apellido requerido" })} className={input} />
             {errors.apellido && <p className={error}>{errors.apellido.message}</p>}
           </div>
           <div>
@@ -249,21 +341,14 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Email *</label>
-            <input
-              type="email"
-              {...register("email", { required: "Email requerido" })}
-              className={input}
-            />
+            <input type="email" {...register("email", { required: "Email requerido" })} className={input} />
             {errors.email && <p className={error}>{errors.email.message}</p>}
           </div>
           <div>
             <label className={label}>Contraseña *</label>
             <input
               type="password"
-              {...register("password", {
-                required: "Contraseña requerida",
-                minLength: { value: 8, message: "Mínimo 8 caracteres" },
-              })}
+              {...register("password", { required: "Contraseña requerida", minLength: { value: 8, message: "Mínimo 8 caracteres" } })}
               className={input}
             />
             {errors.password && <p className={error}>{errors.password.message}</p>}
@@ -315,9 +400,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
                 min: { value: 0, message: "Mínimo 0" },
                 max: { value: 20, message: "Máximo 20" },
               })}
-              onInput={(e) => {
-                e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, "");
-              }}
+              onInput={(e) => { e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, ""); }}
               className={input}
             />
             {errors.numeroHijos && <p className={error}>{errors.numeroHijos.message}</p>}
@@ -332,9 +415,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
                 min: { value: 1, message: "Mínimo 1" },
                 max: { value: 6, message: "Máximo 6" },
               })}
-              onInput={(e) => {
-                e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, "");
-              }}
+              onInput={(e) => { e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, ""); }}
               className={input}
             />
             {errors.estrato && <p className={error}>{errors.estrato.message}</p>}
@@ -350,15 +431,26 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
               <option>Otro</option>
             </select>
           </div>
+
+        {/* === EPS como SELECT (solo nombre; value = id) === */}
           <div>
             <label className={label}>EPS (opcional)</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="ID de EPS"
-              {...register("epsId")}
+            <select
+              {...register("epsId")}  // <- sin valueAsNumber para evitar NaN
               className={input}
-            />
+              disabled={epsLoading || epsList.length === 0}
+            >
+              <option value="">
+                {epsLoading ? "Cargando EPS…" : epsList.length ? "Seleccione EPS…" : "Sin datos de EPS"}
+              </option>
+              {!epsLoading &&
+                epsList.map((e) => (
+                  <option key={String(e.id_eps)} value={e.id_eps} title={`#${e.id_eps}`}>
+                    {e.nombre}
+                  </option>
+                ))}
+            </select>
+            {epsError && <p className="text-amber-600 text-xs mt-1">{epsError}</p>}
           </div>
         </div>
 
