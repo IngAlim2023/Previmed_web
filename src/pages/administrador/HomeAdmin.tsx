@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-
 const URL_BACK = (import.meta as any).env?.VITE_URL_BACK || "";
 const apiUrl = (path: string) =>
   `${URL_BACK}`.replace(/\/+$/, "") + "/" + String(path || "").replace(/^\/+/, "");
-
 
 async function getJSON<T>(path: string, timeoutMs = 12000): Promise<T> {
   const url = apiUrl(path);
@@ -48,20 +46,25 @@ function toISOString(val: any): string {
   if (val?.toISOString) return val.toISOString();
   try { return new Date(val).toISOString(); } catch { return ""; }
 }
+
 type KPI = { pacientes_total: number; visitas_total: number; medicos_total: number };
 type Visita = { id_visita: number; fecha_visita: string; descripcion: string; telefono: string; estado: boolean; };
 type FormaPago = { id_forma_pago: number; tipo_pago: string; estado: boolean };
 type BarDatum = { label: string; value: number };
+
 const MiniBarChart: React.FC<{ data: BarDatum[]; title?: string; height?: number }> = ({
   data, title, height = 180
 }) => {
-  const W = 1000; 
-  const pad = { top: 18, right: 24, bottom: 12, left: 60 };
+  const W = 1000;
+  // Más aire para evitar solapes con labels
+  const pad = { top: 26, right: 24, bottom: 24, left: 60 };
   const innerW = W - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
   const maxV = Math.max(1, ...data.map(d => d.value));
   const barW = data.length ? innerW / data.length : innerW;
   const palette = ["#34d399","#f59e0b","#60a5fa","#a78bfa","#10b981","#f472b6","#ef4444"];
+
+  const labelY = height - pad.bottom + 8; // etiquetas bajo la barra
 
   return (
     <div className="w-full">
@@ -88,10 +91,12 @@ const MiniBarChart: React.FC<{ data: BarDatum[]; title?: string; height?: number
             return (
               <g key={i}>
                 <rect x={x} y={y} width={w} height={Math.max(1, h)} fill={color} rx="6" ry="6" />
-                <text x={x + w / 2} y={y - 5} fontSize="13" textAnchor="middle" fill="#374151">
+                {/* valor encima */}
+                <text x={x + w / 2} y={y - 6} fontSize="13" textAnchor="middle" fill="#374151">
                   {d.value}
                 </text>
-                <text x={x + w / 2} y={pad.top - 4} fontSize="12" textAnchor="middle" fill="#6b7280">
+                {/* etiqueta abajo */}
+                <text x={x + w / 2} y={labelY} fontSize="12" textAnchor="middle" dominantBaseline="hanging" fill="#6b7280">
                   {d.label}
                 </text>
               </g>
@@ -102,6 +107,7 @@ const MiniBarChart: React.FC<{ data: BarDatum[]; title?: string; height?: number
     </div>
   );
 };
+
 const AdminHome: React.FC = () => {
   const [kpi, setKpi] = useState<KPI>({ pacientes_total: 0, visitas_total: 0, medicos_total: 0 });
   const [visitas, setVisitas] = useState<Visita[]>([]);
@@ -146,9 +152,10 @@ const AdminHome: React.FC = () => {
       setKpi({
         pacientes_total: asArray(rawPacientes).length,
         visitas_total: visitasArr.length,
+        // TOTAL de médicos (no filtrado por estado)
         medicos_total: (() => {
           const ml = asArray(rawMedicos);
-          return ml.filter((m: any) => m?.estado === true).length || ml.length || 0;
+          return ml.length || 0;
         })(),
       });
       setLoading(false);
@@ -203,6 +210,7 @@ const AdminHome: React.FC = () => {
                   </div>
                 </div>
               </div>
+
               <div className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-3 mt-2">
                 {loading ? (
                   <div className="h-36 rounded-xl bg-gray-100 animate-pulse" />
@@ -216,21 +224,30 @@ const AdminHome: React.FC = () => {
                   />
                 )}
               </div>
+
               <div className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4 mt-2">
-                <div className="flex items-center justify-between mb-3 gap-3">
-                  <div className="flex items-center gap-2 text-blue-600">
-                    <div className="h-8 w-8 rounded-xl bg-blue-100 flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M11 2a4 4 0 0 1 4 4v1h1a3 3 0 0 1 3 3v1h-2V10a1 1 0 0 0-1-1h-1v1a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3V9H5a1 1 0 0 0-1 1v1H2V10a3 3 0 0 1 3-3h1V6a4 4 0 0 1 4-4h1Zm-5 10h12v8H6v-8Z"/>
+                {/* Header de Visitas sin aplastarse */}
+                <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+                  <div className="flex items-center gap-2 text-blue-600 min-w-0">
+                    <div className="h-8 w-8 shrink-0 rounded-xl bg-blue-100 flex items-center justify-center">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        className="h-5 w-5"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path d="M3 10.5 12 3l9 7.5v8A1.5 1.5 0 0 1 19.5 20h-15A1.5 1.5 0 0 1 3 18.5v-8Zm2 .7V18h14v-6.8L12 5.7 5 11.2Zm5 7.3v-5h4v5h-4Z" />
                       </svg>
                     </div>
-                    <h2 className="text-2xl font-semibold text-gray-800">Visitas</h2>
+                    <h2 className="text-2xl font-semibold text-gray-800 leading-none">Visitas</h2>
                   </div>
+
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Buscar por descripción..."
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none bg-white w-72"
+                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none bg-white w-full sm:w-72"
                   />
                 </div>
 
