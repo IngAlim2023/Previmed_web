@@ -5,7 +5,6 @@ import {
   PieChart, Pie, Cell, Label,
 } from "recharts";
 
-/* ============================ FETCH ============================ */
 const URL_BACK = (import.meta as any).env?.VITE_URL_BACK || "";
 const apiUrl = (path: string) =>
   `${URL_BACK}`.replace(/\/+$/, "") + "/" + String(path || "").replace(/^\/+/, "");
@@ -41,7 +40,7 @@ async function fetchFirst(paths: string[]): Promise<any | null> {
   return null;
 }
 
-/* ============================ HELPERS ============================ */
+
 function asArray<T = any>(raw: any): T[] {
   if (!raw) return [];
   if (Array.isArray(raw)) return raw as T[];
@@ -91,11 +90,11 @@ const contarDisponibles = (arr: any[]) => {
   return count;
 };
 
-/* ============================ TAMAÑOS ============================ */
-const CARD_H = 360;    // altura mínima de la tarjeta
-const CHART_H = 300;   // altura del gráfico (dejamos espacio para el pie de texto)
 
-/* ============================ UI ============================ */
+const CARD_H = 360;    
+const CHART_H = 300;   
+
+
 const Empty: React.FC<{ msg: string }> = ({ msg }) => (
   <div className="h-full flex items-center justify-center text-sm text-gray-500">{msg}</div>
 );
@@ -110,7 +109,6 @@ const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({ tit
   </div>
 );
 
-/* ============================ CHARTS (RECHARTS) ============================ */
 const COLORS = ["#2563eb","#f59e0b","#10b981","#a855f7","#e11d48","#06b6d4","#84cc16"];
 
 const BarBlock: React.FC<{ data: BarDatum[]; height: number; colors?: string[] }> = ({ data, height, colors }) => {
@@ -186,7 +184,6 @@ const DonutBlock: React.FC<{ data: BarDatum[]; height: number; colors?: string[]
   );
 };
 
-/** Barra apilada 100% (horizontal) con pie de texto dentro de la card */
 const PercentBarBlock: React.FC<{ data: BarDatum[]; height: number; colors?: string[] }> = ({ data, height, colors }) => {
   const total = sumVals(data || []);
   const palette = colors?.length ? colors : ["#3b82f6", "#ec4899", "#10b981", "#f59e0b"];
@@ -196,7 +193,7 @@ const PercentBarBlock: React.FC<{ data: BarDatum[]; height: number; colors?: str
   data.forEach(d => { row[d.label] = d.value; });
   const ds = [row];
 
-  const CAPTION_H = 26; // espacio para pie dentro de la card
+  const CAPTION_H = 26; 
   const chartH = Math.max(120, height - CAPTION_H);
 
   return (
@@ -248,7 +245,6 @@ const PercentBarBlock: React.FC<{ data: BarDatum[]; height: number; colors?: str
         </ResponsiveContainer>
       </div>
 
-      {/* Pie de texto dentro de la card, con ellipsis */}
       <div className="px-2 mt-1 text-[11px] text-gray-500 text-center whitespace-nowrap overflow-hidden text-ellipsis">
         {data.map((d, i) => (
           <span key={i} className="mr-3">{d.label}: <b>{d.value}</b></span>
@@ -259,7 +255,6 @@ const PercentBarBlock: React.FC<{ data: BarDatum[]; height: number; colors?: str
   );
 };
 
-/** Gauge semicircular mejorado, con gradiente y pie interno (no se sale) */
 const GaugeBlock: React.FC<{ activos: number; inactivos: number; height: number; color?: string }> = ({ activos, inactivos, height, color = "#06b6d4" }) => {
   const total = (activos || 0) + (inactivos || 0);
   if (!total) return <Empty msg="No hay planes registrados." />;
@@ -325,7 +320,7 @@ const GaugeBlock: React.FC<{ activos: number; inactivos: number; height: number;
   );
 };
 
-/* ============================ TIPOS ============================ */
+
 type KPI = {
   pacientes_total: number;
   visitas_total: number;
@@ -334,7 +329,6 @@ type KPI = {
   solicitudes_total: number;
 };
 
-/* ============================ COMPONENTE ============================ */
 const HomeAdmin: React.FC = () => {
   // KPIs
   const [kpi, setKpi] = useState<KPI>({
@@ -393,8 +387,7 @@ const HomeAdmin: React.FC = () => {
     return () => { alive = false; };
   }, []);
 
-  /* ======= Gráficas ======= */
-  // Planes: activo vs inactivo
+
   const planesAct = useMemo(
     () => planesList.filter(p =>
       isTrueish(p?.estado) || isTrueish(p?.activo) || isTrueish(p?.vigente) || s(p?.estado).includes("act")
@@ -475,7 +468,7 @@ const HomeAdmin: React.FC = () => {
               </div>
             </div>
 
-            {/* GRÁFICAS */}
+//GRAFICAS
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-3">
               {/* Planes: gauge mejorado, con pie dentro */}
               <ChartCard title="Planes — % Activos (Gauge)">
@@ -486,22 +479,20 @@ const HomeAdmin: React.FC = () => {
                   color="#06b6d4"
                 />
               </ChartCard>
-
-              {/* Barrios: apilada 100%, con pie dentro */}
+//barrios
               <ChartCard title="Barrios — Proporción Activos / Inactivos (100%)">
                 {(chartBarrios[0].value + chartBarrios[1].value === 0)
                   ? <Empty msg="No hay barrios registrados." />
                   : <PercentBarBlock data={chartBarrios} height={CHART_H} colors={["#3b82f6","#ec4899"]} />}
               </ChartCard>
 
-              {/* EPS: barras */}
-              <ChartCard title="EPS (Aseguradoras) — Activas vs. Inactivas">
+//eps              <ChartCard title="EPS (Aseguradoras) — Activas vs. Inactivas">
                 {(chartEPS[0].value + chartEPS[1].value === 0)
                   ? <Empty msg="No hay EPS/Aseguradoras registradas." />
                   : <BarBlock data={chartEPS} height={CHART_H} colors={["#8b5cf6","#334155"]} />}
               </ChartCard>
 
-              {/* Solicitudes: dona */}
+//solicitudes
               <ChartCard title="Solicitudes — Aprobadas / Pendientes / Rechazadas">
                 {(sumVals(pieSolicitudes) === 0)
                   ? <Empty msg="No hay solicitudes registradas." />
