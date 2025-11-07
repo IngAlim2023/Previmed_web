@@ -468,7 +468,6 @@ const HomeAdmin: React.FC = () => {
               </div>
             </div>
 
-//GRAFICAS
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-3">
               {/* Planes: gauge mejorado, con pie dentro */}
               <ChartCard title="Planes — % Activos (Gauge)">
@@ -479,20 +478,19 @@ const HomeAdmin: React.FC = () => {
                   color="#06b6d4"
                 />
               </ChartCard>
-//barrios
+
               <ChartCard title="Barrios — Proporción Activos / Inactivos (100%)">
                 {(chartBarrios[0].value + chartBarrios[1].value === 0)
                   ? <Empty msg="No hay barrios registrados." />
                   : <PercentBarBlock data={chartBarrios} height={CHART_H} colors={["#3b82f6","#ec4899"]} />}
               </ChartCard>
 
-//eps              <ChartCard title="EPS (Aseguradoras) — Activas vs. Inactivas">
+             <ChartCard title="EPS (Aseguradoras) — Activas vs. Inactivas">
                 {(chartEPS[0].value + chartEPS[1].value === 0)
                   ? <Empty msg="No hay EPS/Aseguradoras registradas." />
                   : <BarBlock data={chartEPS} height={CHART_H} colors={["#8b5cf6","#334155"]} />}
               </ChartCard>
 
-//solicitudes
               <ChartCard title="Solicitudes — Aprobadas / Pendientes / Rechazadas">
                 {(sumVals(pieSolicitudes) === 0)
                   ? <Empty msg="No hay solicitudes registradas." />

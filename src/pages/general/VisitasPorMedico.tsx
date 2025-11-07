@@ -81,14 +81,6 @@ const VisitasPorMedico: React.FC = () => {
   }, [idMedico, notificacion])
 
   /** ===========================================================
-   * 3️⃣ Auto refresco cada 5 segundos (sincroniza con móvil)
-   * =========================================================== **/
-  useEffect(() => {
-    const interval = setInterval(fetchVisitas, 5000)
-    return () => clearInterval(interval)
-  }, [idMedico])
-
-  /** ===========================================================
    * 4️⃣ Canal Broadcast — sincronización bidireccional
    * =========================================================== **/
   useEffect(() => {
