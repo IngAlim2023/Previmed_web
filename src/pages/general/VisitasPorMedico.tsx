@@ -8,9 +8,15 @@ import { medicoService } from "../../services/medicoService"
 import { useNavigate } from "react-router-dom"
 import BtnCerrar from "../../components/botones/BtnCerrar"
 
+//Probar Socket.io Borrar cuando este implementado:
+import socket from "../../services/socket";
+
 const VisitasPorMedico: React.FC = () => {
   const { user } = useAuthContext()
   const navigate = useNavigate()
+
+
+  const[notificacion, setNotificacion] =useState<boolean>(false);
 
   const [visitas, setVisitas] = useState<Visita[]>([])
   const [loading, setLoading] = useState(false)
@@ -20,6 +26,9 @@ const VisitasPorMedico: React.FC = () => {
   const RAW_URL = String(import.meta.env.VITE_URL_BACK || "")
   const API_URL = RAW_URL.replace(/\/+$/, "")
 
+  socket.on('solicitud visita',()=>{
+    setNotificacion(!notificacion)
+  })
   // 🔹 Paso 1: obtener el id_medico según el usuario logueado
   useEffect(() => {
     const fetchMedico = async () => {
@@ -73,7 +82,7 @@ const VisitasPorMedico: React.FC = () => {
     }
 
     fetchVisitas()
-  }, [idMedico])
+  }, [idMedico, notificacion])
 
   // 🔹 Escuchar cambios globales del localStorage (sincroniza con HomeMedico)
   useEffect(() => {
