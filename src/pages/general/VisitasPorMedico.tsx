@@ -21,7 +21,9 @@ const VisitasPorMedico: React.FC = () => {
   const [visitas, setVisitas] = useState<Visita[]>([])
   const [loading, setLoading] = useState(false)
   const [idMedico, setIdMedico] = useState<number | null>(null)
-  const [visitaActiva, setVisitaActiva] = useState<string | null>(localStorage.getItem("visita_activa"))
+  const [visitaActiva, setVisitaActiva] = useState<string | null>(
+    localStorage.getItem("visita_activa")
+  )
 
   const RAW_URL = String(import.meta.env.VITE_URL_BACK || "")
   const API_URL = RAW_URL.replace(/\/+$/, "")
@@ -30,20 +32,20 @@ const VisitasPorMedico: React.FC = () => {
     setNotificacion(!notificacion)
   })
   // 🔹 Paso 1: obtener el id_medico según el usuario logueado
+  /** ===========================================================
+   * 1️⃣ Obtener el ID del médico según el usuario logueado
+   * =========================================================== **/
   useEffect(() => {
     const fetchMedico = async () => {
       if (!user?.id) return
-
       try {
         setLoading(true)
         toast.loading("Cargando información del médico...", { id: "medico" })
-
         const medico = await medicoService.getByUsuarioId(user.id)
         if (!medico) {
           toast.error("No se encontró información del médico", { id: "medico" })
           return
         }
-
         setIdMedico(medico.id_medico)
         toast.success("Médico identificado correctamente", { id: "medico" })
       } catch (error) {
@@ -54,79 +56,130 @@ const VisitasPorMedico: React.FC = () => {
         setLoading(false)
       }
     }
-
     fetchMedico()
   }, [user])
 
-  // 🔹 Paso 2: obtener las visitas del médico
-  useEffect(() => {
-    const fetchVisitas = async () => {
-      if (!idMedico) return
-
-      try {
-        setLoading(true)
-        toast.loading("Cargando visitas del médico...", { id: "visitas" })
-
-        const data = await getVisitasPorMedico(idMedico)
-        const activas = data.filter((v) => v.estado === true)
-        setVisitas(activas)
-
-        toast.success("Visitas cargadas correctamente", { id: "visitas" })
-      } catch (error) {
-        console.error("Error al cargar visitas:", error)
-        toast.error("Error al cargar las visitas", { id: "visitas" })
-      } finally {
-        toast.dismiss("visitas")
-        setLoading(false)
-      }
+  /** ===========================================================
+   * 2️⃣ Obtener las visitas del médico
+   * =========================================================== **/
+  const fetchVisitas = async () => {
+    if (!idMedico) return
+    try {
+      setLoading(true)
+      const data = await getVisitasPorMedico(idMedico)
+      const activas = data.filter((v) => v.estado === true)
+      setVisitas(activas)
+    } catch (error) {
+      console.error("Error al cargar visitas:", error)
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     fetchVisitas()
   }, [idMedico, notificacion])
 
-  // 🔹 Escuchar cambios globales del localStorage (sincroniza con HomeMedico)
+  /** ===========================================================
+   * 3️⃣ Auto refresco cada 5 segundos (sincroniza con móvil)
+   * =========================================================== **/
   useEffect(() => {
+    const interval = setInterval(fetchVisitas, 5000)
+    return () => clearInterval(interval)
+  }, [idMedico])
+
+  /** ===========================================================
+   * 4️⃣ Canal Broadcast — sincronización bidireccional
+   * =========================================================== **/
+  useEffect(() => {
+    const channel = new BroadcastChannel("visitas_channel")
+
+    // Escuchar mensajes desde móvil o web
+    channel.onmessage = (event) => {
+      console.log("🔄 Mensaje recibido en BroadcastChannel:", event.data)
+      if (event.data?.type === "VISITA_UPDATE") {
+        setVisitaActiva(localStorage.getItem("visita_activa"))
+        fetchVisitas()
+      }
+    }
+
+    // También escuchar cambios en localStorage (por si no hay canal)
     const handleStorageChange = () => {
       setVisitaActiva(localStorage.getItem("visita_activa"))
+      fetchVisitas()
     }
     window.addEventListener("storage", handleStorageChange)
-    return () => window.removeEventListener("storage", handleStorageChange)
+
+    return () => {
+      channel.close()
+      window.removeEventListener("storage", handleStorageChange)
+    }
   }, [])
 
-  // 🔹 Manejar inicio o finalización de visita
+  /** ===========================================================
+   * 5️⃣ Iniciar o finalizar visita (actualiza backend + sincroniza)
+   * =========================================================== **/
   const handleToggleVisita = async (idVisita: number) => {
     const visitaEnCurso = localStorage.getItem("visita_activa")
+    const channel = new BroadcastChannel("visitas_channel")
 
     try {
+      if (!idMedico) throw new Error("No se encontró el ID del médico")
+
       if (!visitaEnCurso) {
         // ✅ Iniciar visita
         localStorage.setItem("visita_activa", idVisita.toString())
-        window.dispatchEvent(new Event("storage")) // sincroniza Home
-        toast.success(`Visita #${idVisita} iniciada`)
+        channel.postMessage({ type: "VISITA_UPDATE", idVisita, estado: "iniciada" })
+        window.dispatchEvent(new Event("storage"))
+
+        await medicoService.update(idMedico, {
+          disponibilidad: true,
+          estado: false,
+        })
+
+        toast.success(`🩺 Visita #${idVisita} iniciada — Médico ahora está ocupado`)
       } else if (visitaEnCurso === idVisita.toString()) {
         // ✅ Finalizar visita
-        const res = await fetch(`${API_URL}/visitas/${idVisita}`.replace(/([^:]\/)\/+/g, "$1"), {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ estado: false }),
-        })
+        const res = await fetch(
+          `${API_URL}/visitas/${idVisita}`.replace(/([^:]\/)\/+/g, "$1"),
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ estado: false }),
+          }
+        )
 
         if (!res.ok) throw new Error("Error al finalizar la visita")
 
         localStorage.removeItem("visita_activa")
+        channel.postMessage({ type: "VISITA_UPDATE", idVisita, estado: "finalizada" })
         window.dispatchEvent(new Event("storage"))
+
         setVisitas((prev) => prev.filter((v) => v.id_visita !== idVisita))
-        toast.success("🩺 Visita finalizada y enviada al historial")
+
+        await medicoService.update(idMedico, {
+          disponibilidad: true,
+          estado: true,
+        })
+
+        toast.success("✅ Visita finalizada — Médico disponible nuevamente")
       } else {
         toast.error("Ya tienes otra visita activa")
       }
+
+      // 🔁 Refrescar la tabla después del cambio
+      await fetchVisitas()
     } catch (error) {
-      console.error(error)
-      toast.error("Error al actualizar la visita")
+      console.error("Error al manejar visita:", error)
+      toast.error("Error al actualizar la visita o el estado del médico")
+    } finally {
+      channel.close()
     }
   }
 
-  // 🔹 Columnas de la tabla
+  /** ===========================================================
+   * 6️⃣ Configurar columnas de la tabla
+   * =========================================================== **/
   const columns = [
     { name: "ID", selector: (row: Visita) => row.id_visita ?? "", sortable: true },
     {
@@ -146,7 +199,9 @@ const VisitasPorMedico: React.FC = () => {
     {
       name: "Acciones",
       cell: (row: Visita) => {
-        const esActiva = row.id_visita !== undefined && visitaActiva === row.id_visita.toString()
+        const esActiva =
+          row.id_visita !== undefined &&
+          visitaActiva === row.id_visita.toString()
         return (
           <button
             onClick={() => {
@@ -172,6 +227,9 @@ const VisitasPorMedico: React.FC = () => {
     },
   ]
 
+  /** ===========================================================
+   * 7️⃣ Render del componente
+   * =========================================================== **/
   return (
     <div className="min-h-screen flex justify-center items-center bg-blue-50 py-10 px-4">
       <div className="w-full max-w-6xl bg-white p-6 rounded-xl shadow-lg">
@@ -180,7 +238,6 @@ const VisitasPorMedico: React.FC = () => {
             📋 Mis Visitas Activas
           </h2>
 
-          {/* 🔹 Botón personalizado para volver */}
           <div onClick={() => navigate(-1)}>
             <BtnCerrar text="Volver" />
           </div>
