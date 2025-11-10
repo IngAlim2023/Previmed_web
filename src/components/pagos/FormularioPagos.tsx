@@ -9,7 +9,8 @@ import { FaUser, FaCalendarDay, FaCalendarPlus, FaCalendarCheck, FaDollarSign, F
 import { HiOutlineDocumentCurrencyDollar } from "react-icons/hi2";
 import { getTitulares as getTitularesService } from "../../services/pacientes";
 import { createPago, updatePago, getFormasPago } from "../../services/pagosService";
-
+import { estadosPago } from "../../data/estadosPago";
+import { getAsesores } from "../../services/usuarios";
 
 type Props = {
   pago?: any;
@@ -18,6 +19,7 @@ type Props = {
   setPagos: (value: any) => void;
 };
 
+// 🆕 MODIFICADO: Se agregaron los nuevos campos al tipo
 type FormValues = {
   foto?: FileList;
   membresia_id?: number | string;
@@ -26,12 +28,19 @@ type FormValues = {
   fecha_fin?: string;
   forma_pago_id?: number | string;
   monto?: number | string;
+  cobrador_id: string;
+  numero_recibo: string;
+  estado: string;
 };
 
 const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) => {
+  // 🆕 MODIFICADO: Se agregan defaultValues para los nuevos campos
   const { register, handleSubmit, getValues, watch, control, reset, formState: { errors, isDirty } } = useForm<FormValues>({
     defaultValues: {
-      fecha_pago: new Date().toISOString().split("T")[0]
+      fecha_pago: new Date().toISOString().split("T")[0],
+      cobrador_id: "",
+      numero_recibo: "",
+      estado: "",
     }
   });
 
@@ -39,6 +48,8 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
   const [formasPago, setFormasPago] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [asesores, setAsesores] = useState<any[]>([]);
+
 
   useEffect(() => {
     const cargarTitulares = async () => {
@@ -57,11 +68,9 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
       try {
         console.log("🔍 Llamando a /formas_pago/read");
         const response = await getFormasPago();
-        console.log("✅ Respuesta del backend:", response);
         if (response?.data?.length) {
           setFormasPago(response.data);
         } else {
-          console.warn("⚠️ No hay datos en response.data, usando fallback");
           setFormasPago([
             { idFormaPago: 1, tipoPago: "Domicilio" },
             { idFormaPago: 2, tipoPago: "Debito automatico" },
@@ -72,19 +81,27 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
         }
       } catch (error) {
         console.error("❌ Error al cargar formas de pago:", error);
-        setFormasPago([
-          { idFormaPago: 1, tipoPago: "Domicilio" },
-          { idFormaPago: 2, tipoPago: "Debito automatico" },
-          { idFormaPago: 3, tipoPago: "Convenio" },
-          { idFormaPago: 4, tipoPago: "Nequi" },
-          { idFormaPago: 5, tipoPago: "Nuevo Pago" }
-        ]);
       }
     };
 
     cargarTitulares();
     cargarFormasPago();
   }, []);
+
+  // Cargar asesores desde el servicio
+useEffect(() => {
+  const cargarAsesores = async () => {
+    try {
+      const data = await getAsesores();
+      setAsesores(data);
+    } catch (error) {
+      toast.error("Error al cargar asesores");
+    }
+  };
+
+  cargarAsesores();
+}, []);
+
 
   useEffect(() => {
     if (!pago) {
@@ -95,9 +112,11 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
         monto: "",
         forma_pago_id: "",
         membresia_id: "",
+        cobrador_id: "",
+        numero_recibo: "",
+        estado: "",
       });
     } else {
-      console.log("📦 Datos del pago para editar:", pago);
       reset({
         fecha_pago: pago.fechaPago,
         fecha_inicio: pago.fechaInicio,
@@ -105,11 +124,13 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
         monto: pago.monto,
         forma_pago_id: pago.formaPagoId,
         membresia_id: pago.membresiaId,
+        cobrador_id: pago.cobradorId,   // 🆕
+        numero_recibo: pago.numeroRecibo, // 🆕
+        estado: pago.estado, // 🆕
       });
     }
   }, [pago, reset]);
 
-  // Observe 'foto' value once and use that as dependency to avoid passing watch(...) in deps
   const fotoValue = watch("foto");
   useEffect(() => {
     const file = fotoValue?.[0];
@@ -122,7 +143,6 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
     } else {
       setPreview(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fotoValue]);
 
   useEffect(() => {
@@ -143,7 +163,6 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
         ? await updatePago(data, pago.idRegistro)
         : await createPago(data);
 
-      // proteger en caso de que response.message no exista
       toast.success(response?.message || "Operación exitosa");
       setPagos((prev: any) =>
         pago
@@ -176,16 +195,6 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
     label: fp.tipoPago
   }));
 
-  // Logs para debugging: usar getValues en lugar de watch(...) en las dependencias
-  useEffect(() => {
-    if (pago) {
-      console.log("🔍 Opciones de forma de pago:", opcionesFormaPago);
-      console.log("🔍 Valor actual de forma_pago_id:", getValues("forma_pago_id"));
-      console.log("🔍 Valor actual de membresia_id:", getValues("membresia_id"));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pago, opcionesFormaPago]);
-
   return (
     <div className="fixed inset-0 bg-black/80 flex justify-center items-start overflow-y-auto z-50">
       <div className="my-2 bg-white rounded-md p-6 w-full max-w-4xl">
@@ -194,23 +203,30 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
             <HiOutlineDocumentCurrencyDollar className="w-10 h-auto text-blue-600" />
             {pago ? `Actualiza el pago ${pago.idRegistro}` : "Registro de pago"}
           </h2>
-          <ImCancelCircle className="w-6 h-auto text-gray-500 hover:text-red-600 cursor-pointer" onClick={() => { setPago(null); setForm(false); }} />
+          <ImCancelCircle className="w-6 h-auto text-gray-500 hover:text-red-600 cursor-pointer"
+            onClick={() => { setPago(null); setForm(false); }} />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="flex items-center mb-1 font-medium text-gray-600">Comprobante (imagen) <MdImageSearch className="w-6 h-auto text-blue-900 ml-2" /></label>
+            <label className="flex items-center mb-1 font-medium text-gray-600">
+              Comprobante (imagen) <MdImageSearch className="w-6 h-auto text-blue-900 ml-2" />
+            </label>
             {pago?.foto && !preview && <img src={pago.foto} alt="Comprobante" className="w-full h-40 rounded-md object-contain" />}
             {preview && <img src={preview} alt="Vista previa" className="w-full h-40 object-contain rounded-md mb-2" />}
-            <input type="file" {...register("foto")} className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:border-0 file:text-md file:font-semibold file:bg-blue-50 file:text-blue-600 file:cursor-pointer" />
+            <input type="file" {...register("foto")}
+              className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:border-0 file:text-md file:font-semibold file:bg-blue-50 file:text-blue-600 file:cursor-pointer" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-32 gap-y-6">
+            {/* Campos existentes */}
             <div>
               <label className="text-sm text-gray-600 font-medium flex items-center gap-2"><FaUser className="text-blue-900" /> Titular</label>
               <Controller name="membresia_id" control={control} rules={{ required: "El titular es obligatorio" }}
                 render={({ field }) => (
-                  <Select {...field} options={opcionesTitular} placeholder="Selecciona el titular" value={opcionesTitular.find(o => o.value === field.value)} onChange={selected => field.onChange(selected?.value)} isClearable />
+                  <Select {...field} options={opcionesTitular} placeholder="Selecciona el titular"
+                    value={opcionesTitular.find(o => o.value === field.value)}
+                    onChange={selected => field.onChange(selected?.value)} isClearable />
                 )}
               />
               {errors.membresia_id && <p className="text-red-500 text-sm mt-1">{errors.membresia_id.message}</p>}
@@ -218,13 +234,15 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
 
             <div>
               <label className="text-sm text-gray-600 font-medium flex items-center gap-2"><FaCalendarDay className="text-blue-900" /> Fecha de cobro</label>
-              <input type="date" {...register("fecha_pago", { required: "La fecha de cobro es obligatoria" })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="date" {...register("fecha_pago", { required: "La fecha de cobro es obligatoria" })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
               {errors.fecha_pago && <p className="text-red-500 text-sm mt-1">{errors.fecha_pago.message}</p>}
             </div>
 
             <div>
               <label className="text-sm text-gray-600 font-medium flex items-center gap-2"><FaCalendarPlus className="text-blue-900" /> Fecha de inicio</label>
-              <input type="date" max={watch("fecha_fin")} {...register("fecha_inicio", { required: "La fecha de inicio es obligatoria" })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="date" max={watch("fecha_fin")} {...register("fecha_inicio", { required: "La fecha de inicio es obligatoria" })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
               {errors.fecha_inicio && <p className="text-red-500 text-sm mt-1">{errors.fecha_inicio.message}</p>}
             </div>
 
@@ -237,7 +255,8 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
                   if (!fechaFin || !fechaInicio) return "Las fechas son obligatorias";
                   return new Date(fechaFin) >= new Date(fechaInicio) || "La fecha de fin no puede ser menor que la fecha de inicio";
                 }
-              })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
               {errors.fecha_fin && <p className="text-red-500 text-sm mt-1">{errors.fecha_fin.message}</p>}
             </div>
 
@@ -245,7 +264,9 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
               <label className="text-sm text-gray-600 font-medium flex items-center gap-2"><FaCreditCard className="text-blue-900" /> Forma de pago</label>
               <Controller name="forma_pago_id" control={control} rules={{ required: "La forma de pago es obligatoria" }}
                 render={({ field }) => (
-                  <Select {...field} options={opcionesFormaPago} placeholder="Selecciona la forma de pago" value={opcionesFormaPago.find(o => o.value === field.value)} onChange={selected => field.onChange(selected?.value)} isClearable />
+                  <Select {...field} options={opcionesFormaPago} placeholder="Selecciona la forma de pago"
+                    value={opcionesFormaPago.find(o => o.value === field.value)}
+                    onChange={selected => field.onChange(selected?.value)} isClearable />
                 )}
               />
               {errors.forma_pago_id && <p className="text-red-500 text-sm mt-1">{errors.forma_pago_id.message}</p>}
@@ -253,13 +274,81 @@ const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) 
 
             <div>
               <label className="text-sm text-gray-600 font-medium flex items-center gap-2"><FaDollarSign className="text-blue-900" /> Monto</label>
-              <input type="number" {...register("monto", { required: "El monto es obligatorio", min: { value: 1, message: "El monto debe ser mayor a 0" } })} className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input type="number" {...register("monto", { required: "El monto es obligatorio", min: { value: 1, message: "El monto debe ser mayor a 0" } })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
               {errors.monto && <p className="text-red-500 text-sm mt-1">{errors.monto.message}</p>}
+            </div>
+
+            {/* 🆕 NUEVOS CAMPOS */}
+            <div>
+              <label className="text-sm text-gray-600 font-medium flex items-center gap-2"><FaCreditCard className="text-blue-900" /> Número de Recibo</label>
+              <input type="text" {...register("numero_recibo", { required: "El número de recibo es obligatorio" })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              {errors.numero_recibo && <p className="text-red-500 text-sm mt-1">{errors.numero_recibo.message}</p>}
+            </div>
+
+            <div>
+  <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+    <FaCalendarCheck className="text-blue-900" /> Estado
+  </label>
+  <Controller
+    name="estado"
+    control={control}
+    rules={{ required: "El estado es obligatorio" }}
+    render={({ field }) => (
+      <Select
+        {...field}
+        options={estadosPago} // viene del archivo data
+        placeholder="Selecciona el estado"
+        value={estadosPago.find((o) => o.value === field.value)} // 🆕 busca coincidencia
+        onChange={(selected) => field.onChange(selected?.value)}
+        isClearable
+      />
+    )}
+  />
+  {errors.estado && <p className="text-red-500 text-sm mt-1">{errors.estado.message}</p>}
+</div>
+
+
+            <div>
+              <label className="text-sm text-gray-600 font-medium flex items-center gap-2"><FaUser className="text-blue-900" /> Asesor / Cobrador</label>
+              
+<div>
+  <Controller
+    name="cobrador_id"
+    control={control}
+    rules={{ required: "El asesor es obligatorio" }}
+    render={({ field }) => (
+      <Select
+        {...field}
+        options={asesores.map((a: any) => ({
+          value: a.idUsuario,
+          label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
+        }))}
+        placeholder="Selecciona el asesor"
+        value={asesores
+          .map((a: any) => ({
+            value: a.idUsuario,
+            label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
+          }))
+          .find((o) => o.value === field.value)}
+        onChange={(selected) => field.onChange(selected?.value)}
+        isClearable
+        isSearchable // 🔍 Permite buscar
+      />
+    )}
+  />
+  {errors.cobrador_id && (
+    <p className="text-red-500 text-sm mt-1">{errors.cobrador_id.message}</p>
+  )}
+</div>
+
             </div>
           </div>
 
           <div className="flex justify-center pt-4">
-            <button type="submit" disabled={!isDirty || isSaving} className="w-sm bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:opacity-50">
+            <button type="submit" disabled={!isDirty || isSaving}
+              className="w-sm bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition disabled:opacity-50">
               {isSaving ? "Guardando..." : (pago ? "Actualizar" : "Guardar")}
             </button>
           </div>

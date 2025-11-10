@@ -66,7 +66,7 @@ const DataTablePagos: React.FC = () => {
   };
 
   const columns: ColDataTablePagos[] = [
-    { name: "N° Recibo", selector: (row) => row.idRegistro, sortable: true },
+    { name: "N° Recibo", selector: (row) => row.numeroRecibo || "Sin número" , sortable: true },
     { name: "N° Contrato", selector: (row) => row.membresia.numeroContrato, sortable: true },
     { name: "Titular", selector: (row) => formatNombre(row), sortable: true },
     { name: "Fecha Cobro", selector: (row) => formatFecha(row.fechaPago), sortable: true },

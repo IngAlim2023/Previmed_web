@@ -62,3 +62,24 @@ export const deleteUsuario = async (id: string) => {
   const res = await fetch(`${API_URL}/${id}`.replace(/([^:]\/)\/+/g, "$1"), { method: "DELETE" });
   if (!res.ok) throw new Error("Error al eliminar usuario");
 };
+
+export const getAsesores = async () => {
+  const res = await fetch(`${BASE}/usuarios`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!res.ok) throw new Error("Error al obtener asesores");
+  const data = await res.json();
+
+  // 👇 Ajusta el filtro según tu estructura
+  const asesores = data.filter(
+    (u: any) =>
+      u.rol?.nombre?.toLowerCase() === "asesor" ||
+      u.rol_id === 2 ||
+      u.rolId === 2
+  );
+
+  console.log("✅ Asesores cargados:", asesores);
+  return asesores;
+};
