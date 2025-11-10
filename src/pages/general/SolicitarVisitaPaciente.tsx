@@ -48,7 +48,7 @@ const SolicitarVisitaPaciente: React.FC = () => {
         return;
       }
       toast.success("Solicitud de visita exitosa");
-      socket.emit("solicitud visita");
+      //socket.emit("solicitud visita");
       setTimeout(() => {
         navigate("/home/paciente");
       }, 500);
