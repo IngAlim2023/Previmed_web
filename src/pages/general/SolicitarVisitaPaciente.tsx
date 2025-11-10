@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 //Probar Socket.io Borrar cuando este implementado:
-import socket from "../../services/socket";
+//import socket from "../../services/socket";
 
 const SolicitarVisitaPaciente: React.FC = () => {
   const [pacientes, setpacientes] = useState([]);
