@@ -25,6 +25,11 @@ export const createPago = async (pago: any) => {
   formData.append("membresia_id", String(membresiaId));
   formData.append("forma_pago_id", String(formaPagoId));
 
+  formData.append("cobrador_id", String(pago.cobrador_id)); 
+  formData.append("numero_recibo", String(pago.numero_recibo)); 
+  formData.append("estado", String(pago.estado)); 
+
+
   const response = await fetch(url("/registro-pago"), {
     method: "POST",
     body: formData
@@ -44,6 +49,11 @@ export const updatePago = async (pago: any, id: number) => {
   formData.append("monto", String(pago.monto));
   formData.append("membresia_id", String(membresiaId));
   formData.append("forma_pago_id", String(formaPagoId));
+  formData.append("cobrador_id", String(pago.cobrador_id)); 
+  formData.append("numero_recibo", String(pago.numero_recibo)); 
+  formData.append("estado", String(pago.estado)); 
+
+
   const response = await fetch(url(`/registro-pago/${id}`), {
     method: "PUT",
     body: formData
@@ -78,3 +88,4 @@ export const getPagosMembresia = async(id:number) => {
   const data = res.json()
   return data;
 }
+
