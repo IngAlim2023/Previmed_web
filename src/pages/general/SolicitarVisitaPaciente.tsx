@@ -13,7 +13,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 //Probar Socket.io Borrar cuando este implementado:
-import socket from "../../services/socket";
+//import socket from "../../services/socket";
 
 const SolicitarVisitaPaciente: React.FC = () => {
   const [pacientes, setpacientes] = useState([]);
@@ -48,7 +48,7 @@ const SolicitarVisitaPaciente: React.FC = () => {
         return;
       }
       toast.success("Solicitud de visita exitosa");
-      socket.emit("solicitud visita");
+      //socket.emit("solicitud visita");
       setTimeout(() => {
         navigate("/home/paciente");
       }, 500);
