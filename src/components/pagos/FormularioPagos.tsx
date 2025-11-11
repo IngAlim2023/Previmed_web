@@ -19,7 +19,6 @@ type Props = {
   setPagos: (value: any) => void;
 };
 
-// 🆕 MODIFICADO: Se agregaron los nuevos campos al tipo
 type FormValues = {
   foto?: FileList;
   membresia_id?: number | string;
@@ -34,7 +33,6 @@ type FormValues = {
 };
 
 const FormularioPagos: React.FC<Props> = ({ pago, setForm, setPago, setPagos }) => {
-  // 🆕 MODIFICADO: Se agregan defaultValues para los nuevos campos
   const { register, handleSubmit, getValues, watch, control, reset, formState: { errors, isDirty } } = useForm<FormValues>({
     defaultValues: {
       fecha_pago: new Date().toISOString().split("T")[0],
@@ -117,16 +115,24 @@ useEffect(() => {
         estado: "",
       });
     } else {
+      const formatoFecha = (fecha: string) => {
+        if (!fecha) return "";
+        return fecha.includes("T") ? fecha.split("T")[0] : fecha;
+      };
+
       reset({
-        fecha_pago: pago.fechaPago,
-        fecha_inicio: pago.fechaInicio,
-        fecha_fin: pago.fechaFin,
+        fecha_pago: formatoFecha(pago.fechaPago),
+        fecha_inicio: formatoFecha(pago.fechaInicio),
+        fecha_fin: formatoFecha(pago.fechaFin),
         monto: pago.monto,
         forma_pago_id: pago.formaPagoId,
         membresia_id: pago.membresiaId,
-        cobrador_id: pago.cobradorId,   // 🆕
-        numero_recibo: pago.numeroRecibo, // 🆕
-        estado: pago.estado, // 🆕
+        cobrador_id: pago.cobradorId,
+        numero_recibo: pago.numeroRecibo,
+        estado: pago.estado
+          ? pago.estado.charAt(0).toUpperCase() +
+            pago.estado.slice(1).toLowerCase()
+          : "",
       });
     }
   }, [pago, reset]);
@@ -279,7 +285,7 @@ useEffect(() => {
               {errors.monto && <p className="text-red-500 text-sm mt-1">{errors.monto.message}</p>}
             </div>
 
-            {/* 🆕 NUEVOS CAMPOS */}
+            
             <div>
               <label className="text-sm text-gray-600 font-medium flex items-center gap-2"><FaCreditCard className="text-blue-900" /> Número de Recibo</label>
               <input type="text" {...register("numero_recibo", { required: "El número de recibo es obligatorio" })}
@@ -292,20 +298,27 @@ useEffect(() => {
     <FaCalendarCheck className="text-blue-900" /> Estado
   </label>
   <Controller
-    name="estado"
-    control={control}
-    rules={{ required: "El estado es obligatorio" }}
-    render={({ field }) => (
+  name="estado"
+  control={control}
+  rules={{ required: "El estado es obligatorio" }}
+  render={({ field }) => {
+    const normalizado = field.value
+      ? field.value.charAt(0).toUpperCase() + field.value.slice(1).toLowerCase()
+      : "";
+
+    return (
       <Select
         {...field}
-        options={estadosPago} // viene del archivo data
+        options={estadosPago}
         placeholder="Selecciona el estado"
-        value={estadosPago.find((o) => o.value === field.value)} // 🆕 busca coincidencia
+        value={estadosPago.find((o) => o.value === normalizado) || null}
         onChange={(selected) => field.onChange(selected?.value)}
         isClearable
       />
-    )}
-  />
+    );
+  }}
+/>
+
   {errors.estado && <p className="text-red-500 text-sm mt-1">{errors.estado.message}</p>}
 </div>
 
