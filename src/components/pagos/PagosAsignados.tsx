@@ -161,7 +161,7 @@ const Modal = ({ pago, onClose, onSuccess }:propsModal) => {
 const PagosAsignados = () => {
   const { user } = useAuthContext();
   const [pagos, setPagos] = useState<PagoInterface[]>([]);
-  const [pagoSeleccionado, setPagoSeleccionado] = useState(null);
+  const [pagoSeleccionado, setPagoSeleccionado] = useState<PagoInterface | null>(null);
 
   useEffect(() => {
     cargarPagos();
@@ -253,11 +253,11 @@ const PagosAsignados = () => {
                   <div className="text-sm text-gray-500 flex justify-between bg-gray-50 rounded-lg p-2">
                     <div>
                       <span className="font-medium text-gray-700">Inicio:</span>
-                      <p>{formatDate(pago.fechaInicio)}</p>
+                      <p>{formatDate(String(pago.fechaInicio))}</p>
                     </div>
                     <div className="text-right">
                       <span className="font-medium text-gray-700">Fin:</span>
-                      <p>{formatDate(pago.fechaFin)}</p>
+                      <p>{formatDate(String(pago.fechaFin))}</p>
                     </div>
                   </div>
                 </div>
