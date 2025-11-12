@@ -4,13 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { IoIosDocument } from 'react-icons/io';
 import { ImLocation } from 'react-icons/im';
 import { FaBookOpen, FaChartLine } from 'react-icons/fa';
+import { useAuthContext } from '../../context/AuthContext';
 
 const asesor_img = 'https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411224/asesor_img_nls11f.png';
 const HomeAsesor: React.FC = () => {
   const navigate = useNavigate();
+  const {user} = useAuthContext()
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#d6ecff] via-white to-[#f0f9ff] flex justify-center items-center px-4 py-20">
+    <div className="min-h-screen bg-blue-50 flex justify-center items-center px-4 py-20">
       <div className="bg-white rounded-3xl shadow-xl p-8 max-w-4xl w-full flex items-center gap-2 md:gap-4">
 
         {/* Imagen del asesor */}
@@ -28,7 +30,7 @@ const HomeAsesor: React.FC = () => {
           {/* Contenido principal sin tarjeta */}
           <div className="space-y-4 w-full">
             <h1 className="text-3xl md:text-4xl font-bold text-[#003366] text-center">
-              Asesor, Alejandro Porras!
+              Asesor, {user.nombre??'---.---'}!
             </h1>
             <p className="text-gray-600 text-base md:text-lg leading-relaxed text-center">
               🤝 Tu contacto de confianza para resolver dudas, trámites y afiliaciones en nuestra red de salud.

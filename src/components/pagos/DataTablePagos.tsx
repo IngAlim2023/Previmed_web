@@ -10,6 +10,7 @@ import BtnEditar from "../botones/BtnEditar";
 import BtnEliminar from "../botones/BtnEliminar";
 import BtnAgregar from "../botones/BtnAgregar";
 import { getPagos as getPagosService, deletePago } from "../../services/pagosService";
+import { useAuthContext } from "../../context/AuthContext";
 
 const DataTablePagos: React.FC = () => {
   const [pagos, setPagos] = useState<PagoInterface[]>([]);
@@ -17,6 +18,7 @@ const DataTablePagos: React.FC = () => {
   const [detalles, setDetalles] = useState<boolean>(false);
   const [pago, setPago] = useState<PagoInterface | null>(null);
   const [buscarPago, setBuscarPago] = useState<string>("");
+  const {user} = useAuthContext()
 
   // Evita doble ejecución del efecto en React 18 StrictMode
   const fetchedOnce = useRef(false);
@@ -66,25 +68,40 @@ const DataTablePagos: React.FC = () => {
   };
 
   const columns: ColDataTablePagos[] = [
-    { name: "N° Recibo", selector: (row) => row.numeroRecibo || "Sin número" , sortable: true },
+    { name: "N° Recibo", selector: (row) => row.numeroRecibo || "Sin número" , sortable: true, maxWidth: '100px' },
     { name: "N° Contrato", selector: (row) => row.membresia.numeroContrato, sortable: true },
     { name: "Titular", selector: (row) => formatNombre(row), sortable: true },
-    { name: "Fecha Cobro", selector: (row) => formatFecha(row.fechaPago), sortable: true },
+    { name: "Fecha Cobro", selector: (row) => formatFecha(row.fechaPago), sortable: true, maxWidth:'130px' },
     { name: "Monto", selector: (row) => `$${row.monto}`, sortable: true },
     { name: "Forma de pago", selector: (row) => row.formaPago?.tipoPago || "", sortable: true },
+    { name: "Estado", selector: (row) => <p className={`rounded-full px-2 font-semibold ${
+      row.estado == 'Asignado'?'text-blue-700 bg-blue-100':
+      row.estado == 'Realizado'?'text-orange-700 bg-orange-100':
+      row.estado == 'Aprobado'?
+      'text-green-700 bg-green-100':'text-gray-700 bg-gray-200'
+    }`}>{row.estado}</p>
+      
+      , sortable: true, maxWidth: '110px' },
     {
       name: "Acciones",
       cell: (row) => (
-        <div className="flex gap-2 p-2 space-x-1 w-full justify-center">
+        <div className="flex justify-start">
           <div title="Ver detalles" onClick={() => { setPago(row); setDetalles(true); }}>
             <BtnLeer />
           </div>
-          <div title="Editar" onClick={() => { setPago(row); setForm(true); }}>
-            <BtnEditar />
-          </div>
-          <div title="Eliminar" onClick={() => eliminarPago(row.idRegistro)}>
-            <BtnEliminar />
-          </div>
+          { user.rol?.nombreRol == 'Administrador'?
+            (
+              <>
+                <div title="Editar" onClick={() => { setPago(row); setForm(true); }}>
+                  <BtnEditar />
+                </div>
+                <div title="Eliminar" onClick={() => eliminarPago(row.idRegistro)}>
+                  <BtnEliminar />
+                </div>
+              </>
+            ):
+            (<></>)
+          }
         </div>
       ),
     },
@@ -107,7 +124,7 @@ const DataTablePagos: React.FC = () => {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center w-full px-4 py-8 bg-blue-50">
+      <div className="flex items-center justify-center w-full px-4 py-8 bg-blue-50">
         <div className="w-full max-w-6xl bg-white rounded-lg shadow-xl p-4 overflow-x-auto">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-2xl font-semibold text-gray-600 flex items-center">
