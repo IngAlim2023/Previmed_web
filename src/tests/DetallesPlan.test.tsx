@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { test, expect, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
-import DetallesPlan from "./DetallesPlan";
-import { Plan } from "../../interfaces/planes";
+import DetallesPlan from "../components/planes/DetallesPlan";
+import { Plan } from "../interfaces/planes";
 
 test("renderiza detalles del plan con beneficios", () => {
   const planMock: Plan = {

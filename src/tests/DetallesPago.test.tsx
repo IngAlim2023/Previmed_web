@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest"
 import userEvent from "@testing-library/user-event";
 import { vi, test, expect } from "vitest";
-import DetallesPago from "./DetallesPago";
+import DetallesPago from "../components/pagos/DetallesPago";
 
 const pagoMock = {
   idRegistro: 123,

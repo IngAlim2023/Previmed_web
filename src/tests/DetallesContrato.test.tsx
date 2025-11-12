@@ -1,7 +1,7 @@
 import { test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { expect } from "vitest";
-import DetallesContrato from "./DetallesContrato";
+import DetallesContrato from "../components/contratos/DetallesContrato";
 import "@testing-library/jest-dom/vitest"
 
 test("muestra los detalles del contrato", () => {

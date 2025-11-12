@@ -1,0 +1,212 @@
+[
+    {
+      "idBarrio": 38,
+      "nombreBarrio": "Modelo",
+      "latitud": 2.4395,
+      "longitud": -76.6112,
+      "estado": true
+    },
+    {
+      "idBarrio": 39,
+      "nombreBarrio": "Santa Inés",
+      "latitud": 2.441,
+      "longitud": -76.6089,
+      "estado": true
+    },
+    {
+      "idBarrio": 40,
+      "nombreBarrio": "El Recuerdo",
+      "latitud": 2.4445,
+      "longitud": -76.6172,
+      "estado": true
+    },
+    {
+      "idBarrio": 42,
+      "nombreBarrio": "Alto Cauca",
+      "latitud": 2.4475,
+      "longitud": -76.625,
+      "estado": true
+    },
+    {
+      "idBarrio": 43,
+      "nombreBarrio": "San Eduardo",
+      "latitud": 2.4492,
+      "longitud": -76.6224,
+      "estado": true
+    },
+    {
+      "idBarrio": 45,
+      "nombreBarrio": "Valle del Ortigal",
+      "latitud": 2.4312,
+      "longitud": -76.6097,
+      "estado": true
+    },
+    {
+      "idBarrio": 46,
+      "nombreBarrio": "San Camilo",
+      "latitud": 2.4338,
+      "longitud": -76.6075,
+      "estado": true
+    },
+    {
+      "idBarrio": 48,
+      "nombreBarrio": "José María Obando",
+      "latitud": 2.4385,
+      "longitud": -76.6156,
+      "estado": true
+    },
+    {
+      "idBarrio": 49,
+      "nombreBarrio": "La Pamba",
+      "latitud": 2.439,
+      "longitud": -76.62,
+      "estado": true
+    },
+    {
+      "idBarrio": 50,
+      "nombreBarrio": "La Esmeralda",
+      "latitud": 2.4328,
+      "longitud": -76.6052,
+      "estado": true
+    },
+    {
+      "idBarrio": 51,
+      "nombreBarrio": "La Paz",
+      "latitud": 2.4285,
+      "longitud": -76.601,
+      "estado": true
+    },
+    {
+      "idBarrio": 52,
+      "nombreBarrio": "Pomona",
+      "latitud": 2.4298,
+      "longitud": -76.6035,
+      "estado": true
+    },
+    {
+      "idBarrio": 53,
+      "nombreBarrio": "Julumito",
+      "latitud": 2.421,
+      "longitud": -76.5998,
+      "estado": true
+    },
+    {
+      "idBarrio": 54,
+      "nombreBarrio": "Las Guacas",
+      "latitud": 2.4267,
+      "longitud": -76.6005,
+      "estado": true
+    },
+    {
+      "idBarrio": 55,
+      "nombreBarrio": "El Empedrado",
+      "latitud": 2.4373,
+      "longitud": -76.6091,
+      "estado": true
+    },
+    {
+      "idBarrio": 56,
+      "nombreBarrio": "Las Américas",
+      "latitud": 2.4415,
+      "longitud": -76.6262,
+      "estado": true
+    },
+    {
+      "idBarrio": 57,
+      "nombreBarrio": "Ciudad Jardín",
+      "latitud": 2.446,
+      "longitud": -76.6185,
+      "estado": true
+    },
+    {
+      "idBarrio": 58,
+      "nombreBarrio": "La Estancia",
+      "latitud": 2.4432,
+      "longitud": -76.6198,
+      "estado": true
+    },
+    {
+      "idBarrio": 59,
+      "nombreBarrio": "Villa del Sur",
+      "latitud": 2.432,
+      "longitud": -76.6125,
+      "estado": true
+    },
+    {
+      "idBarrio": 63,
+      "nombreBarrio": "lomas g",
+      "latitud": 234553,
+      "longitud": -3940403,
+      "estado": true
+    },
+    {
+      "idBarrio": 31,
+      "nombreBarrio": "El Cadillal",
+      "latitud": 2.4425,
+      "longitud": -76.609,
+      "estado": true
+    },
+    {
+      "idBarrio": 41,
+      "nombreBarrio": "Los Sauces",
+      "latitud": 2.44611234,
+      "longitud": -76.61681234,
+      "estado": true
+    },
+    {
+      "idBarrio": 32,
+      "nombreBarrio": "Bella Vista",
+      "latitud": 2.4458,
+      "longitud": -76.6153,
+      "estado": true
+    },
+    {
+      "idBarrio": 33,
+      "nombreBarrio": "Pandiguando",
+      "latitud": 2.4381,
+      "longitud": -76.6132,
+      "estado": false
+    },
+    {
+      "idBarrio": 34,
+      "nombreBarrio": "Bolívar",
+      "latitud": 2.44,
+      "longitud": -76.6189,
+      "estado": false
+    },
+    {
+      "idBarrio": 36,
+      "nombreBarrio": "Santa Clara",
+      "latitud": 2.442,
+      "longitud": -76.621,
+      "estado": false
+    },
+    {
+      "idBarrio": 44,
+      "nombreBarrio": "Chapultepec",
+      "latitud": 2.4355,
+      "longitud": -76.6058,
+      "estado": false
+    },
+    {
+      "idBarrio": 37,
+      "nombreBarrio": "Yanaconas",
+      "latitud": 2.4502,
+      "longitud": -76.628,
+      "estado": false
+    },
+    {
+      "idBarrio": 47,
+      "nombreBarrio": "Las Palmas",
+      "latitud": 2.436,
+      "longitud": -76.613,
+      "estado": true
+    },
+    {
+      "idBarrio": 64,
+      "nombreBarrio": "los campos",
+      "latitud": 2.24681,
+      "longitud": -76.278459,
+      "estado": true
+    }
+  ]

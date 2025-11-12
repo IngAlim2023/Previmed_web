@@ -1,8 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import DetallesMedico from "./DetallesMedico";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { vi, test, expect } from "vitest";
-import { medicoService } from "../../services/medicoService";
+import { medicoService } from "../services/medicoService";
+import DetallesMedico from "../components/medicos/DetallesMedico";
 
 vi.mock("../../services/medicoService");
 

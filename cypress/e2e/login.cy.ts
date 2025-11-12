@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 describe('Prueba de Login', () => {
 
   beforeEach(() => {
@@ -11,7 +13,7 @@ describe('Prueba de Login', () => {
   });
 
   it('Debe mostrar error con credenciales incorrectas', () => {
-    cy.intercept('POST', '/api/login', {
+    cy.intercept('POST', '/login', {
       statusCode: 401,
       body: { message: 'Credenciales incorrectas.' },
     }).as('loginFail');
@@ -25,7 +27,7 @@ describe('Prueba de Login', () => {
   });
 
   it('Debe redirigir al home según el rol si el login es exitoso', () => {
-    cy.intercept('POST', '/api/login', {
+    cy.intercept('POST', '/login', {
       statusCode: 200,
       body: {
         message: 'Acceso permitido',
@@ -40,7 +42,7 @@ describe('Prueba de Login', () => {
       },
     }).as('loginSuccess');
 
-    cy.get('input[placeholder="Número de documento"]').type('1063807932 ');
+    cy.get('input[placeholder="Número de documento"]').type('1063807932');
     cy.get('input[placeholder="Contraseña"]').type('123456');
     cy.get('button[type="submit"]').click();
 
@@ -51,7 +53,7 @@ describe('Prueba de Login', () => {
 
     // Verificamos que se guarde el usuario
     cy.window().then((win) => {
-      const user = JSON.parse(win.localStorage.getItem('user'));
+      const user = JSON.parse(win.localStorage.getItem('user') as any);
       expect(user.nombre).to.equal('Juan Pérez');
       expect(user.rol.nombreRol).to.equal('paciente');
     });
