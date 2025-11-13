@@ -36,6 +36,9 @@ import SolicitarVisitaPaciente from "./pages/general/SolicitarVisitaPaciente";
 import AdminHome from "./pages/administrador/HomeAdmin";
 import HistorialPagos from "./pages/general/HistorialPagos";
 import SolicitudesVistaPaciente from "./pages/general/SolicitudesVistaPaciente";
+import ProtectedPacientes from "./protectedRoutes/ProtectedPacientes";
+import ProtectedAdministrador from "./protectedRoutes/ProtectedAdministrador";
+import ProtectedAsesor from "./protectedRoutes/ProtectedAsesor";
 
 function App() {
   return (
@@ -46,44 +49,62 @@ function App() {
         <Route element={<ProtectedRoutes />}>
           <Route element={<RenderVistas />}>
             <Route path="/home/medico" element={<HomeMedico />} />
-            <Route path="/home/asesor" element={<HomeAsesor />} />
-            <Route path="/home/paciente" element={<HomePacientes />} />
-            <Route path="/home/admin" element={<AdminHome />} />
-            <Route path="/usuarios" element={<Usuarios />} />
-            <Route path="/visitas" element={<Visitas />} />
+            
+            {/* Rutas para el Administrador */}
+            <Route element={<ProtectedAdministrador/>}>
+            
+              <Route path="/home/admin" element={<AdminHome />} />
+              <Route path="/usuarios" element={<Usuarios />} />
+              <Route path="/medicos" element={<Medicos />} />
+              <Route path="/pagos" element={<Pagos />} />
+              <Route path="/planes" element={<PlanesAdmin />} />
+              <Route path="/visitas" element={<Visitas />} />
+              <Route path="/pacientes" element={<Pacientes />} />
+              <Route path="/contratos" element={<Contratos />} />
+              <Route path="/beneficios_plan" element={<BeneficiosPlan />} />
+              <Route path="/solicitudes" element={<Solicitudes />} />
+              <Route path="/formas_pago" element={<FormasPago />} />
+              <Route path="/eps" element={<Eps />} />
+              <Route path="/barrios" element={<Barrios />} />
+            </Route>
+
+
+            {/* Rutas para el Paciente */}
+            <Route element={<ProtectedPacientes/>}>
+              <Route path="/home/paciente" element={<HomePacientes />} />
+              <Route path="/solicitar-visita" element={<SolicitarVisitaPaciente />} />
+              <Route path="/contrato" element={<ContratoPaciente />} />
+              <Route path="/beneficiarios" element={<Beneficiarios />} />
+              <Route path="/historial/paciente" element={<HistorialVisitasPaciente />} />
+              <Route path="/historial/pagos" element={<HistorialPagos/>}/>
+              <Route path="/solicitudes/usuario" element={<SolicitudesVistaPaciente/>}/>
+            </Route>
+            
+            {/* Rutas para el Asesor */}
+            <Route element={<ProtectedAsesor/>}>
+              <Route path="/home/asesor" element={<HomeAsesor />} />
+              <Route path="/pacientes/asesor" element={<Pacientes />} />
+              <Route path="/contratos/asesor" element={<Contratos />} />
+              <Route path="/pagos/asesor" element={<Pagos />} />
+              <Route path="/barrios/asesor" element={<Barrios />} />
+            </Route>
+
+
+
             <Route path="/historial/visitas" element={<HistorialVisitas />} />
             <Route path="/usuarios/:id/telefonos" element={<TelefonosUsuario />} />
             <Route path="/pagos" element={<Pagos />} />
-            <Route path="/pacientes" element={<Pacientes />} />
-            <Route path="/contrato" element={<ContratoPaciente />} />
             <Route path="/historial/visitas" element={<HistorialVisitas />} />
-            <Route path="/beneficiarios" element={<Beneficiarios />} />
-            <Route path="/planes" element={<PlanesAdmin />} />
             <Route path="/planes/crear" element={<FormPlan />} />
             <Route path="/planes/editar/:idPlan" element={<FormPlan />} />
-            <Route path="/pagos" element={<Pagos />} />
             <Route path="/visitas" element={<Visitas />} />
             <Route path="/visitas/medico" element={<VisitasPorMedico />} />
-            <Route path="/solicitar-visita" element={<SolicitarVisitaPaciente />} />
             <Route path="/historial/medico" element={<HistorialVisitasMedico/>} /> 
-            <Route path="/medicos" element={<Medicos />} />
-            <Route path="/contratos" element={<Contratos />} />
-            <Route path="/historial/paciente" element={<HistorialVisitasPaciente />} />
-            <Route path="/beneficios_plan" element={<BeneficiosPlan />} />
             <Route path="/beneficios_plan/nuevo" element={<FormBeneficioPage />} />
-            <Route path="/solicitudes" element={<Solicitudes />} />
-            <Route path="/formas_pago" element={<FormasPago />} />
-            <Route path="/eps" element={<Eps />} />
             <Route path="/roles" element={<Roles />} />
             <Route path="/panel_control" element={<Roles />} />
-            <Route path="/barrios" element={<Barrios />} />
             <Route path="/beneficiarios" element={<Beneficiarios/>}/>
-            <Route path="/historial/pagos" element={<HistorialPagos/>}/>
-            <Route path="/solicitudes/usuario" element={<SolicitudesVistaPaciente/>}/>
-            <Route
-              path="/formularioPacientes"
-              element={<FormularioPacientes />}
-            />
+            <Route path="/formularioPacientes" element={<FormularioPacientes />}/>
           </Route>
         </Route>
 
