@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import DataTablePagos from "./DataTablePagos";
+import DataTablePagos from "../components/pagos/DataTablePagos";
 import { describe, it, expect } from "vitest";
 import '@testing-library/jest-dom/vitest'
 

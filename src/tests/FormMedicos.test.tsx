@@ -1,9 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import DetallesMedico from './DetallesMedico';
-import { medicoService } from '../../services/medicoService';
-import type { MedicoResponse } from '../../interfaces/medicoInterface';
+import DetallesMedico from '../components/medicos/DetallesMedico';
+import { medicoService } from '../services/medicoService';
+import type { MedicoResponse } from '../interfaces/medicoInterface';
 import "@testing-library/jest-dom/vitest"
 
 

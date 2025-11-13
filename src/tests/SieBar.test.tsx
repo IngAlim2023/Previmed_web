@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
-import SideBar from './SideBar';
-import { AuthContext } from '../../context/AuthContext';
+import SideBar from '../components/navegation/SideBar';
+import { AuthContext } from '../context/AuthContext';
 import "@testing-library/jest-dom/vitest"
 
 // Mock de react-router-dom

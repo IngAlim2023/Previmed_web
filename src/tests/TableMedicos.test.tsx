@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import TableMedicos from './TableMedicos';
-import { medicoService } from '../../services/medicoService';
+import TableMedicos from '../components/medicos/TableMedicos';
+import { medicoService } from '../services/medicoService';
 import "@testing-library/jest-dom/vitest"
 
 // Mock del servicio

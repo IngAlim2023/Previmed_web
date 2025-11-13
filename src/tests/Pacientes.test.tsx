@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import Pacientes from "./Pacientes";
+import Pacientes from "../pages/general/Pacientes";
 import { describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
-import * as pacienteService from "../../services/pacientes";
+import * as pacienteService from "../services/pacientes";
 
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),

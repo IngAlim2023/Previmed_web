@@ -1,0 +1,62 @@
+[
+  {
+    "idEps": 25,
+    "nombreEps": "Nueva Eps",
+    "estado": true
+  },
+  {
+    "idEps": 24,
+    "nombreEps": "Comfacauca",
+    "estado": true
+  },
+  {
+    "idEps": 23,
+    "nombreEps": "Salud Vida",
+    "estado": true
+  },
+  {
+    "idEps": 9,
+    "nombreEps": "Medimás",
+    "estado": true
+  },
+  {
+    "idEps": 8,
+    "nombreEps": "Capital Salud",
+    "estado": true
+  },
+  {
+    "idEps": 7,
+    "nombreEps": "Emssanar",
+    "estado": true
+  },
+  {
+    "idEps": 6,
+    "nombreEps": "Cafesalud",
+    "estado": true
+  },
+  {
+    "idEps": 5,
+    "nombreEps": "Mutual Ser",
+    "estado": true
+  },
+  {
+    "idEps": 4,
+    "nombreEps": "Ecoopsos",
+    "estado": true
+  },
+  {
+    "idEps": 3,
+    "nombreEps": "Aliansalud",
+    "estado": true
+  },
+  {
+    "idEps": 2,
+    "nombreEps": "Compensar",
+    "estado": true
+  },
+  {
+    "idEps": 1,
+    "nombreEps": "Famisanar",
+    "estado": true
+  }
+]
