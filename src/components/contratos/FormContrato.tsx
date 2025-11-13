@@ -42,7 +42,7 @@ const FormContrato: React.FC<FormContratoProps> = ({
   useEffect(() => {
     if (contrato) {
       setForm({
-        firma: contrato.firma,
+        firma: contrato.firma??'',
         forma_pago: contrato.formaPago,
         numero_contrato: contrato.numeroContrato,
         fecha_inicio: contrato.fechaInicio.split("T")[0],

@@ -23,10 +23,8 @@ const SolicitudesDataTable: React.FC<SolicitudesDataTableProps> = ({
   };
 
   const handleToggleEstado = async (
-    e: React.MouseEvent,
     solicitud: Solicitud
   ) => {
-    e.stopPropagation();
     
     setLoadingId(solicitud.idSolicitud);
     try {
@@ -100,7 +98,7 @@ const SolicitudesDataTable: React.FC<SolicitudesDataTableProps> = ({
                 >
                   <BtnEstado
                     habilitado={solicitud.estado}
-                    onClick={(e: any) => handleToggleEstado(e, solicitud)}
+                    onClick={() => handleToggleEstado(solicitud)}
                   />
                 </div>
               </td>
