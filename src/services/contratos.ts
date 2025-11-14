@@ -148,13 +148,12 @@ export const getContratoByUserId = async(id:string) => {
 }
 
 // generar el contrato en pdf
-export const getContratoPdf = async (data: any) => {
-  const res = await fetch(`${API_URL}membresias/pdf`, {
+export const getContratoPdf = async (idUsuario: string) => {
+  const res = await fetch(`${API_URL}membresias/pdf/${idUsuario}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
   });
 
   if (!res.ok) throw new Error('Error generando el contrato');

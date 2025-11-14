@@ -1,31 +1,21 @@
 import { HiOutlineDocumentDownload } from "react-icons/hi";
-import { OpcionesBotones } from "../../interfaces/botones";
 import React, { useState } from "react";
-import { useAuthContext } from "../../context/AuthContext";
-import { getPacientesId } from "../../services/pacientes";
-import { Paciente } from "../../interfaces/interfaces";
 import { getContratoPdf } from "../../services/contratos";
 import toast from "react-hot-toast";
 
-const BtnDescargarPdf: React.FC<OpcionesBotones> = ({ verText, text }) => {
-  const { user } = useAuthContext();
+type BtnDescargarPdf = {
+  verText?: boolean;
+  text?: string;
+  idUsuario: string;
+}
+
+const BtnDescargarPdf: React.FC<BtnDescargarPdf> = ({ verText, text, idUsuario }) => {
   const [descargando, setDescargando] = useState(false);
 
   const generarContrato = async (idUsuario: string) => {
     try {
       setDescargando(true);
-      const res = await getPacientesId(idUsuario);
-      const titular = res.find((p: Paciente) => p.pacienteId == null);
-      if (!titular) throw new Error("No se encontró titular.");
-      const pdfUrl = await getContratoPdf({
-        direccionPrevimed: "Cra 9 # 9n-19, Popayán, Colombia",
-        telefonoPrevimed: "310 6236219",
-        beneficiarios: [],
-        titularNombre: `${titular.usuario.nombre} ${titular.usuario.segundoNombre ?? ""} ${titular.usuario.apellido} ${titular.usuario.segundoApellido ?? ""}`,
-        titularEmail: titular.usuario.email ?? "",
-        titularDocumento: titular.usuario.numeroDocumento ?? "",
-        membresia: "1234",
-      });
+      const pdfUrl = await getContratoPdf(idUsuario);
       toast.success('Contrato generado correctamente.')
       const link = document.createElement("a");
       link.href = pdfUrl;
@@ -41,7 +31,7 @@ const BtnDescargarPdf: React.FC<OpcionesBotones> = ({ verText, text }) => {
 
   return (
     <button
-      onClick={() => generarContrato(user.id || "")}
+      onClick={() => generarContrato(idUsuario || "")}
       disabled={descargando}
       className={`
         flex items-center justify-center

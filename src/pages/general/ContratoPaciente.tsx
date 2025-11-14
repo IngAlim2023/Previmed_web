@@ -10,7 +10,6 @@ import { getPacientesId } from "../../services/pacientes";
 const ContratoPaciente: React.FC = () => {
   const [contrato, setContrato] = useState<responseContratoUser>();
   const [usuario, setUsuario] = useState<Usuario>()
-  console.log(contrato)
   const start = new Date(contrato?.membresia.fechaInicio??'');
   const end = new Date(contrato?.membresia.fechaFin??'');
   const now = new Date();
@@ -77,7 +76,7 @@ const ContratoPaciente: React.FC = () => {
         <div className="text-sm font-medium text-gray-700 text-center mb-4">
           {progress.toFixed(1)}% del tiempo transcurrido
         </div>
-        <BtnDescargarPdf verText={true} />
+        <BtnDescargarPdf verText={true} idUsuario={user.id??''}/>
       </div>
 
       <div className="p-6 rounded-2xl shadow-lg bg-white/70 backdrop-blur border border-gray-100 hover:shadow-xl transition-all duration-300">
