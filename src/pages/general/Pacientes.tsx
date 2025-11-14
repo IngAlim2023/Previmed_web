@@ -13,6 +13,7 @@ import BtnLeer from "../../components/botones/BtnLeer";
 import { useAuthContext } from "../../context/AuthContext";
 import BtnDescargarPdf from "../../components/botones/BtnDescargarPdf";
 import BtnExportarPacientes from "../../components/botones/BtnExportPacientes";
+import DetallesPaciente from "../../components/pacientes/DetallesPaciente";
 
 interface Paciente {
   id: number;
@@ -33,6 +34,7 @@ const Pacientes: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [buscar, setBuscar] = useState<string>('');
   const {user} = useAuthContext();
+  const [detalles, setDetalles] = useState<boolean>(false);
 
   useEffect(() => {
     const load = async () => {
@@ -86,11 +88,11 @@ const Pacientes: React.FC = () => {
             title="Descargar contrato"
             onClick={() => handleEdit(row)}
             >
-            <BtnDescargarPdf/>
+            <BtnDescargarPdf idUsuario={row.usuario.idUsuario??''}/>
           </div>
           <div
             title="Ver detalles"
-            onClick={() => handleEdit(row)}
+            onClick={() => console.log(row)}
             >
             <BtnLeer/>
           </div>
@@ -130,15 +132,22 @@ const Pacientes: React.FC = () => {
     return toast.success("Paciente eliminado");
   };
 
-  const pacientesFiltrados = data
-    .filter((pac) =>
-      pac.usuario.nombre?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.segundoNombre?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.apellido?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.segundoApellido?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.email?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.numeroDocumento?.toString().toLowerCase().includes(buscar.toLowerCase())
+  const pacientesFiltrados = data.filter((pac) => {
+    const fullName = [
+      pac.usuario.nombre,
+      pac.usuario.segundoNombre,
+      pac.usuario.apellido,
+      pac.usuario.segundoApellido
+    ].join(" ").toLowerCase();
+
+    const buscarLower = buscar.toLowerCase();
+
+    return (
+      fullName.includes(buscarLower) || 
+      pac.usuario.email?.toLowerCase().includes(buscarLower) ||
+      pac.usuario.numeroDocumento?.toString().toLowerCase().includes(buscarLower)
     );
+  });
 
   return (
     <div className="py-6 px-4 bg-blue-50 min-h-screen">
@@ -217,6 +226,8 @@ const Pacientes: React.FC = () => {
           </div>
         </div>
       )}
+
+      {detalles && <DetallesPaciente detalles={detalles} setDetalles={setDetalles}/>}
     </div>
   );
 };

@@ -9,17 +9,17 @@ import { useNavigate } from "react-router-dom"
 import BtnCerrar from "../../components/botones/BtnCerrar"
 
 //Probar Socket.io Borrar cuando este implementado:
-//import socket from "../../services/socket";
-//import { MdOutlineNotifications, MdOutlineNotificationsActive } from "react-icons/md"
+import socket from "../../services/socket";
+import { MdOutlineNotifications, MdOutlineNotificationsActive } from "react-icons/md"
 
 const VisitasPorMedico: React.FC = () => {
   const { user } = useAuthContext()
   const navigate = useNavigate()
 
 
-  //const [notificacion, setNotificacion] =useState<boolean>(false);
-  //const [verNotificacion, setVerNotificacion] =useState<boolean>(false);
-  //const [nNotifi, setNNotifi] = useState<number>(0)
+  const [notificacion, setNotificacion] =useState<boolean>(false);
+  const [verNotificacion, setVerNotificacion] =useState<boolean>(false);
+  const [nNotifi, setNNotifi] = useState<number>(0)
 
   const [visitas, setVisitas] = useState<Visita[]>([])
   const [loading, setLoading] = useState(false)
@@ -31,11 +31,11 @@ const VisitasPorMedico: React.FC = () => {
   const RAW_URL = String(import.meta.env.VITE_URL_BACK || "")
   const API_URL = RAW_URL.replace(/\/+$/, "")
 
-  //socket.on('solicitud visita',()=>{
-  //  setNNotifi(nNotifi + 1)
-  //  setNotificacion(!notificacion)
-  //  setVerNotificacion(true)
-  //})
+  socket.on('solicitud visita',()=>{
+    setNNotifi(nNotifi + 1)
+    setNotificacion(!notificacion)
+    setVerNotificacion(true)
+  })
   // 🔹 Paso 1: obtener el id_medico según el usuario logueado
   /** ===========================================================
    * 1️⃣ Obtener el ID del médico según el usuario logueado
@@ -83,7 +83,7 @@ const VisitasPorMedico: React.FC = () => {
 
   useEffect(() => {
     fetchVisitas()
-  }, [idMedico])
+  }, [idMedico, notificacion])
 
   /** ===========================================================
    * 4️⃣ Canal Broadcast — sincronización bidireccional
@@ -234,7 +234,7 @@ const VisitasPorMedico: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-700">
             📋 Mis Visitas Activas
           </h2>
-          {/**
+       
           <div className="relative flex items-center justify-center p-2 rounded-full hover:cursor-pointer bg-white-600 border border-red-600 hover:border-gray-500 transition-all duration-300 shadow-[0_0_10px_rgba(236,72,153,0.4)]">
             {verNotificacion ? (
               <div className="relative" 
@@ -256,7 +256,7 @@ const VisitasPorMedico: React.FC = () => {
             )}
           </div>
            
-           */}
+    
 
 
           <div onClick={() => navigate(-1)}>

@@ -16,7 +16,6 @@ import BtnCancelar from "../botones/BtnCancelar"
 import FormContrato from "./FormContrato"
 import DetallesContrato from "./DetallesContrato"
 import { useAuthContext } from "../../context/AuthContext"
-import BtnDescargarPdf from "../botones/BtnDescargarPdf"
 
 const DataTableContratos: React.FC = () => {
   const [contratos, setContratos] = useState<
@@ -191,9 +190,6 @@ const DataTableContratos: React.FC = () => {
       name: "Acciones",
       cell: (row) => (
         <div className="flex p-2">
-          <div onClick={() => { setContratoSeleccionado(row); setShowDetalles(true) }}>
-            <BtnDescargarPdf />
-          </div>
           <div onClick={() => { setContratoSeleccionado(row); setShowDetalles(true) }}>
             <BtnLeer />
           </div>
