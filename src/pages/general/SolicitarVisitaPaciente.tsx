@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 //Probar Socket.io Borrar cuando este implementado:
 import socket from "../../services/socket";
+import { createNotificacionMedico } from "../../services/notificaciones";
 
 const SolicitarVisitaPaciente: React.FC = () => {
   const [pacientes, setpacientes] = useState([]);
@@ -62,10 +63,17 @@ const SolicitarVisitaPaciente: React.FC = () => {
         fecha_visita: `${data.fecha_visita}T12:00:00`,
       };
 
-      const res = await createVisita(adjustedData);
+       await createVisita(adjustedData);
+
+       const notifi = {
+        paciente_id:user.id,
+        medico_id:data.medico_id
+       }
+
+       await createNotificacionMedico(notifi)
 
       toast.success("Solicitud de visita exitosa");
-      socket.emit("solicitud visita");
+      socket.emit("solicitudVisita", user);
       setTimeout(() => navigate("/home/paciente"), 500);
     } catch (error: any) {
       toast.error(error?.message || "Ocurrió un problema");

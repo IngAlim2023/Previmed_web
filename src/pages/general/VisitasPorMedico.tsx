@@ -11,6 +11,7 @@ import BtnCerrar from "../../components/botones/BtnCerrar"
 //Probar Socket.io Borrar cuando este implementado:
 import socket from "../../services/socket";
 import { MdOutlineNotifications, MdOutlineNotificationsActive } from "react-icons/md"
+import NotificacionesMedico from "../../components/medicos/NotificacionesMedico"
 
 const VisitasPorMedico: React.FC = () => {
   const { user } = useAuthContext()
@@ -20,6 +21,9 @@ const VisitasPorMedico: React.FC = () => {
   const [notificacion, setNotificacion] =useState<boolean>(false);
   const [verNotificacion, setVerNotificacion] =useState<boolean>(false);
   const [nNotifi, setNNotifi] = useState<number>(0)
+  //Notificaciones
+  const [open, setOpen] = useState<boolean>(false)
+  //Termina Notificaciones
 
   const [visitas, setVisitas] = useState<Visita[]>([])
   const [loading, setLoading] = useState(false)
@@ -31,11 +35,17 @@ const VisitasPorMedico: React.FC = () => {
   const RAW_URL = String(import.meta.env.VITE_URL_BACK || "")
   const API_URL = RAW_URL.replace(/\/+$/, "")
 
-  socket.on('solicitud visita',()=>{
-    setNNotifi(nNotifi + 1)
-    setNotificacion(!notificacion)
-    setVerNotificacion(true)
-  })
+  useEffect(()=>{
+    socket.on('solicitudVisita',(data)=>{
+      toast.success(`El usuario ${data.nombre} solicito una visita`)
+      setNNotifi(prev => prev + 1)
+      setNotificacion(!notificacion)
+      setVerNotificacion(true)
+    })
+    return () =>{
+      socket.off('solicitudVisita')
+    }
+  },[])
   // 🔹 Paso 1: obtener el id_medico según el usuario logueado
   /** ===========================================================
    * 1️⃣ Obtener el ID del médico según el usuario logueado
@@ -235,7 +245,7 @@ const VisitasPorMedico: React.FC = () => {
             📋 Mis Visitas Activas
           </h2>
        
-          <div className="relative flex items-center justify-center p-2 rounded-full hover:cursor-pointer bg-white-600 border border-red-600 hover:border-gray-500 transition-all duration-300 shadow-[0_0_10px_rgba(236,72,153,0.4)]">
+          <div className="relative flex items-center justify-center p-2 rounded-full hover:cursor-pointer bg-white-600 border border-red-600 hover:border-gray-500 transition-all duration-300 shadow-[0_0_10px_rgba(236,72,153,0.4)]" onClick={()=> setOpen(true)}>
             {verNotificacion ? (
               <div className="relative" 
                     onClick={() => {
@@ -274,6 +284,8 @@ const VisitasPorMedico: React.FC = () => {
           noDataComponent="No hay visitas activas registradas para este médico"
         />
       </div>
+
+      <NotificacionesMedico id={idMedico} open={open} setOpen={setOpen}/>
     </div>
   )
 }

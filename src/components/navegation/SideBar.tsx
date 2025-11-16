@@ -77,7 +77,6 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
    { path: "/home/paciente", label: "Inicio", icon: <FaHome />, roles: ["Paciente"] },
    { path: "/solicitar-visita", label: "Solicitar Visita", icon: <FaBriefcaseMedical />, roles: ["Paciente"] },
    { path: "/contrato", label: "Contrato", icon: <FaFileContract />, roles: ["Paciente"] },
-   { path: "/beneficiarios", label: "Beneficiarios", icon: <FaUserFriends />, roles: ["Paciente"] },
    { path: "/historial/paciente", label: "Historial de Visitas", icon: <FaHistory />, roles: ["Paciente"] },
    { path: "/historial/pagos", label: "Historial de pagos", icon: <BsClockHistory />, roles: ["Paciente"] },
    {path: "/solicitudes/usuario", label: "Solicitudes", icon: <IoMdHelpBuoy />, roles:["Paciente"] }
