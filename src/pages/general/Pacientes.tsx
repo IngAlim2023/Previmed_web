@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   deletePaciente,
   readPacientes,
+  updatePaciente,
 } from "../../services/pacientes";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { FaPlus, FaUsers } from "react-icons/fa";
@@ -14,6 +15,7 @@ import { useAuthContext } from "../../context/AuthContext";
 import BtnDescargarPdf from "../../components/botones/BtnDescargarPdf";
 import BtnExportarPacientes from "../../components/botones/BtnExportPacientes";
 import DetallesPaciente from "../../components/pacientes/DetallesPaciente";
+import FormPacientes from "../../components/pacientes/FormPacientes";
 
 interface Paciente {
   id: number;
@@ -35,6 +37,9 @@ const Pacientes: React.FC = () => {
   const [buscar, setBuscar] = useState<string>('');
   const {user} = useAuthContext();
   const [detalles, setDetalles] = useState<boolean>(false);
+  const [idUserSelect, setIdUserSelect] = useState<string>('');
+  const [formPacite, setFormPaciente] = useState<boolean>(false);
+  const [pacienteEdit, setPacientEdit] = useState<any>();
 
   useEffect(() => {
     const load = async () => {
@@ -42,11 +47,7 @@ const Pacientes: React.FC = () => {
       setData(dat.data || []);
     };
     load();
-  }, []);
-
-  const handleEdit = (row: Paciente) => {
-    console.log("Editar paciente", row);
-  };
+  }, [data]);
 
   const handleDelete = async (row: Paciente) => {
     setIdDelete(row.id);
@@ -81,24 +82,23 @@ const Pacientes: React.FC = () => {
     },
     {
       name: "Opciones",
-      minWidth: "310px",
+      minWidth: "200px",
       cell: (row) => (
         <div className="flex">
           <div
             title="Descargar contrato"
-            onClick={() => handleEdit(row)}
-            >
+          >
             <BtnDescargarPdf idUsuario={row.usuario.idUsuario??''}/>
           </div>
           <div
             title="Ver detalles"
-            onClick={() => console.log(row)}
+            onClick={()=> {setDetalles(true), setIdUserSelect(row.usuario.idUsuario)}}
             >
             <BtnLeer/>
           </div>
           {user.rol?.nombreRol == 'Administrador'? (
             <>
-              <div onClick={() => handleEdit(row)}>
+              <div onClick={() => {setFormPaciente(true), setPacientEdit(row)}}>
                 <BtnEditar/>
               </div>
               <div onClick={() => handleDelete(row)}>
@@ -107,15 +107,6 @@ const Pacientes: React.FC = () => {
               </>
             ):
             (<></>)}
-            {
-              row.pacienteId == null? ( 
-              <button
-              onClick={() => navigate('/beneficiarios', {state: {row}})}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-2 m-1 rounded-md flex items-center transition"
-            >
-              Beneficiarios
-            </button>) : (<></>)
-            }
         </div>
       ),
     },
@@ -138,7 +129,7 @@ const Pacientes: React.FC = () => {
       pac.usuario.segundoNombre,
       pac.usuario.apellido,
       pac.usuario.segundoApellido
-    ].join(" ").toLowerCase();
+    ].filter(Boolean).join(" ").toLowerCase();
 
     const buscarLower = buscar.toLowerCase();
 
@@ -170,7 +161,7 @@ const Pacientes: React.FC = () => {
 
           <button
             onClick={() => navigate("/formularioPacientes")}
-            className="bg-green-500 hover:bg-green-600 text-white px-3 p-2 rounded-md flex items-center gap-2 transition text-lg"
+            className="bg-green-500 hover:bg-green-600 text-white px-2 p-1 rounded-md flex items-center gap-2 transition text-lg"
             >
             <FaPlus /> Agregar Titular
           </button>
@@ -184,6 +175,7 @@ const Pacientes: React.FC = () => {
           striped
           noDataComponent={'No hay resultados'}
           responsive
+          dense
         />
       </div>
       {open && (
@@ -227,7 +219,8 @@ const Pacientes: React.FC = () => {
         </div>
       )}
 
-      {detalles && <DetallesPaciente detalles={detalles} setDetalles={setDetalles}/>}
+      {detalles && <DetallesPaciente setDetalles={setDetalles} idPaciente={idUserSelect}/>}
+      {formPacite && <FormPacientes paciente={pacienteEdit} setFormPaciente={setFormPaciente}/>}
     </div>
   );
 };

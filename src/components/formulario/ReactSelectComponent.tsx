@@ -1,7 +1,7 @@
 import { Controller } from "react-hook-form";
 import Select from "react-select";
 
-type TypeOptions = {
+export type TypeOptions = {
   value: string | number;
   label: any;
 };
