@@ -74,6 +74,7 @@ const SolicitarVisitaPaciente: React.FC = () => {
 
       toast.success("Solicitud de visita exitosa");
       socket.emit("solicitudVisita", user);
+      socket.emit('visitaMedico',{toUserId:data.medico_id, data:user})
       setTimeout(() => navigate("/home/paciente"), 500);
     } catch (error: any) {
       toast.error(error?.message || "Ocurrió un problema");
@@ -255,6 +256,11 @@ const SolicitarVisitaPaciente: React.FC = () => {
             </button>
           </form>
         </div>
+        <button onClick={()=>{
+          socket.emit('solicitudVisita', user)
+        }}>
+          socket
+        </button>
       </div>
     </div>
   );

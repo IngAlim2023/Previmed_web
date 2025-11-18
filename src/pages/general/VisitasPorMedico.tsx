@@ -1,150 +1,166 @@
-import { useEffect, useState } from "react"
-import DataTable from "react-data-table-component"
-import toast from "react-hot-toast"
-import { useAuthContext } from "../../context/AuthContext"
-import { Visita } from "../../interfaces/visitas"
-import { getVisitasPorMedico } from "../../services/visitasService"
-import { medicoService } from "../../services/medicoService"
-import { useNavigate } from "react-router-dom"
-import BtnCerrar from "../../components/botones/BtnCerrar"
+import { useEffect, useState } from "react";
+import DataTable from "react-data-table-component";
+import toast from "react-hot-toast";
+import { useAuthContext } from "../../context/AuthContext";
+import { Visita } from "../../interfaces/visitas";
+import { getVisitasPorMedico } from "../../services/visitasService";
+import { medicoService } from "../../services/medicoService";
+import { useNavigate } from "react-router-dom";
+import BtnCerrar from "../../components/botones/BtnCerrar";
 
 //Probar Socket.io Borrar cuando este implementado:
 import socket from "../../services/socket";
-import { MdOutlineNotifications, MdOutlineNotificationsActive } from "react-icons/md"
-import NotificacionesMedico from "../../components/medicos/NotificacionesMedico"
+import {
+  MdOutlineNotifications,
+  MdOutlineNotificationsActive,
+} from "react-icons/md";
+import NotificacionesMedico from "../../components/medicos/NotificacionesMedico";
+import { getNoficacionesMedicos } from "../../services/notificaciones";
 
 const VisitasPorMedico: React.FC = () => {
-  const { user } = useAuthContext()
-  const navigate = useNavigate()
+  const { user } = useAuthContext();
+  const navigate = useNavigate();
 
+  const [notificacion, setNotificacion] = useState<boolean>(false);
+  const [verNotificacion, setVerNotificacion] = useState<boolean>(false);
+  const [nNotifi, setNNotifi] = useState<number>(0);
 
-  const [notificacion, setNotificacion] =useState<boolean>(false);
-  const [verNotificacion, setVerNotificacion] =useState<boolean>(false);
-  const [nNotifi, setNNotifi] = useState<number>(0)
-  //Notificaciones
-  const [open, setOpen] = useState<boolean>(false)
-  //Termina Notificaciones
-
-  const [visitas, setVisitas] = useState<Visita[]>([])
-  const [loading, setLoading] = useState(false)
-  const [idMedico, setIdMedico] = useState<number | null>(null)
+  const [visitas, setVisitas] = useState<Visita[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [idMedico, setIdMedico] = useState<number | null>(null);
   const [visitaActiva, setVisitaActiva] = useState<string | null>(
     localStorage.getItem("visita_activa")
-  )
+  );
 
-  const RAW_URL = String(import.meta.env.VITE_URL_BACK || "")
-  const API_URL = RAW_URL.replace(/\/+$/, "")
+  const RAW_URL = String(import.meta.env.VITE_URL_BACK || "");
+  const API_URL = RAW_URL.replace(/\/+$/, "");
 
-  useEffect(()=>{
-    socket.on('solicitudVisita',(data)=>{
-      toast.success(`El usuario ${data.nombre} solicito una visita`)
-      setNNotifi(prev => prev + 1)
-      setNotificacion(!notificacion)
-      setVerNotificacion(true)
-    })
-    return () =>{
-      socket.off('solicitudVisita')
-    }
-  },[])
+  useEffect(() => {
+    socket.on("solicitudVisita", (data) => {
+      toast.error('eliminar este toast')
+      console.log('socket general', data)
+    });
+    socket.on("visitaConfirmada", (data) => {
+      toast.success(`El usuario ${data.nombre} solicito una visita`);
+      setNNotifi((prev) => prev + 1);
+      setNotificacion(!notificacion);
+      setVerNotificacion(true);
+    });
+    return () => {
+      socket.off("solicitudVisita");
+      socket.off('visitaConfirmada')
+    };
+  }, []);
   // 🔹 Paso 1: obtener el id_medico según el usuario logueado
   /** ===========================================================
    * 1️⃣ Obtener el ID del médico según el usuario logueado
    * =========================================================== **/
   useEffect(() => {
     const fetchMedico = async () => {
-      if (!user?.id) return
+      if (!user?.id) return;
       try {
-        setLoading(true)
-        toast.loading("Cargando información del médico...", { id: "medico" })
-        const medico = await medicoService.getByUsuarioId(user.id)
+        setLoading(true);
+        toast.loading("Cargando información del médico...", { id: "medico" });
+        const medico = await medicoService.getByUsuarioId(user.id);
         if (!medico) {
-          toast.error("No se encontró información del médico", { id: "medico" })
-          return
+          toast.error("No se encontró información del médico", {
+            id: "medico",
+          });
+          return;
         }
-        setIdMedico(medico.id_medico)
-        toast.success("Médico identificado correctamente", { id: "medico" })
+        setIdMedico(medico.id_medico);
+        toast.success("Médico identificado correctamente", { id: "medico" });
       } catch (error) {
-        console.error("🚨 Error en fetchMedico:", error)
-        toast.error("Error al obtener información del médico", { id: "medico" })
+        console.error("🚨 Error en fetchMedico:", error);
+        toast.error("Error al obtener información del médico", {
+          id: "medico",
+        });
       } finally {
-        toast.dismiss("medico")
-        setLoading(false)
+        toast.dismiss("medico");
+        setLoading(false);
       }
-    }
-    fetchMedico()
-  }, [user])
+    };
+    fetchMedico();
+  }, [user]);
 
   /** ===========================================================
    * 2️⃣ Obtener las visitas del médico
    * =========================================================== **/
   const fetchVisitas = async () => {
-    if (!idMedico) return
+    if (!idMedico) return;
     try {
-      setLoading(true)
-      const data = await getVisitasPorMedico(idMedico)
-      const activas = data.filter((v) => v.estado === true)
-      setVisitas(activas)
+      setLoading(true);
+      const data = await getVisitasPorMedico(idMedico);
+      const activas = data.filter((v) => v.estado === true);
+      setVisitas(activas);
+      socket.emit("register", idMedico);
     } catch (error) {
-      console.error("Error al cargar visitas:", error)
+      console.error("Error al cargar visitas:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchVisitas()
-  }, [idMedico, notificacion])
+    fetchVisitas();
+  }, [idMedico, notificacion]);
 
   /** ===========================================================
    * 4️⃣ Canal Broadcast — sincronización bidireccional
    * =========================================================== **/
   useEffect(() => {
-    const channel = new BroadcastChannel("visitas_channel")
+    const channel = new BroadcastChannel("visitas_channel");
 
     // Escuchar mensajes desde móvil o web
     channel.onmessage = (event) => {
-      console.log("🔄 Mensaje recibido en BroadcastChannel:", event.data)
+      console.log("🔄 Mensaje recibido en BroadcastChannel:", event.data);
       if (event.data?.type === "VISITA_UPDATE") {
-        setVisitaActiva(localStorage.getItem("visita_activa"))
-        fetchVisitas()
+        setVisitaActiva(localStorage.getItem("visita_activa"));
+        fetchVisitas();
       }
-    }
+    };
 
     // También escuchar cambios en localStorage (por si no hay canal)
     const handleStorageChange = () => {
-      setVisitaActiva(localStorage.getItem("visita_activa"))
-      fetchVisitas()
-    }
-    window.addEventListener("storage", handleStorageChange)
+      setVisitaActiva(localStorage.getItem("visita_activa"));
+      fetchVisitas();
+    };
+    window.addEventListener("storage", handleStorageChange);
 
     return () => {
-      channel.close()
-      window.removeEventListener("storage", handleStorageChange)
-    }
-  }, [])
+      channel.close();
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
 
   /** ===========================================================
    * 5️⃣ Iniciar o finalizar visita (actualiza backend + sincroniza)
    * =========================================================== **/
   const handleToggleVisita = async (idVisita: number) => {
-    const visitaEnCurso = localStorage.getItem("visita_activa")
-    const channel = new BroadcastChannel("visitas_channel")
+    const visitaEnCurso = localStorage.getItem("visita_activa");
+    const channel = new BroadcastChannel("visitas_channel");
 
     try {
-      if (!idMedico) throw new Error("No se encontró el ID del médico")
+      if (!idMedico) throw new Error("No se encontró el ID del médico");
 
       if (!visitaEnCurso) {
         // ✅ Iniciar visita
-        localStorage.setItem("visita_activa", idVisita.toString())
-        channel.postMessage({ type: "VISITA_UPDATE", idVisita, estado: "iniciada" })
-        window.dispatchEvent(new Event("storage"))
+        localStorage.setItem("visita_activa", idVisita.toString());
+        channel.postMessage({
+          type: "VISITA_UPDATE",
+          idVisita,
+          estado: "iniciada",
+        });
+        window.dispatchEvent(new Event("storage"));
 
         await medicoService.update(idMedico, {
           disponibilidad: true,
           estado: false,
-        })
+        });
 
-        toast.success(`🩺 Visita #${idVisita} iniciada — Médico ahora está ocupado`)
+        toast.success(
+          `🩺 Visita #${idVisita} iniciada — Médico ahora está ocupado`
+        );
       } else if (visitaEnCurso === idVisita.toString()) {
         // ✅ Finalizar visita
         const res = await fetch(
@@ -154,41 +170,49 @@ const VisitasPorMedico: React.FC = () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ estado: false }),
           }
-        )
+        );
 
-        if (!res.ok) throw new Error("Error al finalizar la visita")
+        if (!res.ok) throw new Error("Error al finalizar la visita");
 
-        localStorage.removeItem("visita_activa")
-        channel.postMessage({ type: "VISITA_UPDATE", idVisita, estado: "finalizada" })
-        window.dispatchEvent(new Event("storage"))
+        localStorage.removeItem("visita_activa");
+        channel.postMessage({
+          type: "VISITA_UPDATE",
+          idVisita,
+          estado: "finalizada",
+        });
+        window.dispatchEvent(new Event("storage"));
 
-        setVisitas((prev) => prev.filter((v) => v.id_visita !== idVisita))
+        setVisitas((prev) => prev.filter((v) => v.id_visita !== idVisita));
 
         await medicoService.update(idMedico, {
           disponibilidad: true,
           estado: true,
-        })
+        });
 
-        toast.success("✅ Visita finalizada — Médico disponible nuevamente")
+        toast.success("✅ Visita finalizada — Médico disponible nuevamente");
       } else {
-        toast.error("Ya tienes otra visita activa")
+        toast.error("Ya tienes otra visita activa");
       }
 
       // 🔁 Refrescar la tabla después del cambio
-      await fetchVisitas()
+      await fetchVisitas();
     } catch (error) {
-      console.error("Error al manejar visita:", error)
-      toast.error("Error al actualizar la visita o el estado del médico")
+      console.error("Error al manejar visita:", error);
+      toast.error("Error al actualizar la visita o el estado del médico");
     } finally {
-      channel.close()
+      channel.close();
     }
-  }
+  };
 
   /** ===========================================================
    * 6️⃣ Configurar columnas de la tabla
    * =========================================================== **/
   const columns = [
-    { name: "ID", selector: (row: Visita) => row.id_visita ?? "", sortable: true },
+    {
+      name: "ID",
+      selector: (row: Visita) => row.id_visita ?? "",
+      sortable: true,
+    },
     {
       name: "Fecha",
       selector: (row: Visita) =>
@@ -208,14 +232,14 @@ const VisitasPorMedico: React.FC = () => {
       cell: (row: Visita) => {
         const esActiva =
           row.id_visita !== undefined &&
-          visitaActiva === row.id_visita.toString()
+          visitaActiva === row.id_visita.toString();
         return (
           <button
             onClick={() => {
               if (typeof row.id_visita === "number") {
-                handleToggleVisita(row.id_visita)
+                handleToggleVisita(row.id_visita);
               } else {
-                toast.error("ID de visita no válido")
+                toast.error("ID de visita no válido");
               }
             }}
             className={`px-3 py-1 rounded-md text-white font-semibold transition-all ${
@@ -226,13 +250,28 @@ const VisitasPorMedico: React.FC = () => {
           >
             {esActiva ? "Finalizar Visita" : "Iniciar Visita"}
           </button>
-        )
+        );
       },
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
     },
-  ]
+  ];
+
+  //Notificaciones
+  const [open, setOpen] = useState<boolean>(false);
+  useEffect(() => {
+    if (idMedico === 0) return;
+    const loadData = async () => {
+      const res = await getNoficacionesMedicos(idMedico);
+      if (res.data.length > 0) {
+        setVerNotificacion(true);
+        setNNotifi(res.data.length);
+      }
+    };
+    loadData();
+  }, [idMedico]);
+  //Termina Notificaciones
 
   /** ===========================================================
    * 7️⃣ Render del componente
@@ -244,17 +283,20 @@ const VisitasPorMedico: React.FC = () => {
           <h2 className="text-2xl font-semibold text-gray-700">
             📋 Mis Visitas Activas
           </h2>
-       
-          <div className="relative flex items-center justify-center p-2 rounded-full hover:cursor-pointer bg-white-600 border border-red-600 hover:border-gray-500 transition-all duration-300 shadow-[0_0_10px_rgba(236,72,153,0.4)]" onClick={()=> setOpen(true)}>
+
+          <div
+            className="relative flex items-center justify-center p-2 rounded-full hover:cursor-pointer bg-white-600 border border-red-600 hover:border-gray-500 transition-all duration-300 shadow-[0_0_10px_rgba(236,72,153,0.4)]"
+            onClick={() => setOpen(true)}
+          >
             {verNotificacion ? (
-              <div className="relative" 
-                    onClick={() => {
-                      setNNotifi(0);
-                      setVerNotificacion(false);
-                    }}>
-                <MdOutlineNotificationsActive
-                  className="text-2xl text-red-500 animate-pulse"
-                />
+              <div
+                className="relative"
+                onClick={() => {
+                  setNNotifi(0);
+                  setVerNotificacion(false);
+                }}
+              >
+                <MdOutlineNotificationsActive className="text-2xl text-red-500 animate-pulse" />
                 {nNotifi > 0 && (
                   <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full animate-ping">
                     {nNotifi}
@@ -265,9 +307,6 @@ const VisitasPorMedico: React.FC = () => {
               <MdOutlineNotifications className="text-2xl text-gray-500" />
             )}
           </div>
-           
-    
-
 
           <div onClick={() => navigate(-1)}>
             <BtnCerrar text="Volver" />
@@ -285,9 +324,9 @@ const VisitasPorMedico: React.FC = () => {
         />
       </div>
 
-      <NotificacionesMedico id={idMedico} open={open} setOpen={setOpen}/>
+      <NotificacionesMedico id={idMedico} open={open} setOpen={setOpen} />
     </div>
-  )
-}
+  );
+};
 
-export default VisitasPorMedico
+export default VisitasPorMedico;
