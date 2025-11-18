@@ -9,8 +9,10 @@ import BtnLeer from "../botones/BtnLeer";
 import BtnEditar from "../botones/BtnEditar";
 import BtnEliminar from "../botones/BtnEliminar";
 import BtnAgregar from "../botones/BtnAgregar";
-import { getPagos as getPagosService, deletePago } from "../../services/pagosService";
+import { getPagos as getPagosService, deletePago, setEstadoPago } from "../../services/pagosService";
 import { useAuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { TbSettingsDollar } from "react-icons/tb";
 
 const DataTablePagos: React.FC = () => {
   const [pagos, setPagos] = useState<PagoInterface[]>([]);
@@ -19,6 +21,7 @@ const DataTablePagos: React.FC = () => {
   const [pago, setPago] = useState<PagoInterface | null>(null);
   const [buscarPago, setBuscarPago] = useState<string>("");
   const {user} = useAuthContext()
+  const navigate = useNavigate();
 
   // Evita doble ejecución del efecto en React 18 StrictMode
   const fetchedOnce = useRef(false);
@@ -26,7 +29,13 @@ const DataTablePagos: React.FC = () => {
   const getPagos = async (showToast = false) => {
     try {
       const data = await getPagosService();
-      setPagos(data.data);
+      // solo el admin puede ver todos los pagos, de lo contrario aparecen los registrados o asigandos por el asesor
+      if(user.rol?.nombreRol != "Administrador") {
+        const pagosFiltrados = data.data.filter((p:PagoInterface) => p.cobradorId == user.id);
+        setPagos(pagosFiltrados);
+      }else{
+        setPagos(data.data);
+      }
       if (showToast) {
         toast.success("Pagos cargados exitosamente", { id: "pagos-cargados" });
       }
@@ -67,6 +76,23 @@ const DataTablePagos: React.FC = () => {
     return new Date(fecha).toLocaleDateString("es-CO");
   };
 
+  const cambiarEstadoPago = async(pago: PagoInterface) => {
+    try {
+      if(user.rol?.nombreRol == 'Administrador'){
+        if(pago.estado == 'Aprobado') return
+        await setEstadoPago('Aprobado', pago.idRegistro);
+      }
+      if(user.rol?.nombreRol == 'Asesor'){
+        if(pago.estado == 'Realizado' || pago.estado == 'Aprobado') return
+        await setEstadoPago('Realizado', pago.idRegistro)
+      }
+      getPagos()
+      toast.success('Estado actualizado correctamente')
+    } catch (error) {
+      toast.error('Error al cambiar el estado del pago')
+    }
+  }
+
   const columns: ColDataTablePagos[] = [
     { name: "N° Recibo", selector: (row) => row.numeroRecibo || "Sin número" , sortable: true, maxWidth: '100px' },
     { name: "N° Contrato", selector: (row) => row.membresia.numeroContrato, sortable: true },
@@ -74,13 +100,14 @@ const DataTablePagos: React.FC = () => {
     { name: "Fecha Cobro", selector: (row) => formatFecha(row.fechaPago), sortable: true, maxWidth:'130px' },
     { name: "Monto", selector: (row) => `$${row.monto}`, sortable: true },
     { name: "Forma de pago", selector: (row) => row.formaPago?.tipoPago || "", sortable: true },
-    { name: "Estado", selector: (row) => <p className={`rounded-full px-2 font-semibold ${
+    { name: "Estado", selector: (row) => <button 
+      onClick={()=> cambiarEstadoPago(row)}
+      className={`rounded-full px-2 font-semibold ${
       row.estado == 'Asignado'?'text-blue-700 bg-blue-100':
       row.estado == 'Realizado'?'text-orange-700 bg-orange-100':
       row.estado == 'Aprobado'?
       'text-green-700 bg-green-100':'text-gray-700 bg-gray-200'
-    }`}>{row.estado}</p>
-      
+    }`}>{row.estado}</button>
       , sortable: true, maxWidth: '110px' },
     {
       name: "Acciones",
@@ -138,8 +165,26 @@ const DataTablePagos: React.FC = () => {
               onChange={(e) => setBuscarPago(e.target.value)}
               className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
             />
-            <div onClick={() => { setPago(null); setForm(true); }}>
-              <BtnAgregar verText={true} />
+            <div className="flex gap-2 items-center">
+              { user.rol?.nombreRol == 'Administrador'?(
+                <button onClick={()=> navigate('/formas_pago')} 
+                className="
+                  relative overflow-hidden flex items-center gap-2
+                  text-amber-500 font-bold p-1.5 m-1 border-1 border-amber-500 rounded-md
+                  transition-all duration-700 ease-in-out hover:text-white
+                  bg-linear-to-r from-amber-500 to-amber-500
+                  bg-no-repeat bg-[length:0%_0%] bg-left-bottom
+                  hover:bg-[length:200%_200%]
+                  hover:cursor-pointer
+                  hover:shadow-none">
+                  <TbSettingsDollar className="text-lg"/>
+                  Formas de pago
+                </button>
+                ):(<></>)
+              }
+              <div onClick={() => { setPago(null); setForm(true); }}>
+                <BtnAgregar verText={true} />
+              </div>
             </div>
           </div>
           <DataTable

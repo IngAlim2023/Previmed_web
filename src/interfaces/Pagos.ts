@@ -11,6 +11,7 @@ export interface PagoInterface {
   membresia:any;  
   numeroRecibo: string;
   estado: string;
+  cobradorId: string;
 }
 
 export interface ColDataTablePagos {

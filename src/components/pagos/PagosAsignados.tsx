@@ -165,7 +165,7 @@ const PagosAsignados = () => {
 
   useEffect(() => {
     cargarPagos();
-  }, [user.id]);
+  }, [user.id, pagos]);
 
   const cargarPagos = async () => {
     try {

@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
-import { FiMail, FiMapPin, FiFileText, FiCalendar, FiX, FiUser, FiDollarSign, FiPhone, FiUsers, FiBriefcase, FiHome, FiHeart, FiShield } from 'react-icons/fi';
+import { FiMail, FiMapPin, FiFileText, FiCalendar, FiX, FiUser, FiDollarSign, FiUsers, FiBriefcase, FiHome, FiHeart, FiShield } from 'react-icons/fi';
 import { getPacientesId } from '../../services/pacientes';
 import { Membresia, Paciente } from '../../interfaces/interfaces';
 import { getContratoByUserId } from '../../services/contratos';
 import BtnDescargarPdf from '../botones/BtnDescargarPdf';
+import ListPagosPaciente from '../pagos/ListPagosPaciente';
+import { useNavigate } from 'react-router-dom';
+import BtnBeneficiarios from '../botones/BtnBeneficiarios';
 
 interface Props {
   idPaciente?: string | null;
@@ -16,6 +19,8 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
   const [beneficiarios, setBeneficiarios] = useState<Paciente[]>([]);
   const [contrato, setContrato] = useState<Membresia>();
   const [loading, setLoading] = useState(true);
+  const [pagos, setPagos] = useState<boolean>(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const getdata = async () => {
@@ -32,17 +37,13 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
         setBeneficiarios(beneficiariosEncontrados);
         setContrato(resContrato.membresia);
       } catch (error) {
-        console.error('Error al cargar datos:', error);
+        throw error;
       } finally {
         setLoading(false);
       }
     };
     getdata();
   }, [idPaciente]);
-
-  const handleVerHistorialPagos = () => {
-    alert('Funcionalidad de historial de pagos en desarrollo');
-  };
 
   const formatearFecha = (fecha: string) => {
     if (!fecha) return 'No disponible';
@@ -268,16 +269,8 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
                 <FiFileText className="text-blue-600" />
                 Información del Contrato
               </h5>
-              <div className="flex gap-2">
-                <BtnDescargarPdf idUsuario={idPaciente||''} verText={true}/>
-                <button
-                  onClick={handleVerHistorialPagos}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium text-sm"
-                >
-                  <FiDollarSign />
-                  Historial de Pagos
-                </button>
-              </div>
+       
+                <BtnDescargarPdf idUsuario={idPaciente||''} verText={true}/>            
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -308,15 +301,26 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
                 <p className="text-sm font-semibold text-gray-800">{contrato?.formaPago || 'N/A'}</p>
               </div>
             </div>
+            <button
+              onClick={()=> setPagos(!pagos)}
+              className="flex items-center mt-6 gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium text-sm">
+              <FiDollarSign />
+              {pagos? 'Ocultar':'Ver'} historial de Pagos
+            </button>
+            {pagos? <ListPagosPaciente membresiaId={contrato?.idMembresia??0} /> : <></>}
           </div>
 
           {/* Beneficiarios o Titular */}
           {esTitular ? (
             <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
-              <h5 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                <FiUsers className="text-blue-600" />
-                Beneficiarios ({beneficiarios.length})
+            <div className='flex justify-between items-center mb-4'>
+              <h5 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <FiUsers className="text-blue-600" /> Beneficiarios ({beneficiarios.length})
               </h5>
+              <div onClick={()=> navigate('/beneficiarios', {state: pacienteActual})}>
+                <BtnBeneficiarios verText={true}/>
+              </div>
+            </div>
               {beneficiarios.length > 0 ? (
                 <div className="space-y-3">
                   {beneficiarios.map((b) => (
@@ -397,7 +401,7 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 flex justify-end border-t">
+        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 flex justify-end">
           <button
             onClick={() => setDetalles(false)}
             className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"

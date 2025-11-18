@@ -1,8 +1,8 @@
 import React from "react";
-import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { OpcionesBotones } from "../../interfaces/botones";
+import { TbUsersGroup } from "react-icons/tb";
 
-const BtnLeer:React.FC<OpcionesBotones> = ({verText, text}) => {
+const BtnBeneficiarios:React.FC<OpcionesBotones> = ({verText, text}) => {
   return (
     <button
       className={`
@@ -15,13 +15,14 @@ const BtnLeer:React.FC<OpcionesBotones> = ({verText, text}) => {
         bg-no-repeat bg-[length:0%_0%] bg-right-top
         hover:bg-[length:200%_200%]
         hover:cursor-pointer
-        hover:shadow-none
+        hover:shadow
+        flex items-center gap-2
         `}
     >
-        <MdOutlineRemoveRedEye/>
-      {verText && "Ver"}
+        <TbUsersGroup/>
+      {verText && "Beneficiarios"}
     </button>
   );
 };
 
-export default BtnLeer;
+export default BtnBeneficiarios;
