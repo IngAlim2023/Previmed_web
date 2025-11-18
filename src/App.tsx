@@ -8,7 +8,6 @@ import HomeAsesor from "./pages/general/HomeAsesor";
 import HomePacientes from "./pages/general/HomePacientes";
 import ContratoPaciente from "./pages/general/ContratoPaciente";
 import Pagos from "./pages/general/Pagos";
-import Beneficiarios from "./pages/general/Beneficiarios";
 import Visitas from "./pages/general/Visitas";
 import PlanesAdmin from "./pages/administrador/PlanesAdmin";
 import Pacientes from "./pages/general/Pacientes";
@@ -39,6 +38,7 @@ import SolicitudesVistaPaciente from "./pages/general/SolicitudesVistaPaciente";
 import ProtectedPacientes from "./protectedRoutes/ProtectedPacientes";
 import ProtectedAdministrador from "./protectedRoutes/ProtectedAdministrador";
 import ProtectedAsesor from "./protectedRoutes/ProtectedAsesor";
+import ProtectedAdminAsesor from "./protectedRoutes/ProtectedAdminAsesor";
 
 function App() {
   return (
@@ -74,7 +74,6 @@ function App() {
               <Route path="/home/paciente" element={<HomePacientes />} />
               <Route path="/solicitar-visita" element={<SolicitarVisitaPaciente />} />
               <Route path="/contrato" element={<ContratoPaciente />} />
-              <Route path="/beneficiarios" element={<Beneficiarios />} />
               <Route path="/historial/paciente" element={<HistorialVisitasPaciente />} />
               <Route path="/historial/pagos" element={<HistorialPagos/>}/>
               <Route path="/solicitudes/usuario" element={<SolicitudesVistaPaciente/>}/>
@@ -88,7 +87,9 @@ function App() {
               <Route path="/pagos/asesor" element={<Pagos />} />
               <Route path="/barrios/asesor" element={<Barrios />} />
             </Route>
-
+            {/**Administrador y asesor */} 
+            <Route element={<ProtectedAdminAsesor/>}>
+            </Route>
 
 
             <Route path="/historial/visitas" element={<HistorialVisitas />} />
@@ -103,7 +104,6 @@ function App() {
             <Route path="/beneficios_plan/nuevo" element={<FormBeneficioPage />} />
             <Route path="/roles" element={<Roles />} />
             <Route path="/panel_control" element={<Roles />} />
-            <Route path="/beneficiarios" element={<Beneficiarios/>}/>
             <Route path="/formularioPacientes" element={<FormularioPacientes />}/>
           </Route>
         </Route>
