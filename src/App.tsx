@@ -40,6 +40,7 @@ import ProtectedAdministrador from "./protectedRoutes/ProtectedAdministrador";
 import ProtectedAsesor from "./protectedRoutes/ProtectedAsesor";
 import ProtectedAdminAsesor from "./protectedRoutes/ProtectedAdminAsesor";
 import Beneficiarios from "./pages/general/Beneficiarios";
+import ImportExcel from "./pages/administrador/ImportExcel";
 
 function App() {
   return (
@@ -66,6 +67,7 @@ function App() {
               <Route path="/formas_pago" element={<FormasPago />} />
               <Route path="/eps" element={<Eps />} />
               <Route path="/barrios" element={<Barrios />} />
+              <Route path="/import/excel/pacientes" element={<ImportExcel />} />
             </Route>
 
 

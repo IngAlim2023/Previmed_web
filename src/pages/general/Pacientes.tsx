@@ -14,7 +14,6 @@ import { useAuthContext } from "../../context/AuthContext";
 import BtnExportarPacientes from "../../components/botones/BtnExportPacientes";
 import DetallesPaciente from "../../components/pacientes/DetallesPaciente";
 import FormPacientes from "../../components/pacientes/FormPacientes";
-import { TbUsersGroup } from "react-icons/tb";
 import BtnBeneficiarios from "../../components/botones/BtnBeneficiarios";
 import { HiOutlineUpload } from "react-icons/hi";
 
@@ -103,11 +102,6 @@ const Pacientes: React.FC = () => {
               </>
             ):
             (<></>)}
-            {row.pacienteId == null? (
-              <div title="Beneficiarios" onClick={()=> navigate('/beneficiarios', {state: row})}>
-                <BtnBeneficiarios/>
-              </div>
-            ):(<></>)}
         </div>
       ),
     },
@@ -161,7 +155,7 @@ const Pacientes: React.FC = () => {
           <BtnExportarPacientes/>
 
           <button
-            onClick={() => navigate("")}
+            onClick={() => navigate('/import/excel/pacientes')}
             className="bg-green-500 hover:bg-green-600 text-white p- px-2 rounded-md flex items-center gap-1 transition text-base"
             >
             <HiOutlineUpload  /> Cargar
