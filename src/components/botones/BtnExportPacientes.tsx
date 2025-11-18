@@ -41,9 +41,9 @@ const BtnExportarPacientes = () => {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="bg-green-500 hover:bg-green-600 text-white px-3 p-2 rounded-md flex items-center gap-2 transition text-lg"
+        className="bg-green-500 hover:bg-green-600 text-white p- px-2 rounded-md flex items-center gap-2 transition text-base"
       >
-        <PiFileCsvLight className='text-2xl'/> Exportar Pacientes
+        <PiFileCsvLight className='text-2xl'/> Exportar
       </button>
 
       {/* Modal */}

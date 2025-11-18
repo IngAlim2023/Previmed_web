@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   deletePaciente,
   readPacientes,
-  updatePaciente,
 } from "../../services/pacientes";
 import DataTable, { TableColumn } from "react-data-table-component";
 import { FaPlus, FaUsers } from "react-icons/fa";
@@ -12,10 +11,12 @@ import BtnEliminar from "../../components/botones/BtnEliminar";
 import BtnEditar from "../../components/botones/BtnEditar";
 import BtnLeer from "../../components/botones/BtnLeer";
 import { useAuthContext } from "../../context/AuthContext";
-import BtnDescargarPdf from "../../components/botones/BtnDescargarPdf";
 import BtnExportarPacientes from "../../components/botones/BtnExportPacientes";
 import DetallesPaciente from "../../components/pacientes/DetallesPaciente";
 import FormPacientes from "../../components/pacientes/FormPacientes";
+import { TbUsersGroup } from "react-icons/tb";
+import BtnBeneficiarios from "../../components/botones/BtnBeneficiarios";
+import { HiOutlineUpload } from "react-icons/hi";
 
 interface Paciente {
   id: number;
@@ -82,14 +83,9 @@ const Pacientes: React.FC = () => {
     },
     {
       name: "Opciones",
-      minWidth: "200px",
+      minWidth: "220px",
       cell: (row) => (
         <div className="flex">
-          <div
-            title="Descargar contrato"
-          >
-            <BtnDescargarPdf idUsuario={row.usuario.idUsuario??''}/>
-          </div>
           <div
             title="Ver detalles"
             onClick={()=> {setDetalles(true), setIdUserSelect(row.usuario.idUsuario)}}
@@ -107,6 +103,11 @@ const Pacientes: React.FC = () => {
               </>
             ):
             (<></>)}
+            {row.pacienteId == null? (
+              <div title="Beneficiarios" onClick={()=> navigate('/beneficiarios', {state: row})}>
+                <BtnBeneficiarios/>
+              </div>
+            ):(<></>)}
         </div>
       ),
     },
@@ -160,10 +161,17 @@ const Pacientes: React.FC = () => {
           <BtnExportarPacientes/>
 
           <button
-            onClick={() => navigate("/formularioPacientes")}
-            className="bg-green-500 hover:bg-green-600 text-white px-2 p-1 rounded-md flex items-center gap-2 transition text-lg"
+            onClick={() => navigate("")}
+            className="bg-green-500 hover:bg-green-600 text-white p- px-2 rounded-md flex items-center gap-1 transition text-base"
             >
-            <FaPlus /> Agregar Titular
+            <HiOutlineUpload  /> Cargar
+          </button>
+
+          <button
+            onClick={() => navigate("/formularioPacientes")}
+            className="bg-green-500 hover:bg-green-600 text-white p-1 px-2 rounded-md flex items-center gap-1 transition text-base"
+            >
+            <FaPlus /> Agregar
           </button>
           </div>
         </div>

@@ -11,7 +11,7 @@ import { FaTrash } from "react-icons/fa6";
 
 const Beneficiarios: React.FC = () => {
   const location = useLocation();
-  const paciente = location.state?.row;
+  const paciente = location.state
 
   const [data, setData] = useState<any[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
@@ -44,9 +44,7 @@ const Beneficiarios: React.FC = () => {
     try {
       const res = await readBeneficiarios(paciente?.idPaciente);
       setData(res.data || res || []);
-
     } catch (e) {
-      console.error("Error al cargar beneficiarios:", e);
       toast.error("Error al obtener los beneficiarios");
     }
   };
@@ -73,7 +71,6 @@ const Beneficiarios: React.FC = () => {
       setOpenCreate(false);
       cargar();
     } catch (error) {
-      console.error("Error al crear beneficiario:", error);
       toast.error("Error al crear beneficiario");
     }
   };

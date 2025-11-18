@@ -39,6 +39,7 @@ import ProtectedPacientes from "./protectedRoutes/ProtectedPacientes";
 import ProtectedAdministrador from "./protectedRoutes/ProtectedAdministrador";
 import ProtectedAsesor from "./protectedRoutes/ProtectedAsesor";
 import ProtectedAdminAsesor from "./protectedRoutes/ProtectedAdminAsesor";
+import Beneficiarios from "./pages/general/Beneficiarios";
 
 function App() {
   return (
@@ -52,7 +53,6 @@ function App() {
             
             {/* Rutas para el Administrador */}
             <Route element={<ProtectedAdministrador/>}>
-            
               <Route path="/home/admin" element={<AdminHome />} />
               <Route path="/usuarios" element={<Usuarios />} />
               <Route path="/medicos" element={<Medicos />} />
@@ -105,6 +105,7 @@ function App() {
             <Route path="/roles" element={<Roles />} />
             <Route path="/panel_control" element={<Roles />} />
             <Route path="/formularioPacientes" element={<FormularioPacientes />}/>
+            <Route path="/beneficiarios" element={<Beneficiarios />} />
           </Route>
         </Route>
 

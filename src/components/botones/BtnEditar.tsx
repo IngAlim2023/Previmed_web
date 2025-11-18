@@ -8,7 +8,7 @@ const BtnEditar: React.FC<OpcionesBotones> = ({ verText, text }) => {
       className={`
         ${text}
         relative overflow-hidden
-        text-amber-500 font-bold p-1.5 m-1 border-1 border-amber-500 rounded-md
+        text-amber-500 font-bold p-2 m-1 border-1 border-amber-500 rounded-md
         transition-all duration-700 ease-in-out
         hover:text-white
         bg-linear-to-r from-amber-500 to-amber-500
@@ -18,8 +18,8 @@ const BtnEditar: React.FC<OpcionesBotones> = ({ verText, text }) => {
         hover:shadow-none
         `}
     >
-      <MdOutlineModeEdit className="text-xl" />
-      {verText && <span>Editar</span>}
+      <MdOutlineModeEdit />
+      {verText && <span>Beneficiarios</span>}
     </button>
   );
 };

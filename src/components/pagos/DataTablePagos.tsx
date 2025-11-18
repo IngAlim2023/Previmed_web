@@ -9,7 +9,7 @@ import BtnLeer from "../botones/BtnLeer";
 import BtnEditar from "../botones/BtnEditar";
 import BtnEliminar from "../botones/BtnEliminar";
 import BtnAgregar from "../botones/BtnAgregar";
-import { getPagos as getPagosService, deletePago } from "../../services/pagosService";
+import { getPagos as getPagosService, deletePago, setEstadoPago } from "../../services/pagosService";
 import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { TbSettingsDollar } from "react-icons/tb";
@@ -76,6 +76,23 @@ const DataTablePagos: React.FC = () => {
     return new Date(fecha).toLocaleDateString("es-CO");
   };
 
+  const cambiarEstadoPago = async(pago: PagoInterface) => {
+    try {
+      if(user.rol?.nombreRol == 'Administrador'){
+        if(pago.estado == 'Aprobado') return
+        await setEstadoPago('Aprobado', pago.idRegistro);
+      }
+      if(user.rol?.nombreRol == 'Asesor'){
+        if(pago.estado == 'Realizado' || pago.estado == 'Aprobado') return
+        await setEstadoPago('Realizado', pago.idRegistro)
+      }
+      getPagos()
+      toast.success('Estado actualizado correctamente')
+    } catch (error) {
+      toast.error('Error al cambiar el estado del pago')
+    }
+  }
+
   const columns: ColDataTablePagos[] = [
     { name: "N° Recibo", selector: (row) => row.numeroRecibo || "Sin número" , sortable: true, maxWidth: '100px' },
     { name: "N° Contrato", selector: (row) => row.membresia.numeroContrato, sortable: true },
@@ -83,13 +100,14 @@ const DataTablePagos: React.FC = () => {
     { name: "Fecha Cobro", selector: (row) => formatFecha(row.fechaPago), sortable: true, maxWidth:'130px' },
     { name: "Monto", selector: (row) => `$${row.monto}`, sortable: true },
     { name: "Forma de pago", selector: (row) => row.formaPago?.tipoPago || "", sortable: true },
-    { name: "Estado", selector: (row) => <p className={`rounded-full px-2 font-semibold ${
+    { name: "Estado", selector: (row) => <button 
+      onClick={()=> cambiarEstadoPago(row)}
+      className={`rounded-full px-2 font-semibold ${
       row.estado == 'Asignado'?'text-blue-700 bg-blue-100':
       row.estado == 'Realizado'?'text-orange-700 bg-orange-100':
       row.estado == 'Aprobado'?
       'text-green-700 bg-green-100':'text-gray-700 bg-gray-200'
-    }`}>{row.estado}</p>
-      
+    }`}>{row.estado}</button>
       , sortable: true, maxWidth: '110px' },
     {
       name: "Acciones",

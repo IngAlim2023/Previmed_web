@@ -18,7 +18,7 @@ const BtnEliminar: React.FC<OpcionesBotones> = ({ verText, text }) => {
         hover:shadow-none
 `}
     >
-      <MdOutlineDeleteOutline className="mr-1"/>
+      <MdOutlineDeleteOutline/>
       {verText && "Eliminar"}
     </button>
   );

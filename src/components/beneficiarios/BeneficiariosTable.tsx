@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
 import BtnEliminar from "../botones/BtnEliminar";
 import BtnLeer from "../botones/BtnLeer";
+import { useAuthContext } from "../../context/AuthContext";
 
 interface Usuario {
   idUsuario: string;
@@ -31,6 +32,7 @@ interface Props {
 
 const BeneficiariosTable: React.FC<Props> = ({ data, onDelete, onRead }) => {
   const [search, setSearch] = useState("");
+  const {user} = useAuthContext()
 
   const columns: TableColumn<Beneficiario>[] = [
     {
@@ -60,9 +62,11 @@ const BeneficiariosTable: React.FC<Props> = ({ data, onDelete, onRead }) => {
           <button onClick={() => onRead(row)}>
             <BtnLeer verText={false} text="" />
           </button>
+          {user.rol?.nombreRol == 'Administrador'?
           <button onClick={() => onDelete(row.idPaciente)}>
             <BtnEliminar></BtnEliminar>
-          </button>
+          </button> : <></>
+          }
         </div>
       ),
       ignoreRowClick: true,
