@@ -33,19 +33,17 @@ const HomePacientes: React.FC = () => {
 
       try {
         setLoading(true);
-        console.log("🧠 Usuario del contexto:", user);
 
-        // 1️⃣ Obtener paciente
-        const resPaciente = await fetch(`${API_URL}/pacientes/por-usuario/${user.id}`);
+        // 1️ Obtener paciente
+        const resPaciente = await fetch(`${API_URL}pacientes/por-usuario/${user.id}`);
         if (!resPaciente.ok) throw new Error("No se encontró paciente");
         const pacienteData = await resPaciente.json();
-        console.log("✅ Paciente obtenido:", pacienteData);
 
         const pacienteInfo = pacienteData.data;
         setNombre(user?.nombre ?? "");
 
-        // 2️⃣ Buscar membresía del paciente (del JSON que mostraste)
-        const resMembresias = await fetch(`${API_URL}/membresiasxpacientes/read`);
+        // 2️ Buscar membresía del paciente (del JSON que mostraste)
+        const resMembresias = await fetch(`${API_URL}membresiasxpacientes/read`);
         if (!resMembresias.ok) throw new Error("No se pudieron obtener membresías");
         const membresiasRaw = await resMembresias.json();
         const membresiasArr = Array.isArray(membresiasRaw?.data)
@@ -60,7 +58,6 @@ const HomePacientes: React.FC = () => {
         );
 
         if (miembro) {
-          console.log("📦 Registro membresía del paciente:", miembro);
 
           // Intentar resolver planId directamente del registro, si existe
           let resolvedPlanId = miembro.planId ?? miembro.plan_id ?? null;
@@ -68,12 +65,11 @@ const HomePacientes: React.FC = () => {
           // Si no existe, consultar la membresía para obtener el planId
           if (!resolvedPlanId && miembro.membresiaId) {
             try {
-              const resM = await fetch(`${API_URL}/membresias/${miembro.membresiaId}`);
+              const resM = await fetch(`${API_URL}membresias/${miembro.membresiaId}`);
               if (resM.ok) {
                 const mData = await resM.json();
                 const m = mData?.data ?? mData?.msj ?? mData?.msg ?? mData;
                 resolvedPlanId = m?.planId ?? m?.plan_id ?? null;
-                console.log("🔎 Detalle membresía → planId:", resolvedPlanId, m);
               }
             } catch { }
           }
@@ -81,12 +77,11 @@ const HomePacientes: React.FC = () => {
           if (!resolvedPlanId) {
             console.warn("⚠️ No se pudo resolver el planId de la membresía.");
           } else {
-            // 3️⃣ Obtener el plan con el planId correcto
-            const resPlan = await fetch(`${API_URL}/planes/${resolvedPlanId}`);
+            // 3️ Obtener el plan con el planId correcto
+            const resPlan = await fetch(`${API_URL}planes/${resolvedPlanId}`);
             if (resPlan.ok) {
               const planData = await resPlan.json();
               const parsedPlan = planData?.data ?? planData?.msj ?? planData?.msg ?? planData;
-              console.log("🎯 Plan del paciente:", planData);
               // Solo establecer si hay campos esperados
               if (parsedPlan && (parsedPlan.tipoPlan || parsedPlan.tipo_plan)) {
                 // Enriquecer beneficios: relaciones + catálogo con nombres
@@ -142,19 +137,18 @@ const HomePacientes: React.FC = () => {
           console.warn("⚠️ Paciente sin membresía registrada.");
         }
 
-        // 4️⃣ Obtener beneficiarios del titular
+        // 4️ Obtener beneficiarios del titular
         const resBenef = await fetch(
-          `${API_URL}/pacientes/beneficiarios/${pacienteInfo.idPaciente}`
+          `${API_URL}pacientes/beneficiarios/${pacienteInfo.idPaciente}`
         );
         if (resBenef.ok) {
           const benefData = await resBenef.json();
-          console.log("👨‍👩‍👧 Beneficiarios encontrados:", benefData);
           setBeneficiarios(benefData.data || []);
         }
 
-        // 5️⃣ Obtener visitas del paciente (endpoint directo o fallback a listado general)
+        // 5️ Obtener visitas del paciente (endpoint directo o fallback a listado general)
         try {
-          const urlDir = `${API_URL}/visitas/paciente/${pacienteInfo.idPaciente}`;
+          const urlDir = `${API_URL}visitas/paciente/${pacienteInfo.idPaciente}`;
           const resVisDir = await fetch(urlDir);
           if (resVisDir.ok) {
             const j = await resVisDir.json();
