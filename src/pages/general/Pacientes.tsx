@@ -14,7 +14,6 @@ import { useAuthContext } from "../../context/AuthContext";
 import BtnExportarPacientes from "../../components/botones/BtnExportPacientes";
 import DetallesPaciente from "../../components/pacientes/DetallesPaciente";
 import FormPacientes from "../../components/pacientes/FormPacientes";
-import BtnBeneficiarios from "../../components/botones/BtnBeneficiarios";
 import { HiOutlineUpload } from "react-icons/hi";
 
 interface Paciente {
