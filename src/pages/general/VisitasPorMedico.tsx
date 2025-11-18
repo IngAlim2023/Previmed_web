@@ -36,10 +36,6 @@ const VisitasPorMedico: React.FC = () => {
   const API_URL = RAW_URL.replace(/\/+$/, "");
 
   useEffect(() => {
-    socket.on("solicitudVisita", (data) => {
-      toast.error('eliminar este toast')
-      console.log('socket general', data)
-    });
     socket.on("visitaConfirmada", (data) => {
       toast.success(`El usuario ${data.nombre} solicito una visita`);
       setNNotifi((prev) => prev + 1);
@@ -47,7 +43,6 @@ const VisitasPorMedico: React.FC = () => {
       setVerNotificacion(true);
     });
     return () => {
-      socket.off("solicitudVisita");
       socket.off('visitaConfirmada')
     };
   }, []);
