@@ -11,6 +11,8 @@ import BtnEliminar from "../botones/BtnEliminar";
 import BtnAgregar from "../botones/BtnAgregar";
 import { getPagos as getPagosService, deletePago } from "../../services/pagosService";
 import { useAuthContext } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { TbSettingsDollar } from "react-icons/tb";
 
 const DataTablePagos: React.FC = () => {
   const [pagos, setPagos] = useState<PagoInterface[]>([]);
@@ -19,6 +21,7 @@ const DataTablePagos: React.FC = () => {
   const [pago, setPago] = useState<PagoInterface | null>(null);
   const [buscarPago, setBuscarPago] = useState<string>("");
   const {user} = useAuthContext()
+  const navigate = useNavigate();
 
   // Evita doble ejecución del efecto en React 18 StrictMode
   const fetchedOnce = useRef(false);
@@ -26,7 +29,13 @@ const DataTablePagos: React.FC = () => {
   const getPagos = async (showToast = false) => {
     try {
       const data = await getPagosService();
-      setPagos(data.data);
+      // solo el admin puede ver todos los pagos, de lo contrario aparecen los registrados o asigandos por el asesor
+      if(user.rol?.nombreRol != "Administrador") {
+        const pagosFiltrados = data.data.filter((p:PagoInterface) => p.cobradorId == user.id);
+        setPagos(pagosFiltrados);
+      }else{
+        setPagos(data.data);
+      }
       if (showToast) {
         toast.success("Pagos cargados exitosamente", { id: "pagos-cargados" });
       }
@@ -138,8 +147,26 @@ const DataTablePagos: React.FC = () => {
               onChange={(e) => setBuscarPago(e.target.value)}
               className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
             />
-            <div onClick={() => { setPago(null); setForm(true); }}>
-              <BtnAgregar verText={true} />
+            <div className="flex gap-2 items-center">
+              { user.rol?.nombreRol == 'Administrador'?(
+                <button onClick={()=> navigate('/formas_pago')} 
+                className="
+                  relative overflow-hidden flex items-center gap-2
+                  text-amber-500 font-bold p-1.5 m-1 border-1 border-amber-500 rounded-md
+                  transition-all duration-700 ease-in-out hover:text-white
+                  bg-linear-to-r from-amber-500 to-amber-500
+                  bg-no-repeat bg-[length:0%_0%] bg-left-bottom
+                  hover:bg-[length:200%_200%]
+                  hover:cursor-pointer
+                  hover:shadow-none">
+                  <TbSettingsDollar className="text-lg"/>
+                  Formas de pago
+                </button>
+                ):(<></>)
+              }
+              <div onClick={() => { setPago(null); setForm(true); }}>
+                <BtnAgregar verText={true} />
+              </div>
             </div>
           </div>
           <DataTable

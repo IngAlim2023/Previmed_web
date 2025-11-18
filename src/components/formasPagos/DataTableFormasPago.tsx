@@ -45,8 +45,7 @@ const DataTableFormasPago: React.FC<Props> = ({ data, loading, onEdit, onDelete 
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4 overflow-x-auto w-full max-w-4xl mx-auto">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">Formas de pago</h2>
+    <div className="bg-white p-4 overflow-x-auto w-full max-w-4xl mx-auto">
       <DataTable
         columns={columns as any}
         data={data}

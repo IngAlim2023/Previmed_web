@@ -6,14 +6,15 @@ import { HiOutlineHeart } from "react-icons/hi"
 import BtnAgregar from "../botones/BtnAgregar"
 import BtnEditar from "../botones/BtnEditar"
 import BtnEliminar from "../botones/BtnEliminar"
-import BtnLeer from "../botones/BtnLeer"
+/* import BtnLeer from "../botones/BtnLeer" */
 import BtnCerrar from "../botones/BtnCerrar"
 import BtnCancelar from "../botones/BtnCancelar"
 
 import FormBeneficio from "./FormBeneficios"
-import DetallesBeneficio from "./DetallesBeneficio"
+/* import DetallesBeneficio from "./DetallesBeneficio" */
 import { getBeneficios, deleteBeneficio } from "../../services/beneficios"
 import { Beneficio } from "../../interfaces/beneficios"
+import { useNavigate } from "react-router-dom"
 
 const DataTableBeneficios: React.FC = () => {
   const [beneficios, setBeneficios] = useState<Beneficio[]>([])
@@ -22,8 +23,9 @@ const DataTableBeneficios: React.FC = () => {
   const [editing, setEditing] = useState<Beneficio | null>(null)
   const [closingModal, setClosingModal] = useState(false)
   const [search, setSearch] = useState("")
-  const [showDetalles, setShowDetalles] = useState(false)
-  const [beneficioSeleccionado, setBeneficioSeleccionado] = useState<Beneficio | null>(null)
+/*   const [showDetalles, setShowDetalles] = useState(false)
+  const [beneficioSeleccionado, setBeneficioSeleccionado] = useState<Beneficio | null>(null) */
+  const navigate = useNavigate();
 
   // 🔄 Cargar beneficios
   const fetchBeneficios = async () => {
@@ -143,9 +145,9 @@ const DataTableBeneficios: React.FC = () => {
           <div onClick={() => handleEliminar(row.id_beneficio!)}>
             <BtnEliminar />
           </div>
-          <div onClick={() => { setBeneficioSeleccionado(row); setShowDetalles(true) }}>
+{/*           <div onClick={() => { setBeneficioSeleccionado(row); setShowDetalles(true) }}>
             <BtnLeer />
-          </div>
+          </div> */}
         </div>
       ),
       width: "200px",
@@ -162,17 +164,23 @@ const DataTableBeneficios: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-700">Beneficios</h2>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <input
-              type="text"
-              placeholder="Buscar beneficio..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="border border-gray-300 rounded-xl px-4 py-2 w-full md:w-72 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            />
+          <input
+            type="text"
+            placeholder="Buscar beneficio..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border border-gray-300 rounded-xl px-4 py-2 w-full md:w-72 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          />
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={()=> navigate('/planes')}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Regresar
+            </button>
             <div onClick={handleNuevo}>
-              {/* @ts-expect-error */}
-              <BtnAgregar>Agregar</BtnAgregar>
+              <BtnAgregar verText={true} />
             </div>
           </div>
         </div>
@@ -226,12 +234,12 @@ const DataTableBeneficios: React.FC = () => {
       )}
 
       {/* 🧾 Modal Detalles */}
-      {showDetalles && (
+{/*       {showDetalles && (
         <DetallesBeneficio
           beneficio={beneficioSeleccionado}
           setShowDetalles={setShowDetalles}
         />
-      )}
+      )} */}
     </div>
   )
 }

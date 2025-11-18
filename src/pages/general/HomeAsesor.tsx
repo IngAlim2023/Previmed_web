@@ -48,7 +48,7 @@ const HomeAsesor: React.FC = () => {
           </div>
 
           {/* Opciones en línea (horizontal) */}
-          <div className="flex flex-row justify-center items-center gap-12 text-[#003366] text-base font-medium mt-6">
+{/*           <div className="flex flex-row justify-center items-center gap-12 text-[#003366] text-base font-medium mt-6">
             <OptionLink
               icon={<IoIosDocument className="w-5 h-5" />}
               label="Planes"
@@ -64,7 +64,7 @@ const HomeAsesor: React.FC = () => {
               label="Contratos"
               onClick={() => navigate('/contratos')}
             />
-          </div>
+          </div> */}
 
         </div>
       </div>

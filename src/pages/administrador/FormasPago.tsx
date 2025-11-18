@@ -4,6 +4,7 @@ import FormularioFormaPago from "../../components/formasPagos/FormularioFormaPag
 import { FormaPago } from "../../interfaces/formaPago";
 import { formasPagoService } from "../../services/formasPagoService";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const FormasPago: React.FC = () => {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
@@ -11,6 +12,7 @@ const FormasPago: React.FC = () => {
   const [formaSeleccionada, setFormaSeleccionada] = useState<FormaPago | null>(null);
   const [data, setData] = useState<FormaPago[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const navigate = useNavigate();
 
   const cargar = useCallback(async () => {
     try {
@@ -60,15 +62,24 @@ const FormasPago: React.FC = () => {
   return (
     <div className="w-full h-full flex flex-col items-center justify-start p-4">
       {!mostrarFormulario ? (
-        <div className="w-full">
+        <div className="w-full max-w-4xl mt-4 bg-white rounded-lg shadow-xl p-6">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-gray-700">Formas de Pago</h1>
-            <button
-              onClick={abrirCrear}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-            >
-              Nueva Forma de Pago
-            </button>
+
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={()=> navigate('/pagos')}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                Regresar
+              </button>
+              <button
+                onClick={abrirCrear}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+                >
+                Nueva Forma de Pago
+              </button>
+            </div>
           </div>
 
           <DataTableFormasPago

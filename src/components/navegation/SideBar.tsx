@@ -9,9 +9,9 @@ import {
   FaFileContract,
   FaUserFriends,
   FaBriefcaseMedical,
-  FaFileAlt,
+/*   FaFileAlt,
   FaGift,
-  FaWpforms,
+  FaWpforms, */
   FaHospital,
   FaTachometerAlt,
   FaHome,
@@ -52,10 +52,10 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
     { path: "/planes", label: "Planes", icon: <FaClipboardList />, roles: ["Administrador"] },
     { path: "/visitas", label: "Visitas", icon: <FaCalendarAlt />, roles: ["Administrador"] },
     { path: "/pacientes", label: "Pacientes", icon: <FaUserFriends />, roles: ["Administrador"] },
-    { path: "/contratos", label: "Contratos", icon: <FaFileAlt />, roles: ["Administrador"] },
-    { path: "/beneficios_plan", label: "Beneficios Plan", icon: <FaGift />, roles: ["Administrador"] },
+/*     { path: "/contratos", label: "Contratos", icon: <FaFileAlt />, roles: ["Administrador"] },
+    { path: "/beneficios_plan", label: "Beneficios Plan", icon: <FaGift />, roles: ["Administrador"] }, 
+    { path: "/formas_pago", label: "Formas de Pago", icon: <FaWpforms />, roles: ["Administrador"] }, */
     { path: "/solicitudes", label: "Solicitudes", icon: <FaBriefcaseMedical />, roles: ["Administrador"] },
-    { path: "/formas_pago", label: "Formas de Pago", icon: <FaWpforms />, roles: ["Administrador"] },
     { path: "/eps", label: "EPS", icon: <FaHospital />, roles: ["Administrador"] },
     { path: "/barrios", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Administrador"] },
 /*     { path: "/roles", label: "Roles", icon: <FaUserShield />, roles: ["Administrador"] },
@@ -64,7 +64,7 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
     // 🔹 ASESOR
     { path: "/home/asesor", label: "Inicio", icon: <FaHome />, roles: ["Asesor"] },
     { path: "/pacientes/asesor", label: "Pacientes", icon: <FaUserFriends />, roles: ["Asesor"] },
-    { path: "/contratos/asesor", label: "Contratos", icon: <FaClipboardList />, roles: ["Asesor"] },
+    /* { path: "/contratos/asesor", label: "Contratos", icon: <FaClipboardList />, roles: ["Asesor"] }, */
     { path: "/pagos/asesor", label: "Registros Pagos", icon: <FaMoneyBill />, roles: ["Asesor"] },
     { path: "/barrios/asesor", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Asesor"] },
 
