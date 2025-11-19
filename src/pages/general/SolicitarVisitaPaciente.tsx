@@ -256,11 +256,6 @@ const SolicitarVisitaPaciente: React.FC = () => {
             </button>
           </form>
         </div>
-        <button onClick={()=>{
-          socket.emit('solicitudVisita', user)
-        }}>
-          socket
-        </button>
       </div>
     </div>
   );

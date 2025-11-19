@@ -30,3 +30,22 @@ export const putNoficacionVista = async (id: number | null) => {
   if (!res.ok) throw new Error("Error al modificar la notificación");
   return res.json();
 };
+
+
+export const getNoficacionesAdminVisitas = async () => {
+  const res = await fetch(`${BASE_URL}notificaciones/admin/visitas`);
+  if (!res.ok) throw new Error("Error al obtener notificaciones");
+  return res.json();
+};
+
+export const deleteNoficacionesAdmin = async (id: number | null) => {
+  if (id === null) return;
+  const res = await fetch(`${BASE_URL}notificaciones/delete/${id}`,
+    {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  }
+  );
+  if (!res.ok) throw new Error("Error al obtener notificaciones");
+  return res.json();
+};
