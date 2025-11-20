@@ -17,9 +17,8 @@ describe('FormPacientes', () => {
 
     render(
       <FormPacientes
-        isOpen={true}
-        onClose={mockOnClose}
-        onSubmit={mockOnSubmit}
+        setFormPaciente={mockOnClose}
+        paciente={mockOnSubmit}
       />
     );
 

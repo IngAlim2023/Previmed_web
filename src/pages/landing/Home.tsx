@@ -7,7 +7,6 @@ import Servicios from "../../components/landing/Servicios";
 import Planes from "../../components/landing/Planes";
 import Contactos from "../../components/landing/Contactos";
 import Footer from "../../components/landing/Footer";
-import FloatingChatButton from "../../components/botones/FloatingChatButton";
 
 export const Home: React.FC = () => {
   return (
@@ -38,9 +37,6 @@ export const Home: React.FC = () => {
       </div>
       <div>
         <Footer/>
-      </div>
-      <div>
-        <FloatingChatButton/>
       </div>
     </>
   );

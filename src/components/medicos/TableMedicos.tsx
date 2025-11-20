@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { FiTrash2, FiPlus } from "react-icons/fi";
+import { FiTrash2 } from "react-icons/fi";
 import { medicoService } from "../../services/medicoService";
 import type { MedicoResponse } from "../../interfaces/medicoInterface";
 import FormMedicos from "./FormMedicos";
+import BtnAgregar from "../botones/BtnAgregar";
 
 export default function TableMedicos() {
   const [medicos, setMedicos] = useState<MedicoResponse[]>([]);
@@ -65,11 +66,18 @@ export default function TableMedicos() {
 
   return (
     <div className="w-full p-4">
-      {/* Título */}
-      <h1 className="text-2xl font-bold text-teal-900 mb-6">Lista de Médicos</h1>
-
+    {/* CARD DE BUSQUEDA */}
+      <div className="bg-white p-4 rounded-lg shadow mb-6 items-center">
+        <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-teal-900">Lista de Médicos</h1>
+        <div
+          onClick={() => setShowModal(true)}
+          title="Agregar médico">
+            <BtnAgregar verText={true} />
+        </div>
+      </div>
       {/* Filtros */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6 flex flex-col md:flex-row gap-4">
+      <div className="bg-white flex flex-col md:flex-row gap-4">
         {/* Buscar */}
         <input
           type="text"
@@ -77,14 +85,14 @@ export default function TableMedicos() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-teal-500"
-        />
+          />
 
 
         <select
           value={filterDisponibilidad}
           onChange={(e) => setFilterDisponibilidad(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-        >
+          >
           <option value="all">Todas las disponibilidades</option>
           <option value="true">Disponible</option>
           <option value="false">No disponible</option>
@@ -95,11 +103,12 @@ export default function TableMedicos() {
           value={filterEstado}
           onChange={(e) => setFilterEstado(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-        >
+          >
           <option value="all">Todos los estados</option>
           <option value="true">Activo</option>
           <option value="false">Inactivo</option>
         </select>
+      </div>
       </div>
 
       {filteredMedicos.length ? (
@@ -168,15 +177,6 @@ export default function TableMedicos() {
       ) : (
         <p className="text-center text-gray-600">No se encontraron médicos</p>
       )}
-
-      {/* BOTÓN FLOTANTE AGREGAR MÉDICO */}
-      <button
-        onClick={() => setShowModal(true)}
-        className="fixed bottom-6 right-6 bg-teal-600 hover:bg-teal-700 text-white p-4 rounded-full shadow-lg transition flex items-center justify-center"
-        title="Agregar médico"
-      >
-        <FiPlus size={24} />
-      </button>
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

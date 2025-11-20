@@ -1,14 +1,14 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+/* import { useNavigate } from 'react-router-dom';
 
 import { IoIosDocument } from 'react-icons/io';
-import { ImLocation } from 'react-icons/im';
-import { FaBookOpen, FaChartLine } from 'react-icons/fa';
+import { ImLocation } from 'react-icons/im'; */
+import { FaChartLine } from 'react-icons/fa';
 import { useAuthContext } from '../../context/AuthContext';
 
 const asesor_img = 'https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411224/asesor_img_nls11f.png';
 const HomeAsesor: React.FC = () => {
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   const {user} = useAuthContext()
 
   return (
@@ -73,8 +73,7 @@ const HomeAsesor: React.FC = () => {
 };
 
 // Componente de opción horizontal usando react-icons
-// Componente de opción horizontal usando react-icons
-type OptionLinkProps = {
+/* type OptionLinkProps = {
   icon: React.ReactNode;
   label: string;
   onClick: () => void;
@@ -88,6 +87,6 @@ const OptionLink: React.FC<OptionLinkProps> = ({ icon, label, onClick }) => (
     {icon}
     <span>{label}</span>
   </div>
-);
+); */
 
 export default HomeAsesor;

@@ -4,7 +4,6 @@ import ReactSelectComponent from "../../components/formulario/ReactSelectCompone
 import { useEffect, useState } from "react";
 import { Visita } from "../../interfaces/visitas";
 import { getBarrios } from "../../services/barrios";
-import { DataBarrio } from "../../interfaces/Barrio";
 import { medicoService } from "../../services/medicoService";
 import { getPacientesId } from "../../services/pacientes";
 import { useAuthContext } from "../../context/AuthContext";
@@ -17,9 +16,6 @@ import socket from "../../services/socket";
 import { createNotificacionMedico } from "../../services/notificaciones";
 
 const SolicitarVisitaPaciente: React.FC = () => {
-  const [pacientes, setpacientes] = useState([]);
-  const [medicos, setMedicos] = useState<any>([]);
-  const [barrios, setBarrios] = useState<DataBarrio[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectPacientes, setSelectPacientes] = useState<any>([]);
   const [selectMedicos, setSelectMedicos] = useState<any>([]);
@@ -89,10 +85,6 @@ const SolicitarVisitaPaciente: React.FC = () => {
         const resBarrios = await getBarrios();
         const resMedicos = await medicoService.getDisponibles();
         const resPacientes = await getPacientesId(user.id ? user.id : "");
-
-        setpacientes(resPacientes);
-        setBarrios(resBarrios);
-        setMedicos(resMedicos);
 
         // Procesar pacientes
         const pacientesOptions = (resPacientes as any[])
