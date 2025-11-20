@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   deleteNoficacionesAdmin,
+  getNoficacionesAdminPagos,
   getNoficacionesAdminVisitas,
 } from "../../services/notificaciones";
 import { IoMdNotifications, IoMdClose, IoMdTrash } from "react-icons/io";
@@ -11,24 +12,36 @@ const Notificaciones: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [update, setUpdate] = useState<boolean>(false);
   const [notificaciones, setNotificaciones] = useState<any[]>([]);
+  const [notiPagos, setNotiPagos] = useState<any[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
-      const res = await getNoficacionesAdminVisitas();
-      setNotificaciones(res.data);
+      try {
+        const [resVisitas, resPagos] = await Promise.all([
+          getNoficacionesAdminVisitas(),
+          getNoficacionesAdminPagos(),
+        ]);
+        setNotificaciones(resVisitas.data);
+        setNotiPagos(resPagos.data);
+      } catch (e) {}
     };
     loadData();
   }, [update]);
 
-  useEffect(()=>{
-    socket.on('solicitudVisita',(data)=>{
-      toast.success(`el usuario ${data.nombre} solicito una visita`)
-      setUpdate(!update)
-    })
-    return ()=>{
-      socket.off('solicitudVisita')
-    }
-  },[])
+  useEffect(() => {
+    socket.on("registroPago", (data) => {
+      toast.success(`el asesor ${data.nombre} registro un pago`);
+      setUpdate(prev => !prev);
+    });
+    socket.on("solicitudVisita", (data) => {
+      toast.success(`el usuario ${data.nombre} solicito una visita`);
+      setUpdate(prev => !prev);
+    });
+    return () => {
+      socket.off("registroPago");
+      socket.off("solicitudVisita");
+    };
+  }, []);
 
   const handleDelete = async (id: number | number) => {
     const res = await deleteNoficacionesAdmin(id);
@@ -45,8 +58,8 @@ const Notificaciones: React.FC = () => {
       <button
         onClick={() => setOpen(!open)}
         className="
-          fixed bottom-5 right-5 z-50
-          w-14 h-14 rounded-full
+          fixed bottom-2 right-2 z-50
+          w-12 h-12 rounded-full
           bg-cyan-600 hover:bg-cyan-700
           shadow-2xl text-white text-3xl
           flex items-center justify-center
@@ -55,15 +68,15 @@ const Notificaciones: React.FC = () => {
       >
         <IoMdNotifications />
 
-        {notificaciones.length > 0 && (
+        {(notificaciones.length > 0 || notiPagos.length > 0) && (
           <span
             className="
-              absolute -top-1 -right-1 
-              bg-red-600 text-white text-xs
-              px-2 py-[2px] rounded-full shadow-md
-            "
+      absolute -top-1 -right-1 
+      bg-red-600 text-white text-xs
+      px-2 py-[2px] rounded-full shadow-md
+    "
           >
-            {notificaciones.length}
+            {notificaciones.length + notiPagos.length}
           </span>
         )}
       </button>
@@ -106,10 +119,14 @@ const Notificaciones: React.FC = () => {
               </button>
             </div>
 
-            {/* Lista */}
+            {/* ---------------------------------------- */}
+            {/* NOTIFICACIONES DE VISITAS */}
+            {/* ---------------------------------------- */}
+            <h3 className="text-lg font-semibold mt-2 mb-2">Visitas</h3>
+
             {notificaciones.length === 0 ? (
-              <p className="text-gray-500 text-center py-6">
-                No hay notificaciones.
+              <p className="text-gray-500 text-center py-4">
+                No hay notificaciones de visitas.
               </p>
             ) : (
               <div className="space-y-3">
@@ -117,11 +134,11 @@ const Notificaciones: React.FC = () => {
                   <div
                     key={item.id}
                     className="
-                      flex justify-between gap-3 items-center
-                      border border-gray-200 rounded-lg p-4
-                      shadow-sm bg-gray-50
-                      hover:bg-gray-100 transition
-                    "
+          flex justify-between gap-3 items-center
+          border border-gray-200 rounded-lg p-4
+          shadow-sm bg-gray-50
+          hover:bg-gray-100 transition
+        "
                   >
                     <div className="flex-1">
                       <div className="font-semibold text-gray-900">
@@ -131,26 +148,82 @@ const Notificaciones: React.FC = () => {
                         {new Date(item.created_at).toLocaleString()}
                       </div>
                       <span
-                        className={`
-                          text-xs px-2 py-1 rounded-full mt-1 inline-block
-                          ${
-                            item.estado
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }
-                        `}
+                        className={`text-xs px-2 py-1 rounded-full mt-1 inline-block ${
+                          item.estado
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
                       >
                         {item.estado ? "Vista" : "Sin leer"}
                       </span>
                     </div>
 
-                    {/* Botón eliminar */}
                     <button
                       onClick={() => handleDelete(item.id)}
                       className="
-                        text-red-600 hover:text-red-800
-                        text-xl p-2 transition
-                      "
+            text-red-600 hover:text-red-800
+            text-xl p-2 transition
+          "
+                    >
+                      <IoMdTrash />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ---------------------------------------- */}
+            {/* NOTIFICACIONES DE PAGOS */}
+            {/* ---------------------------------------- */}
+            <h3 className="text-lg font-semibold mt-5 mb-2">Pagos</h3>
+
+            {notiPagos.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">
+                No hay notificaciones de pagos.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {notiPagos.map((pago) => (
+                  <div
+                    key={pago.id}
+                    className="
+          flex justify-between gap-3 items-center
+          border border-blue-200 rounded-lg p-4
+          shadow-sm bg-blue-50
+          hover:bg-blue-100 transition
+        "
+                  >
+                    <div className="flex-1">
+                      <div className="font-semibold text-blue-900">
+                        Pago registrado por {pago.nombre_asesor}{" "}
+                        {pago.apellido_asesor}
+                      </div>
+
+                      <div className="text-sm text-gray-600">
+                        {new Date(pago.created_at).toLocaleString()}
+                      </div>
+
+                      <span
+                        className={`
+              text-xs px-2 py-1 rounded-full mt-1 inline-block
+              ${
+                pago.estado
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }
+            `}
+                      >
+                        {pago.estado ? "Revisado" : "Sin revisar"}
+                      </span>
+                    </div>
+
+                    {/* Botón eliminar */}
+                    <button
+                      onClick={() => handleDelete(pago.id)}
+                      className="
+            text-red-600 hover:text-red-800
+            text-xl p-2 transition
+          "
                     >
                       <IoMdTrash />
                     </button>

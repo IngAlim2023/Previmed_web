@@ -4,6 +4,10 @@ interface DataNotificacionMedico {
   paciente_id: string|null;
   medico_id: number|null;
 }
+interface DataNotificacionPago {
+  cobrador_id: string|null;
+  registro_pago_id: number|null;
+}
 
 export const getNoficacionesMedicos = async (id: number | null) => {
   if (id === null) return;
@@ -13,6 +17,17 @@ export const getNoficacionesMedicos = async (id: number | null) => {
 };
 export const createNotificacionMedico = async (
   noti: Partial<DataNotificacionMedico>
+) => {
+  const res = await fetch(`${BASE_URL}notificaciones/create`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(noti),
+  });
+  if (!res.ok) throw new Error("Error al crear la notificación");
+  return res.json();
+};
+export const createNotificacionPago = async (
+  noti: Partial<DataNotificacionPago>
 ) => {
   const res = await fetch(`${BASE_URL}notificaciones/create`, {
     method: "POST",
@@ -34,6 +49,12 @@ export const putNoficacionVista = async (id: number | null) => {
 
 export const getNoficacionesAdminVisitas = async () => {
   const res = await fetch(`${BASE_URL}notificaciones/admin/visitas`);
+  if (!res.ok) throw new Error("Error al obtener notificaciones");
+  return res.json();
+};
+
+export const getNoficacionesAdminPagos = async () => {
+  const res = await fetch(`${BASE_URL}notificaciones/admin/pagos`);
   if (!res.ok) throw new Error("Error al obtener notificaciones");
   return res.json();
 };
