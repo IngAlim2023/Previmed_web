@@ -128,7 +128,7 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
     const payload: Visita = {
       id_visita: visita ? visita.id_visita : 0,
       fecha_visita: data.fecha_visita,
-      descripcion: data.descripcion,
+      descripcion: data.descripcion.trim() || "",
       direccion: data.direccion,
       estado: data.estado === "true",
       telefono: data.telefono,
@@ -216,12 +216,12 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
 
           {/* Descripción */}
           <div className="col-span-2">
-            <label className="block text-gray-600 text-sm mb-1">Descripción</label>
+            <label className="block text-gray-600 text-sm mb-1">Descripción <span className="text-gray-400 text-xs">(Opcional)</span></label>
             <textarea
-              {...register("descripcion", { required: true })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg h-20 focus:ring focus:ring-blue-200 focus:border-blue-400"
+              {...register("descripcion")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg h-20 focus:ring focus:ring-blue-200 focus:border-blue-400"
+            placeholder="Ingrese una descripción (opcional)"
             />
-            {errors.descripcion && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Dirección */}
