@@ -7,8 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
-const logo =
-  "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411217/logo_mucors.png";
 const previmedImg =
   "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761360937/PREVIMED_Full_Color_zwphjh.png";
 
@@ -18,10 +16,9 @@ interface UsuarioCredenciales {
 }
 
 const Login: React.FC = () => {
-  const { register, handleSubmit, watch } = useForm<UsuarioCredenciales>();
+  const { register, handleSubmit } = useForm<UsuarioCredenciales>();
   const navigate = useNavigate();
   const { setUser, setIsAuthenticated, isAuthenticated } = useAuthContext();
-  const numeroDocumento = watch("numero_documento");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 

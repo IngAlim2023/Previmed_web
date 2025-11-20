@@ -8,3 +8,21 @@ coverage
 cypress/videos
 cypress/screenshots
 dist
+
+# Tests
+*.test.tsx
+*.test.ts
+*.test.jsx
+*.test.js
+__tests__
+tests
+src/tests
+cypress
+
+.env
+.env.local
+.env.development
+.vscode
+.idea
+.DS_Store
+README.md
