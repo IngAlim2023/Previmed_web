@@ -45,7 +45,7 @@ const FormasPago: React.FC = () => {
   const cerrarFormulario = () => setMostrarFormulario(false);
 
   const onSaved = async () => {
-    await cargar();     // refresca la tabla
+    await cargar();
     cerrarFormulario();
   };
 
@@ -53,49 +53,64 @@ const FormasPago: React.FC = () => {
     try {
       await formasPagoService.remove(id);
       setData((prev) => prev.filter((f) => f.id_forma_pago !== id));
-      toast.success("Eliminada");
-    } catch (e: any) {
-      toast.error(e?.message || "Error al eliminar");
+      toast.success("Forma de pago eliminada correctamente");
+    } catch {
+      toast.error("Error al eliminar");
     }
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-start p-4">
+    <div className="w-full min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-6">
       {!mostrarFormulario ? (
-        <div className="w-full max-w-4xl mt-4 bg-white rounded-lg shadow-xl p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-gray-700">Formas de Pago</h1>
+        <div className="max-w-6xl mx-auto">
 
-            <div className="flex gap-2 items-center">
+          {/* HEADER */}
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">
+                Formas de Pago
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Gestiona las formas de pago disponibles
+              </p>
+            </div>
+
+            <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
               <button
-                onClick={()=> navigate('/pagos')}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                >
-                Regresar
+                onClick={() => navigate("/pagos")}
+                className="flex-1 sm:flex-none bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition font-semibold shadow"
+              >
+                ← Regresar
               </button>
+
               <button
                 onClick={abrirCrear}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
-                >
-                Nueva Forma de Pago
+                className="flex-1 sm:flex-none bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-semibold shadow flex items-center justify-center gap-1"
+              >
+                + Nueva Forma de Pago
               </button>
             </div>
-          </div>
+          </header>
 
-          <DataTableFormasPago
-            data={data}
-            loading={loading}
-            onEdit={abrirEditar}
-            onDelete={onDelete}
-          />
+          {/* TABLE CARD */}
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+            <DataTableFormasPago
+              data={data}
+              loading={loading}
+              onEdit={abrirEditar}
+              onDelete={onDelete}
+            />
+          </div>
         </div>
       ) : (
-        <FormularioFormaPago
-          mode={modo}
-          initial={formaSeleccionada}
-          onSaved={onSaved}
-          onCancel={cerrarFormulario}
-        />
+        <div className="max-w-4xl mx-auto animate-fade-in">
+          <FormularioFormaPago
+            mode={modo}
+            initial={formaSeleccionada}
+            onSaved={onSaved}
+            onCancel={cerrarFormulario}
+          />
+        </div>
       )}
     </div>
   );

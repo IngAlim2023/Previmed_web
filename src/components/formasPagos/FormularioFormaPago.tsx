@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { IoClose } from "react-icons/io5";
 import {
   FormaPago,
   CreateFormaPagoDto,
@@ -66,7 +67,7 @@ const FormularioFormaPago: React.FC<Props> = ({
           estado,
         };
         const updated = await formasPagoService.update(payload);
-        toast.success("Forma de pago actualizada");
+        toast.success("Forma de pago actualizada ✅");
         onSaved?.(updated);
       } else {
         const payload: CreateFormaPagoDto = {
@@ -74,7 +75,7 @@ const FormularioFormaPago: React.FC<Props> = ({
           estado,
         };
         const created = await formasPagoService.create(payload);
-        toast.success("Forma de pago creada");
+        toast.success("Forma de pago creada 🎉");
         onSaved?.(created);
         setTipoPago("");
         setEstado(true);
@@ -87,84 +88,94 @@ const FormularioFormaPago: React.FC<Props> = ({
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto bg-white rounded-xl shadow p-6">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
-        {isEdit ? "Editar forma de pago" : "Registrar forma de pago"}
-      </h2>
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className={`${isEdit ? "bg-blue-600" : "bg-green-600"} px-6 py-4 flex justify-between items-center`}>
+          <h2 className="text-2xl font-bold text-white">
+            {isEdit ? "✏️ Editar forma de pago" : "➕ Registrar forma de pago"}
+          </h2>
+          <button
+            onClick={onCancel}
+            className="text-white hover:bg-white/20 p-1 rounded-lg transition"
+          >
+            <IoClose size={24} />
+          </button>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {isEdit && (
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          
+
+          {/* Tipo de Pago */}
           <div>
-            <label className="block text-sm text-gray-600 mb-1">ID</label>
+            <label
+              htmlFor="tipoPago"
+              className="block text-sm font-semibold text-gray-700 mb-2"
+            >
+              Tipo de pago <span className="text-red-500">*</span>
+            </label>
             <input
+              id="tipoPago"
               type="text"
-              value={id ?? ""}
-              readOnly
-              className="w-full rounded-lg border bg-gray-100 text-gray-600 p-2 cursor-not-allowed"
+              placeholder="Ej: Efectivo, Transferencia, Tarjeta..."
+              value={tipoPago}
+              onChange={(e) => setTipoPago(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
           </div>
-        )}
 
-        <div>
-          <label
-            htmlFor="tipoPago"
-            className="block text-sm text-gray-600 mb-1"
-          >
-            Tipo de pago <span className="text-red-500">*</span>
-          </label>
-          <input
-            id="tipoPago"
-            type="text"
-            placeholder="Ej: Efectivo, Transferencia, Tarjeta..."
-            value={tipoPago}
-            onChange={(e) => setTipoPago(e.target.value)}
-            className="w-full rounded-lg border p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
+          {/* Estado */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div className="relative">
+                <input
+                  id="estado"
+                  type="checkbox"
+                  checked={estado}
+                  onChange={(e) => setEstado(e.target.checked)}
+                  className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <span className="text-sm font-semibold text-gray-700">
+                {estado ? "✅ Activa" : "❌ Inactiva"}
+              </span>
+            </label>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <input
-            id="estado"
-            type="checkbox"
-            checked={estado}
-            onChange={(e) => setEstado(e.target.checked)}
-            className="h-4 w-4"
-          />
-          <label htmlFor="estado" className="text-sm text-gray-700">
-            Activa
-          </label>
-        </div>
-
-        <div className="flex items-center gap-3 pt-2">
-          <button
-            type="submit"
-            disabled={submitting}
-            className={`px-4 py-2 rounded-lg text-white ${
-              submitting ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
-            } transition`}
-          >
-            {submitting
-              ? isEdit
-                ? "Guardando..."
-                : "Creando..."
-              : isEdit
-              ? "Guardar cambios"
-              : "Crear"}
-          </button>
-
-          {onCancel && (
+          {/* Botones */}
+          <div className="flex gap-3 pt-4 border-t">
             <button
-              type="button"
-              onClick={() => {
-                onCancel();
-              }}
-              className="px-4 py-2 rounded-lg border hover:bg-gray-50 transition"
+              type="submit"
+              disabled={submitting}
+              className={`flex-1 py-2 rounded-lg text-white font-semibold transition-all duration-200 ${
+                submitting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : isEdit
+                  ? "bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg"
+                  : "bg-green-600 hover:bg-green-700 shadow-md hover:shadow-lg"
+              }`}
             >
-              Cancelar
+              {submitting
+                ? isEdit
+                  ? "⏳ Guardando..."
+                  : "⏳ Creando..."
+                : isEdit
+                ? "💾 Guardar cambios"
+                : "✓ Crear"}
             </button>
-          )}
-        </div>
-      </form>
+
+            {onCancel && (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="flex-1 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200"
+              >
+                ✕ Cancelar
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

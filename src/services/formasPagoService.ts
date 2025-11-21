@@ -103,21 +103,21 @@ export const formasPagoService = {
     return normalizeFormaPago(created?.data ?? created);
   },
 
-  // ID viaja en el body ojo ahi
   async update(data: UpdateFormaPagoDto): Promise<FormaPago> {
-    const res = await fetch(`${BASE}${RESOURCE}/update`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id_forma_pago: data.id_forma_pago,
-        tipo_pago: data.tipo_pago,
-        estado: data.estado,
-      }),
-    });
-    if (!res.ok) throw new Error("Error al actualizar la forma de pago");
-    const updated = await res.json();
-    return normalizeFormaPago(updated?.data ?? updated);
-  },
+  const res = await fetch(`${BASE}${RESOURCE}/update/${data.id_forma_pago}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      tipo_pago: data.tipo_pago,
+      estado: data.estado,
+    }),
+  });
+
+  if (!res.ok) throw new Error("Error al actualizar la forma de pago");
+  const updated = await res.json();
+  return normalizeFormaPago(updated?.data ?? updated);
+}
+  ,
 
   async remove(id: number): Promise<void> {
     const res = await fetch(`${BASE}${RESOURCE}/delete/${id}`, { method: "DELETE" });
