@@ -2,8 +2,19 @@ import { BsTelephoneFill } from "react-icons/bs";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import FormSolicitudes from "./FormSolicitudes";
+import { useEffect, useState } from "react";
+import { getContacto } from "../../services/contactos";
 
 const Contactos: React.FC = () => {
+  const [contacto, setContacto] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const res = await getContacto();
+      setContacto(res.data);
+    };
+    loadData();
+  }, []);
   return (
     <>
       <section
@@ -29,10 +40,9 @@ const Contactos: React.FC = () => {
             <h4 className="text-xl font-semibold text-gray-800 mb-2">
               Nuestra ubicación
             </h4>
-            <p className="text-gray-600">
-              Cra 6 No. 15N-03 B/ El Recuerdo Popayán Cauca 52 Colombia
-            </p>
-            <p className="text-gray-600">Popayán, 535022</p>
+            {contacto.length > 0 && (
+              <p className="text-gray-600">{contacto[0].ubicacion}</p>
+            )}
           </div>
 
           <div
@@ -45,8 +55,12 @@ const Contactos: React.FC = () => {
             <h4 className="text-xl font-semibold text-gray-800 mb-2">
               Números telefónicos
             </h4>
-            <p className="text-gray-600">+57 358 554 8855</p>
-            <p className="text-gray-600">+57 367 254 4441</p>
+            {contacto.length > 0 && (
+              <>
+                <p className="text-gray-600">{contacto[0].telefonouno}</p>
+                <p className="text-gray-600">{contacto[0].telefonodos}</p>
+              </>
+            )}
           </div>
 
           <div
@@ -59,15 +73,18 @@ const Contactos: React.FC = () => {
             <h4 className="text-xl font-semibold text-gray-800 mb-2">
               Correos electrónicos
             </h4>
-            <p className="text-gray-600">info@example.com</p>
-            <p className="text-gray-600">contact@example.com</p>
+            {contacto.length > 0 && (
+              <>
+                <p className="text-gray-600">{contacto[0].emailuno}</p>
+                <p className="text-gray-600">{contacto[0].emaildos}</p>
+              </>
+            )}
           </div>
         </div>
-          <div className="mt-8">
-          <FormSolicitudes/>
-          </div>
+        <div className="mt-8">
+          <FormSolicitudes />
+        </div>
       </section>
-
     </>
   );
 };
