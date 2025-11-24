@@ -11,9 +11,6 @@ RUN npm ci
 # Copiar el código fuente
 COPY . .
 
-# Crear archivo .env.production
-RUN printf 'VITE_URL_BACK=http://72.61.8.11:3333/\nVITE_WEBHOOKURL=https://andresprevimed.app.n8n.cloud/webhook/59b19c61-25c1-4355-976d-54d14e89912e/chat\n' > .env.production
-
 # Construir la aplicación
 RUN npm run build
 
