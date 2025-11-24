@@ -195,6 +195,13 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
     console.log("[POST /medicos] payload =>", body);
     await medicoService.create(body);
   };
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Permitir Enter solo en el botón submit, no en inputs
+    if (e.key === "Enter" && e.currentTarget.tagName !== "BUTTON") {
+      e.preventDefault();
+    }
+  };
+
 
   const onValid = async (data: FormValues) => {
     try {
@@ -279,7 +286,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
 
   return (
     <div className="max-h-[85vh] overflow-y-auto pr-1 ios-scroll">
-      <form onSubmit={handleSubmit(onValid)} className="space-y-6 bg-white rounded-2xl w-full p-2">
+     <form onSubmit={handleSubmit(onValid)} onKeyDown={handleKeyDown} className="space-y-6 bg-white rounded-2xl w-full p-2">
         {/* === Datos del Usuario (rol médico) === */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>

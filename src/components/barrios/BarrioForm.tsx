@@ -23,13 +23,20 @@ const BarrioForm: React.FC<BarrioFormProps> = ({
     },
   });
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Permitir Enter solo en el botón submit, no en inputs
+    if (e.key === "Enter" && e.currentTarget.tagName !== "BUTTON") {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded-2xl shadow-2xl border border-gray-100 w-full max-w-md">
       <h2 className="text-xl font-bold text-gray-800 mb-4">
         {initialData?.idBarrio ? "Editar barrio" : "Agregar barrio"}
       </h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} onKeyDown={handleKeyDown} className="space-y-4">
         {/* Nombre barrio */}
         <div>
           <label className="text-gray-700 font-semibold text-sm mb-1 block">
