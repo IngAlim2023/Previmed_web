@@ -93,7 +93,7 @@ const FormularioFormaPago: React.FC<Props> = ({
         {/* Header */}
         <div className={`${isEdit ? "bg-blue-600" : "bg-green-600"} px-6 py-4 flex justify-between items-center`}>
           <h2 className="text-2xl font-bold text-white">
-            {isEdit ? "✏️ Editar forma de pago" : "➕ Registrar forma de pago"}
+            {isEdit ? "Editar forma de pago" : "Registrar forma de pago"}
           </h2>
           <button
             onClick={onCancel}
@@ -124,7 +124,6 @@ const FormularioFormaPago: React.FC<Props> = ({
             />
           </div>
 
-          {/* Estado */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <label className="flex items-center gap-3 cursor-pointer">
               <div className="relative">
