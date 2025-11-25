@@ -115,7 +115,7 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
 
   return (
     <aside
-      className={`fixed top-0 left-6 h-screen bg-blue-50 text-gray-600 flex flex-col transition-all duration-300 ${
+      className={`fixed z-20 top-0 left-0 h-screen bg-blue-50 text-gray-600 flex flex-col transition-all duration-300 ${
         cerrado ? "w-20" : "w-48"
       }`}
     >

@@ -1,20 +1,5 @@
 [
   {
-    "idFormaPago": 10,
-    "tipoPago": "PiedraDollares",
-    "estado": false
-  },
-  {
-    "idFormaPago": 9,
-    "tipoPago": "dinerito",
-    "estado": true
-  },
-  {
-    "idFormaPago": 5,
-    "tipoPago": "Nuevo Pago",
-    "estado": true
-  },
-  {
     "idFormaPago": 4,
     "tipoPago": "Nequi",
     "estado": true
