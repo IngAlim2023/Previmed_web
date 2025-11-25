@@ -24,10 +24,13 @@ describe('Registro de pagos', () => {
     cy.get('button[type="submit"]').click();
 
     cy.wait('@loginSuccess');
-    cy.visit('http://localhost:5173/pagos');
-  
-  });
 
+    cy.intercept('GET', '**/pagos', { fixture: 'pagos.json' }).as('getPagos');
+    cy.visit('http://localhost:5173/pagos');
+    cy.wait('@getPagos');
+    
+  });
+  
   it('Debe listar los pagos existentes', () => {
     // tabla con los pagos, mayor a a dos filas
     cy.get('table').should('exist');
