@@ -91,11 +91,6 @@ const DetallesPlan: React.FC<Props> = ({ plan, setShowDetalles }) => {
         {/* 🔹 Contenido */}
         <div className="space-y-4 text-gray-700 text-sm sm:text-base">
           <div className="flex justify-between">
-            <span className="font-semibold text-gray-800">ID:</span>
-            <span className="text-gray-600">{plan.idPlan}</span>
-          </div>
-
-          <div className="flex justify-between">
             <span className="font-semibold text-gray-800">Tipo de Plan:</span>
             <span className="text-gray-600">{plan.tipoPlan}</span>
           </div>
