@@ -17,7 +17,7 @@ import {
   FaHome,
   FaBars,
 } from "react-icons/fa";
-import { LuLogOut } from "react-icons/lu";
+import { LuInfo, LuLogOut } from "react-icons/lu";
 import { useAuthContext } from "../../context/AuthContext";
 import Cookies from "js-cookie";
 import type { JSX } from "react";
@@ -79,7 +79,10 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
    { path: "/contrato", label: "Contrato", icon: <FaFileContract />, roles: ["Paciente"] },
    { path: "/historial/paciente", label: "Historial de Visitas", icon: <FaHistory />, roles: ["Paciente"] },
    { path: "/historial/pagos", label: "Historial de pagos", icon: <BsClockHistory />, roles: ["Paciente"] },
-   {path: "/solicitudes/usuario", label: "Solicitudes", icon: <IoMdHelpBuoy />, roles:["Paciente"] }
+   {path: "/solicitudes/usuario", label: "Solicitudes", icon: <IoMdHelpBuoy />, roles:["Paciente"] },
+
+   //SuperAdmin
+   {path: "/superAdmin/informacion", label: "Contactos", icon: <LuInfo />, roles:["superAdmin"] }
   ];
 
   // ✅ Filtrar rutas según el rol actual del usuario

@@ -35,6 +35,7 @@ const Login: React.FC = () => {
       else if (rol === "asesor") navigate("/home/asesor");
       else if (rol === "administrador") navigate("/home/admin");
       else if (rol === "paciente") navigate("/home/paciente");
+      else if (rol === "superadmin") navigate("/superAdmin/home");
       else navigate("/");
     }
   }, []);
@@ -128,6 +129,7 @@ const Login: React.FC = () => {
       else if (rol === "asesor") navigate("/home/asesor");
       else if (rol === "administrador") navigate("/home/admin");
       else if (rol === "paciente") navigate("/home/paciente");
+      else if (rol === "superadmin") navigate("/superAdmin/home");
       else navigate("/");
     } catch (e) {
       setIsAuthenticated(false);
