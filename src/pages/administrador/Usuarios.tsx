@@ -3,9 +3,9 @@ import DataTable, { TableColumn } from "react-data-table-component";
 import { useNavigate } from "react-router-dom";
 import { DataUsuario } from "../../interfaces/usuario";
 import {
-  getUsuarios,
   createUsuario,
   updateUsuario,
+  getAsesores,
 } from "../../services/usuarios";
 import UsuarioForm from "../../components/usuarios/UsuarioForm";
 
@@ -14,6 +14,8 @@ import BtnLeer from "../../components/botones/BtnLeer";
 import BtnEditar from "../../components/botones/BtnEditar";
 import toast from "react-hot-toast";
 import BtnEstado from "../../components/botones/BtnEstado";
+import BtnTelefonos from "../../components/botones/BtnTelefonos";
+import { MdPeopleAlt } from "react-icons/md";
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<DataUsuario[]>([]);
@@ -25,7 +27,7 @@ export default function UsuariosPage() {
 
   const loadUsuarios = async () => {
     try {
-      const data = await getUsuarios();
+      const data = await getAsesores();
       setUsuarios(Array.isArray(data) ? data : []);
     } catch (error) {}
   };
@@ -79,14 +81,8 @@ export default function UsuariosPage() {
         sortable: true,
       },
       {
-        name: "Rol",
-        selector: (row) => row.rol?.nombreRol ?? "-",
-        sortable: true,
-      },
-
-      {
-        name: "Estado",
-        selector: (row) => (row.habilitar ? "SI" : "NO"), // ✅ texto simple
+        name: "Habilitado",
+        selector: (row) => (row.habilitar ? "SI" : "NO"),
         sortable: true,
         cell: (row) => (
           <div className="flex items-center gap-2">
@@ -97,7 +93,7 @@ export default function UsuariosPage() {
             />
             <span>{row.habilitar ? "SI" : "NO"}</span>
           </div>
-        ), // ✅ JSX aquí sí está permitido
+        ),
       },
       {
         name: "Acciones",
@@ -129,10 +125,9 @@ export default function UsuariosPage() {
                   state: { nombre: `${row.nombre} ${row.apellido}` },
                 });
               }}
-              className="cursor-pointer select-none px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold shadow hover:bg-blue-700 active:scale-[0.98] transition"
-              title="Gestionar teléfonos del usuario"
+              title="Gestionar teléfonos"
             >
-              📞 Teléfonos
+              <BtnTelefonos />
             </div>
           </div>
         ),
@@ -163,12 +158,12 @@ export default function UsuariosPage() {
   return (
     <div className="p-6 bg-blue-50">
       {/* Header con botón y buscador */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Gestión de Usuarios
-        </h1>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-md">
+          <h2 className="text-2xl font-semibold text-gray-600 flex items-center">
+            <MdPeopleAlt  className="w-10 h-auto text-blue-600 mr-4" />
+            Asesores
+          </h2>
 
-        <div className="flex gap-2 items-center w-full md:w-auto">
           <input
             type="text"
             placeholder="Buscar por nombre, documento o email..."
@@ -182,9 +177,8 @@ export default function UsuariosPage() {
               setEditing(null);
             }}
           >
-            <BtnAgregar />
+            <BtnAgregar verText={true}/>
           </div>
-        </div>
       </div>
 
       {/* Contenedor con scroll horizontal para la tabla */}
@@ -205,7 +199,7 @@ export default function UsuariosPage() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-2xl p-8 animate-fadeIn max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              ✍️ {editing ? "Editar Usuario" : "Nuevo Usuario"}
+              {editing ? "Editar Asesor" : "Nuevo Asesor"}
             </h2>
 
             <UsuarioForm
@@ -226,7 +220,7 @@ export default function UsuariosPage() {
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-full max-w-2xl p-8 animate-fadeIn max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              👤 Detalles del Usuario
+              Detalles del Asesor
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
@@ -249,7 +243,7 @@ export default function UsuariosPage() {
                 <strong>Dirección:</strong> {viewing.direccion}
               </p>
               <p>
-                <strong>Fecha Nacimiento:</strong> {viewing.fechaNacimiento}
+                <strong>Fecha Nacimiento:</strong> {new Date(viewing.fechaNacimiento).toISOString().split('T')[0]}
               </p>
               <p>
                 <strong>Estado Civil:</strong> {viewing.estadoCivil}
@@ -265,9 +259,6 @@ export default function UsuariosPage() {
               </p>
               <p>
                 <strong>EPS:</strong> {viewing.eps.nombreEps}
-              </p>
-              <p>
-                <strong>Rol:</strong> {viewing.rol.nombreRol}
               </p>
               <p>
                 <strong>Autorización Datos:</strong>{" "}

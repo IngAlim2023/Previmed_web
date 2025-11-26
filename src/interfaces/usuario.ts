@@ -26,7 +26,7 @@ export interface DataUsuario {
   password?: string;
   direccion: string;
   numeroDocumento: string;
-  fechaNacimiento: string;
+  fechaNacimiento: Date | string;
   numeroHijos?: string;
   estrato?: string;
   autorizacionDatos: boolean;

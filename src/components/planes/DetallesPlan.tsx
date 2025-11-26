@@ -58,19 +58,10 @@ const DetallesPlan: React.FC<Props> = ({ plan, setShowDetalles }) => {
 
   return (
     <div
-      className={`fixed inset-0 flex justify-center items-center z-50 transition-all duration-300 ${
-        closing
-          ? "opacity-0 bg-gray-900/0"
-          : visible
-          ? "opacity-100 bg-gray-900/60 backdrop-blur-sm"
-          : "opacity-0 bg-gray-900/0"
-      }`}
+      className={`fixed inset-0 flex w-full h-full min-w-screem bg-black/60 justify-center items-center z-50`}
     >
       <div
-        className={`bg-white rounded-2xl shadow-2xl w-[480px] max-w-[95%] p-6 relative border border-gray-200 transform transition-all duration-300 ${
-          closing || !visible ? "scale-95 opacity-0" : "scale-100 opacity-100"
-        }`}
-      >
+        className={`bg-white rounded-2xl shadow-2xl w-[480px] max-w-[95%] p-6 relative border border-gray-200 transform transition-all duration-300`}>
         {/* 🔹 Botón cerrar */}
         <div
           className="absolute top-3 right-3 cursor-pointer hover:scale-110 transition-transform"
@@ -90,6 +81,7 @@ const DetallesPlan: React.FC<Props> = ({ plan, setShowDetalles }) => {
 
         {/* 🔹 Contenido */}
         <div className="space-y-4 text-gray-700 text-sm sm:text-base">
+
           <div className="flex justify-between">
             <span className="font-semibold text-gray-800">Tipo de Plan:</span>
             <span className="text-gray-600">{plan.tipoPlan}</span>

@@ -46,7 +46,7 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
   const routes: RouteItem[] = [
     // 🔹 ADMINISTRADOR
     { path: "/home/admin", label: "Inicio", icon: <FaHome />, roles: ["Administrador"] },
-    { path: "/usuarios", label: "Usuarios", icon: <FaUsers />, roles: ["Administrador"] },
+    { path: "/usuarios", label: "Asesores", icon: <FaUsers />, roles: ["Administrador"] },
     { path: "/medicos", label: "Médicos", icon: <FaUserMd />, roles: ["Administrador"] },
     { path: "/pagos", label: "Pagos", icon: <FaMoneyBill />, roles: ["Administrador"] },
     { path: "/planes", label: "Planes", icon: <FaClipboardList />, roles: ["Administrador"] },
@@ -65,13 +65,13 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
     { path: "/home/asesor", label: "Inicio", icon: <FaHome />, roles: ["Asesor"] },
     { path: "/pacientes/asesor", label: "Pacientes", icon: <FaUserFriends />, roles: ["Asesor"] },
     /* { path: "/contratos/asesor", label: "Contratos", icon: <FaClipboardList />, roles: ["Asesor"] }, */
-    { path: "/pagos/asesor", label: "Registros Pagos", icon: <FaMoneyBill />, roles: ["Asesor"] },
+    { path: "/pagos/asesor", label: "Pagos", icon: <FaMoneyBill />, roles: ["Asesor"] },
     { path: "/barrios/asesor", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Asesor"] },
 
     // 🔹 MÉDICO
     { path: "/home/medico", label: "Inicio", icon: <FaHome />, roles: ["Medico"] },
     { path: "/visitas/medico", label: "Mis Visitas", icon: <FaCalendarAlt />, roles: ["Medico"] },
-    { path: "/historial/medico", label: "Historial Médico", icon: <FaHistory />, roles: ["Medico"] },
+    { path: "/historial/medico", label: "Historial", icon: <FaHistory />, roles: ["Medico"] },
 
     // 🔹 PACIENTE
    { path: "/home/paciente", label: "Inicio", icon: <FaHome />, roles: ["Paciente"] },

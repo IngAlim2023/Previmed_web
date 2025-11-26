@@ -41,7 +41,7 @@ type FormValues = {
   fecha_fin?: string;
   forma_pago_id?: number | string;
   monto?: number | string;
-  cobrador_id: string;
+  cobrador_id: string | null;
   numero_recibo: string;
   estado: string;
 };
@@ -52,6 +52,7 @@ const FormularioPagos: React.FC<Props> = ({
   setPago,
   setPagos,
 }) => {
+  const { user } = useAuthContext();
   const {
     register,
     handleSubmit,
@@ -75,7 +76,6 @@ const FormularioPagos: React.FC<Props> = ({
   const [preview, setPreview] = useState<string | null>(null);
   const [asesores, setAsesores] = useState<any[]>([]);
 
-  const { user } = useAuthContext();
 
   useEffect(() => {
     const cargarTitulares = async () => {
@@ -133,14 +133,14 @@ const FormularioPagos: React.FC<Props> = ({
     if (!pago) {
       reset({
         fecha_pago: new Date().toISOString().split("T")[0],
-        fecha_inicio: "",
+        fecha_inicio: new Date().toISOString().split("T")[0],
         fecha_fin: "",
         monto: "",
         forma_pago_id: "",
         membresia_id: "",
-        cobrador_id: "",
-        numero_recibo: "",
-        estado: "",
+        cobrador_id: user.id,
+        numero_recibo: String(Math.floor(100000 + Math.random() * 900000)),
+        estado: user.rol?.nombreRol === "Administrador" ? "Aprobado" : "Asignado",
       });
     } else {
       const formatoFecha = (fecha: string) => {
@@ -442,8 +442,10 @@ const FormularioPagos: React.FC<Props> = ({
                 </p>
               )}
             </div>
-
-            <div>
+            
+            {
+              user.rol?.nombreRol === "Administrador" &&
+              <div>
               <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
                 <FaCalendarCheck className="text-blue-900" /> Estado
               </label>
@@ -453,10 +455,10 @@ const FormularioPagos: React.FC<Props> = ({
                 rules={{ required: "El estado es obligatorio" }}
                 render={({ field }) => {
                   const normalizado = field.value
-                    ? field.value.charAt(0).toUpperCase() +
-                      field.value.slice(1).toLowerCase()
-                    : "";
-
+                  ? field.value.charAt(0).toUpperCase() +
+                  field.value.slice(1).toLowerCase()
+                  : "";
+                  
                   return (
                     <Select
                       {...field}
@@ -467,10 +469,10 @@ const FormularioPagos: React.FC<Props> = ({
                       }
                       onChange={(selected) => field.onChange(selected?.value)}
                       isClearable
-                    />
-                  );
-                }}
-              />
+                      />
+                    );
+                  }}
+                  />
 
               {errors.estado && (
                 <p className="text-red-500 text-sm mt-1">
@@ -478,8 +480,11 @@ const FormularioPagos: React.FC<Props> = ({
                 </p>
               )}
             </div>
+            }
 
-            <div>
+            {
+              user.rol?.nombreRol === "Administrador" &&
+              <div>
               <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
                 <FaUser className="text-blue-900" /> Asesor / Cobrador
               </label>
@@ -491,24 +496,24 @@ const FormularioPagos: React.FC<Props> = ({
                   rules={{ required: "El asesor es obligatorio" }}
                   render={({ field }) => (
                     <Select
-                      {...field}
-                      options={asesores.map((a: any) => ({
+                    {...field}
+                    options={asesores.map((a: any) => ({
+                      value: a.idUsuario,
+                      label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
+                    }))}
+                    placeholder="Selecciona el asesor"
+                    value={asesores
+                      .map((a: any) => ({
                         value: a.idUsuario,
                         label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
-                      }))}
-                      placeholder="Selecciona el asesor"
-                      value={asesores
-                        .map((a: any) => ({
-                          value: a.idUsuario,
-                          label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
-                        }))
-                        .find((o) => o.value === field.value)}
+                      }))
+                      .find((o) => o.value === field.value)}
                       onChange={(selected) => field.onChange(selected?.value)}
                       isClearable
                       isSearchable // 🔍 Permite buscar
+                      />
+                    )}
                     />
-                  )}
-                />
                 {errors.cobrador_id && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.cobrador_id.message}
@@ -516,6 +521,7 @@ const FormularioPagos: React.FC<Props> = ({
                 )}
               </div>
             </div>
+            }
           </div>
 
           <div className="flex justify-center pt-4">

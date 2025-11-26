@@ -50,7 +50,7 @@ const DataTablePagos: React.FC = () => {
     if (fetchedOnce.current) return;
     fetchedOnce.current = true;
     getPagos(true);
-  }, []);
+  }, [pagos]);
 
   const eliminarPago = async (id: number) => {
     if (!confirm("¿Estás seguro de eliminar este registro de pago?")) return;

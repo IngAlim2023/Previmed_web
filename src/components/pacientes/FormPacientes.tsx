@@ -33,7 +33,7 @@ const FormPacientes: React.FC<Props> = ({ setFormPaciente, paciente }) => {
         segundo_apellido: paciente.usuario.segundoApellido ?? "",
         tipo_documento: paciente.usuario.tipoDocumento ?? "",
         numero_documento: paciente.usuario.numeroDocumento ?? "",
-        fecha_nacimiento: paciente.usuario.fechaNacimiento ?? "",
+        fecha_nacimiento: new Date(paciente.usuario.fechaNacimiento).toISOString().split("T")[0] ?? new Date(),
         genero: paciente.usuario.genero ?? "",
         estado_civil: paciente.usuario.estadoCivil ?? "",
         email: paciente.usuario.email ?? "",

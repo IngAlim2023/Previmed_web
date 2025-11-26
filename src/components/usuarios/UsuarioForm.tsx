@@ -3,9 +3,7 @@ import { useForm } from "react-hook-form";
 import { DataUsuario, UsuarioFormProps } from "../../interfaces/usuario";
 import BtnCancelar from "../botones/BtnCancelar";
 import { epsService } from "../../services/epsService";
-import { getRoles } from "../../services/roles";
 import { Eps } from "../../interfaces/eps";
-import { Rol } from "../../interfaces/roles";
 import toast from "react-hot-toast";
 import BtnAgregar from "../botones/BtnAgregar";
 
@@ -20,26 +18,18 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
     handleSubmit,
     formState: { errors, isValid },
     reset,
-    watch,
   } = useForm<DataUsuario>({
     mode: "onChange",
   });
 
-  const [roles, setRoles] = useState<Rol[]>([]);
   const [eps, setEps] = useState<Eps[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const selectedEpsId = watch("epsId");
-  const selectedRolId = watch("rolId");
-
+  // Cargar roles y EPS una sola vez
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [rolesData, epsData] = await Promise.all([
-          getRoles(),
-          epsService.getAll(),
-        ]);
-        setRoles(rolesData);
+        const epsData = await epsService.getAll();
         setEps(epsData.filter((x: Eps) => x.estado));
       } catch (error) {
         toast.error("Error al cargar datos del formulario");
@@ -49,7 +39,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
   }, []);
 
   useEffect(() => {
-    if (roles.length > 0 && eps.length > 0) {
+    if (eps.length > 0) {
       if (initialData) {
         const epsIdToSet = initialData.epsId || initialData.eps?.idEps;
         const rolIdToSet = initialData.rolId || initialData.rol?.idRol;
@@ -64,7 +54,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           direccion: initialData.direccion || "",
           numeroDocumento: initialData.numeroDocumento || "",
           tipoDocumento: initialData.tipoDocumento || "Cédula de Ciudadanía",
-          fechaNacimiento: initialData.fechaNacimiento || "",
+          fechaNacimiento: new Date(initialData.fechaNacimiento).toISOString().split("T")[0] || new Date(),
           numeroHijos: initialData.numeroHijos || "",
           estrato: initialData.estrato || "",
           genero: initialData.genero || "Masculino",
@@ -72,7 +62,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           autorizacionDatos: initialData.autorizacionDatos || false,
           habilitar: initialData.habilitar !== false,
           epsId: Number(epsIdToSet) || 1,
-          rolId: Number(rolIdToSet) || 1,
+          rolId: Number(rolIdToSet) || 2,
         });
       } else {
         reset({
@@ -85,7 +75,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           direccion: "",
           numeroDocumento: "",
           tipoDocumento: "Cédula de Ciudadanía",
-          fechaNacimiento: "",
+          fechaNacimiento: new Date(),
           numeroHijos: "",
           estrato: "",
           genero: "Masculino",
@@ -93,11 +83,11 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           autorizacionDatos: false,
           habilitar: true,
           epsId: 1,
-          rolId: 1,
+          rolId: 2,
         });
       }
     }
-  }, [initialData, roles, eps, reset, isEditing]);
+  }, [initialData, eps, reset, isEditing]);
 
   const onValid = (data: DataUsuario) => {
     // Prevenir envío si hay errores
@@ -386,32 +376,10 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
                 <option disabled>Cargando EPS...</option>
               )}
             </select>
-            {selectedEpsId && (
-              <small className="text-gray-500">ID: {selectedEpsId}</small>
-            )}
           </div>
         </div>
 
-        <div>
-          <label className={label}>Rol</label>
-          <select {...register("rolId")} className={input}>
-            <option value="">-- Seleccionar Rol --</option>
-            {roles.length > 0 ? (
-              roles.map((r) => (
-                <option key={r.id_rol} value={r.id_rol}>
-                  {r.nombre_rol}
-                </option>
-              ))
-            ) : (
-              <option disabled>Cargando Roles...</option>
-            )}
-          </select>
-          {selectedRolId && (
-            <small className="text-gray-500">ID: {selectedRolId}</small>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-2">
+        <div className="flex gap-6">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
