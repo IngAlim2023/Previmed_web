@@ -101,12 +101,8 @@ const Solicitudes: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-blue-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Mis Solicitudes</h1>
-          <p className="text-gray-600">Gestiona y visualiza todas tus solicitudes</p>
-        </div>
 
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
@@ -120,6 +116,10 @@ const Solicitudes: React.FC = () => {
 
         {!loading && solicitudes.length > 0 && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="mb-8">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">Solicitudes</h1>
+              <p className="text-gray-600">Gestiona y visualiza todas tus solicitudes</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -147,8 +147,8 @@ const Solicitudes: React.FC = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="todos">Todos</option>
-                  <option value="activa">Activa</option>
-                  <option value="inactiva">Inactiva</option>
+                  <option value="activa">Pendientes</option>
+                  <option value="inactiva">Atendidas</option>
                 </select>
               </div>
 

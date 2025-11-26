@@ -83,7 +83,7 @@ const Empty: React.FC<{ msg: string }> = ({ msg }) => (
 const ChartCard: React.FC<{ title: string; children: React.ReactNode; height?: number; className?: string }> = ({
   title, children, height = CARD_H, className = "",
 }) => (
-  <div className={`bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-3 flex flex-col overflow-hidden ${className}`}
+  <div className={`bg-white rounded-2xl shadow-md p-3 flex flex-col overflow-hidden ${className}`}
        style={{ height, minHeight: height }}>
     <div className="text-sm font-semibold text-gray-700 mb-1">{title}</div>
     <div className="flex-1 min-h-[300px] w-full flex items-center justify-center">{children}</div>
@@ -279,8 +279,7 @@ const HomeAdmin: React.FC = () => {
       const arr = asArray<any>(raw);
       const counts = new Map<string, number>();
       for (const it of arr) {
-        let estado = it?.estado ?? it?.status ?? it?.estado_solicitud ?? it?.estadoSolicitud ?? "";
-        if (!estado) estado = "Sin estado";
+        let estado = it?.estado? "Pendientes" : "Atendidas";
         estado = String(estado).replace(/_/g," ").replace(/\s+/g," ").trim();
         counts.set(estado, (counts.get(estado) ?? 0) + 1);
       }
@@ -319,29 +318,28 @@ const HomeAdmin: React.FC = () => {
       <style>{`body{background-color:#eff6ff}`}</style>
       <div className="min-h-screen bg-blue-50">
         <main className="min-h-screen">
-          <div className="pl-2 pr-4 pt-3 pb-6">
-            <h1 className="text-xl font-semibold text-gray-800 mb-2">Panel de control</h1>
+          <div className="py-6 px-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-              <div className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4">
+              <div className="bg-white rounded-2xl p-4 shadow-md">
                 <div className="text-sm text-gray-600">Pacientes</div>
                 <div className="text-3xl font-semibold mt-0.5">{kpi.pacientes_total.toLocaleString("es-ES")}</div>
               </div>
-              <div className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4">
+              <div className="bg-white rounded-2xl p-4 shadow-md">
                 <div className="text-sm text-gray-600">Visitas</div>
                 <div className="text-3xl font-semibold mt-0.5">{kpi.visitas_total.toLocaleString("es-ES")}</div>
               </div>
-              <div className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4">
+              <div className="bg-white rounded-2xl p-4 shadow-md">
                 <div className="text-sm text-gray-600">Médicos</div>
                 <div className="text-3xl font-semibold mt-0.5">{kpi.medicos_total.toLocaleString("es-ES")}</div>
               </div>
-              <div className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4">
+              <div className="bg-white rounded-2xl p-4 shadow-md">
                 <div className="text-sm text-gray-600">Solicitudes</div>
                 <div className="text-3xl font-semibold mt-0.5">{kpi.solicitudes_total.toLocaleString("es-ES")}</div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-3 min-h-[420px]">
-              <ChartCard title="Médicos — visitas totales">
+              <ChartCard title="Médicos — visitas asignadas">
                 {visitasPorMedico.length === 0
                   ? <Empty msg="No hay datos en /medicos/visitas/pormedico." />
                   : <BarBlock data={visitasPorMedico} height={CHART_H} />}
