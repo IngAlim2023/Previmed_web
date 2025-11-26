@@ -41,6 +41,9 @@ import ProtectedAsesor from "./protectedRoutes/ProtectedAsesor";
 import ProtectedAdminAsesor from "./protectedRoutes/ProtectedAdminAsesor";
 import Beneficiarios from "./pages/general/Beneficiarios";
 import ImportExcel from "./pages/administrador/ImportExcel";
+import ProtectedSuperAdmin from "./protectedRoutes/ProtectedSuperAdmin";
+import HomeSuperAdmin from "./pages/superAdmin/HomeSuperAdmin";
+import ContactosCrud from "./pages/superAdmin/ContactosCrud";
 
 function App() {
   return (
@@ -91,6 +94,13 @@ function App() {
             </Route>
             {/**Administrador y asesor */} 
             <Route element={<ProtectedAdminAsesor/>}>
+            </Route>
+
+            {/**SuperAdmin */} 
+            <Route element={<ProtectedSuperAdmin/>}>
+              <Route path="/superAdmin/home" element={<HomeSuperAdmin/>}/>
+              <Route path="/superAdmin/informacion" element={<ContactosCrud/>}/>
+              
             </Route>
 
 
