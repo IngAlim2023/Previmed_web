@@ -88,7 +88,7 @@ const SolicitudesDataTable: React.FC<SolicitudesDataTableProps> = ({
                     solicitud.estado
                   )}`}
                 >
-                  {solicitud.estado ? "Activa" : "Inactiva"}
+                  {solicitud.estado ? "Pendiente" : "Atendida"}
                 </span>
               </td>
               <td className="px-6 py-4 text-sm">
