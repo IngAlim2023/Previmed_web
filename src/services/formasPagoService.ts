@@ -3,6 +3,7 @@ import { FormaPago, CreateFormaPagoDto, UpdateFormaPagoDto } from "../interfaces
 const RAW_BASE = import.meta.env.VITE_URL_BACK || "";
 const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : `${RAW_BASE}/`;
 const RESOURCE = "formas_pago";
+const URL = `${import.meta.env.VITE_URL_BACK}formas_pago/`;
 
 // ---- Normalizador de un item cualquiera a FormaPago
 function normalizeFormaPago(item: any): FormaPago {
@@ -76,8 +77,6 @@ export const formasPagoService = {
 
     const payload = await res.json();
 
-    // DEBUG: mira cómo viene tu backend (borra esto cuando verifiques)
-    // eslint-disable-next-line no-console
     console.log("[formas_pago/read] payload:", payload);
 
     const list = extractList(payload);
@@ -122,5 +121,15 @@ export const formasPagoService = {
   async remove(id: number): Promise<void> {
     const res = await fetch(`${BASE}${RESOURCE}/delete/${id}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Error al eliminar la forma de pago");
+  },
+
+  async cambiarEstadoFormaPago(id: number, estado: boolean): Promise<any> {
+    const response = await fetch(`${URL}change/${id}/estado`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ estado }),
+    });
+    if (!response.ok) throw new Error("Error al cambiar el estado de la forma de pago");
+    return await response.json();
   },
 };

@@ -16,7 +16,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
   } = useForm<DataUsuario>({
     mode: "onChange",
@@ -38,7 +38,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
     fetchData();
   }, []);
 
-  // Resetear formulario cuando cambien initialData, roles o eps
   useEffect(() => {
     if (eps.length > 0) {
       if (initialData) {
@@ -91,6 +90,12 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
   }, [initialData, eps, reset, isEditing]);
 
   const onValid = (data: DataUsuario) => {
+    // Prevenir envío si hay errores
+    if (!isValid || Object.keys(errors).length > 0) {
+      toast.error("Por favor completa todos los campos requeridos");
+      return;
+    }
+
     setLoading(true);
 
     const payload: Partial<DataUsuario> = {
@@ -113,9 +118,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
       rolId: Number(data.rolId),
     };
 
-    // Solo agregar password si:
-    // 1. Es creación y hay password, O
-    // 2. Es edición y el usuario escribió un password nuevo
     if (!isEditing && data.password) {
       payload.password = data.password;
     } else if (isEditing && data.password) {
@@ -124,6 +126,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
 
     try {
       onSubmit(payload);
+      toast.success("Usuario creado correctamente");
     } catch (error) {
       toast.error("Error al guardar usuario");
     } finally {
@@ -136,9 +139,20 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
     "w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const error = "text-red-500 text-xs mt-1";
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Permitir Enter solo en el botón submit, no en inputs
+    if (e.key === "Enter" && e.currentTarget.tagName !== "BUTTON") {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl w-full">
-      <form onSubmit={handleSubmit(onValid)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(onValid)}
+        onKeyDown={handleKeyDown}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Nombre *</label>
@@ -186,7 +200,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
                 },
               })}
               onInput={(e) => {
-                // borra todo lo que no sea número y corta a 12
                 e.currentTarget.value = e.currentTarget.value
                   .replace(/[^0-9]/g, "")
                   .slice(0, 12);
@@ -286,7 +299,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Número de Hijos */}
           <div>
             <label className={label}>Número de Hijos</label>
             <input
@@ -369,10 +381,20 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
 
         <div className="flex gap-6">
           <label className="flex items-center gap-2">
-            <input type="checkbox" {...register("autorizacionDatos")} />
-            <span>Autorización Datos</span>
+            <input
+              type="checkbox"
+              {...register("autorizacionDatos", {
+                required: "Debes autorizar el tratamiento de datos",
+              })}
+            />
+            <span>Autorización Datos *</span>
           </label>
-          <label className="flex items-center gap-2">
+
+          {errors.autorizacionDatos && (
+            <p className={error}>{errors.autorizacionDatos.message}</p>
+          )}
+
+          <label className="flex items-center gap-2 mt-2">
             <input type="checkbox" {...register("habilitar")} />
             <span>Habilitado</span>
           </label>
@@ -382,7 +404,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           <div onClick={onCancel}>
             <BtnCancelar verText />
           </div>
-          <button type="submit" disabled={loading}>
+          <button type="submit" disabled={loading || !isValid}>
             <BtnAgregar verText />
           </button>
         </div>
