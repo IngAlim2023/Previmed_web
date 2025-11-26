@@ -5,6 +5,8 @@ import { TelefonoEntity } from "../../interfaces/telefono";
 import { telefonosService } from "../../services/telefonosService";
 import BtnEditar from "../../components/botones/BtnEditar";
 import BtnEliminar from "../../components/botones/BtnEliminar";
+import { MdPhone, MdPhoneDisabled, MdPhoneInTalk } from "react-icons/md";
+import BtnAgregar from "../../components/botones/BtnAgregar";
 
 type Mode = "create" | "edit";
 
@@ -177,31 +179,30 @@ const TelefonosUsuario: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
+    <div className="min-h-screen bg-blue-50 p-6">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 bg-white p-6 rounded-2xl shadow-md">
         <button 
           onClick={() => navigate(-1)} 
-          className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+          className="inline-flex items-center gap-2 px-4 py-2 mb-4 text-sm text-lg font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 transition"
         >
           ← Volver
         </button>
         
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900">
-              📞 Teléfonos
-            </h1>
+            <h2 className="text-2xl font-semibold text-gray-600 flex items-center">
+              <MdPhoneInTalk  className="w-10 h-auto text-blue-600 mr-4" />
+              Telefonos
+            </h2>
             {nombreUsuario && (
               <p className="text-gray-600 mt-1">de <span className="font-semibold">{nombreUsuario}</span></p>
             )}
           </div>
           
           <button
-            onClick={openCreateModal}
-            className="px-6 py-3 rounded-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition font-semibold shadow-md hover:shadow-lg"
-          >
-            + Agregar
+            onClick={openCreateModal}>
+            <BtnAgregar verText={true} />
           </button>
         </div>
       </div>
@@ -216,8 +217,8 @@ const TelefonosUsuario: React.FC = () => {
             <p className="mt-4 text-gray-500">Cargando teléfonos...</p>
           </div>
         ) : items.length === 0 ? (
-          <div className="p-12 text-center">
-            <div className="text-5xl mb-3">📭</div>
+          <div className="p-12 text-center justify-center items-center flex flex-col">
+            <div className="text-5xl mb-3 text-gray-500"><MdPhoneDisabled /></div>
             <p className="text-gray-500 text-lg">Sin teléfonos registrados</p>
             <p className="text-gray-400 text-sm mt-2">Agrega uno haciendo clic en el botón de arriba</p>
           </div>
@@ -259,7 +260,7 @@ const TelefonosUsuario: React.FC = () => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 max-h-[90vh] overflow-y-auto">
             <div className="text-center mb-6">
-              <div className="text-4xl mb-3">📞</div>
+              <div className="text-4xl mb-3 text-blue-600 justify-center items-center flex flex-col"><MdPhone/></div>
               <h2 className="text-2xl font-bold text-gray-900">
                 {isEdit ? "Editar Teléfono" : "Nuevo Teléfono"}
               </h2>

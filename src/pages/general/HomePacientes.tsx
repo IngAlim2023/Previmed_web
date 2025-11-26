@@ -308,10 +308,6 @@ const HomePacientes: React.FC = () => {
           </div>
         )}
 
-        {showDetalles && (
-          <DetallesPlan plan={showDetalles} setShowDetalles={setShowDetalles} />
-        )}
-
         {/* 📅 Visitas del paciente */}
         <div className="mt-6 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -358,6 +354,7 @@ const HomePacientes: React.FC = () => {
 
       {/* 💬 Botón flotante del chat */}
       <FloatingChatButton />
+      {showDetalles && (<DetallesPlan plan={showDetalles} setShowDetalles={setShowDetalles} />)}
     </div>
   );
 }

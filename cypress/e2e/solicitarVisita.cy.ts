@@ -2,42 +2,40 @@
 
 describe('Test para solicitar visita', () => {
   beforeEach(() => {
-  // ir al login
-  cy.visit('http://localhost:5173/login');
-  cy.intercept('POST', '**/login', {
-    statusCode: 200,
-    body: {
-      message: 'Acceso permitido',
-      token: 'fake-token',
-      data: {
-        id: 'jhdkncknlkjljhvcz34334tdw',
-        nombre: 'Juan prueba',
-        documento: '123456',
-        rol: { nombreRol: 'Paciente' },
+    cy.visit('http://localhost:5173/login');
+    cy.intercept('POST', '**/login', {
+      statusCode: 200,
+      body: {
+        message: 'Acceso permitido',
+        token: 'fake-token',
+        data: {
+          id: 'jhdkncknlkjljhvcz34334tdw',
+          nombre: 'Juan prueba',
+          documento: '123456',
+          rol: { nombreRol: 'Paciente' },
+        },
       },
-    },
-  }).as('loginSuccess');
-  cy.get('input').eq(0).type('5454515544');
-  cy.get('input').eq(1).type('123456');
-  cy.get('button[type="submit"]').click();
-  cy.wait('@loginSuccess');
+    }).as('loginSuccess');
+    cy.get('input').eq(0).type('5454515544');
+    cy.get('input').eq(1).type('123456');
+    cy.get('button[type="submit"]').click();
+    cy.wait('@loginSuccess');
 
-  // solicitar visita
-  cy.visit('http://localhost:5173/solicitar-visita');
-  cy.fixture('barrios.json').then((barrios) => {
-    cy.intercept('GET', '**/barrios', {statusCode: 200, body: barrios}).as('getBarrios');
-    cy.wait('@getBarrios');
-  });
-  cy.fixture('medicos.json').then((medicos) => {
-    cy.intercept('GET', '**/medicos', {statusCode: 200, body: medicos}).as('getMedicos');
-    cy.wait('@getMedicos');
-  });
-  cy.fixture('pacientes.json').then((pacientes) => {
-    cy.intercept('GET', '**/pacientes/por-usuario/jhdkncknlkjljhvcz34334tdw', {statusCode: 200, body : pacientes}).as('getPacientes');
-    cy.wait('@getPacientes');
-  });
+    cy.fixture('barrios.json').as('barriosData');
+    cy.fixture('medicos.json').as('medicosData');
+    cy.fixture('pacientes.json').as('pacientesData');
 
+    cy.get('@barriosData').then((barrios) => {
+      cy.intercept('GET', '**/barrios', {statusCode: 200, body: barrios}).as('getBarrios');
+    });
+    cy.get('@medicosData').then((medicos) => {
+      cy.intercept('GET', '**/medicos', {statusCode: 200, body: medicos}).as('getMedicos');
+    });
+    cy.get('@pacientesData').then((pacientes) => {
+      cy.intercept('GET', '**/pacientes/por-usuario/jhdkncknlkjljhvcz34334tdw', {statusCode: 200, body : pacientes}).as('getPacientes');
+    });
 
+    cy.visit('http://localhost:5173/solicitar-visita');
   });
 
   it('mostrar el formulario correctamente', () => {
