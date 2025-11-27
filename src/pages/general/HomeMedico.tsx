@@ -312,7 +312,7 @@ const HomeMedico: React.FC = () => {
             </div>
 
             {/* Pacientes y experiencia */}
-            <div className="flex justify-between md:justify-start gap-10 mt-4 text-center">
+{/*             <div className="flex justify-between md:justify-start gap-10 mt-4 text-center">
               <div>
                 <p className="text-xl font-semibold">{medico.pacientes}</p>
                 <p className="text-sm text-gray-500">Pacientes</p>
@@ -321,7 +321,7 @@ const HomeMedico: React.FC = () => {
                 <p className="text-xl font-semibold">{medico.experiencia}</p>
                 <p className="text-sm text-gray-500">Experiencia</p>
               </div>
-            </div>
+            </div> */}
 
             {/* Descripción */}
             <div className="mt-6">

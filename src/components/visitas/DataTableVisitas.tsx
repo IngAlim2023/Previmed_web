@@ -261,7 +261,7 @@ const DataTableVisitas: React.FC = () => {
     {
       name: "Acciones",
       cell: (row) => (
-        <div className="flex gap-2 p-2">
+        <div className="flex">
           <div onClick={() => { setVisita(row); setDetalles(true) }}>
             <BtnLeer />
           </div>

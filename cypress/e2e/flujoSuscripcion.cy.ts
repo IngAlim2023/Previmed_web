@@ -43,14 +43,9 @@ describe('Formulario de Registro de Pacientes - E2E', () => {
 
   //  Llenar datos del contrato
   const llenarDatosContrato = () => {
-    // La fecha de inicio ya viene por defecto
     cy.get('input[name="contrato.fecha_fin"]').clear().type('2026-12-31');
-    
-    // React-Select para forma de pago
     cy.get('[name="contrato.forma_pago"]').parent().parent().click();
     cy.get('.css-26l3qy-menu').first().contains('li', 'Mensual', { timeout: 5000 }).click({ force: true });
-    
-    // React-Select para plan
     cy.get('[name="contrato.plan_id"]').parent().parent().click();
     cy.get('.css-26l3qy-menu').contains('Básico', { timeout: 5000 }).click({ force: true });
   };

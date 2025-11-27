@@ -15,6 +15,7 @@ import BtnExportarPacientes from "../../components/botones/BtnExportPacientes";
 import DetallesPaciente from "../../components/pacientes/DetallesPaciente";
 import FormPacientes from "../../components/pacientes/FormPacientes";
 import { HiOutlineUpload } from "react-icons/hi";
+import BtnTelefonos from "../../components/botones/BtnTelefonos";
 
 interface Paciente {
   id: number;
@@ -98,6 +99,16 @@ const Pacientes: React.FC = () => {
               <div onClick={() => handleDelete(row)}>
                 <BtnEliminar/>
               </div>
+              <div
+              onClick={() => {
+                if (!row.usuario.idUsuario) return;
+                navigate(`/usuarios/${row.usuario.idUsuario}/telefonos`, {
+                  state: { nombre: `${row.usuario.nombre} ${row.usuario.apellido}` },
+                });
+              }}
+              title="Gestionar teléfonos">
+              <BtnTelefonos />
+            </div>
               </>
             ):
             (<></>)}

@@ -7,7 +7,6 @@ const BtnTelefonos: React.FC<OpcionesBotones> = ({ verText, text }) => {
     <button
       className={`
         ${text}
-        relative overflow-hidden
         text-blue-500 font-bold p-2 m-1 border-1 border-blue-500 rounded-md
         transition-all duration-700 ease-in-out
         hover:text-white
@@ -16,6 +15,7 @@ const BtnTelefonos: React.FC<OpcionesBotones> = ({ verText, text }) => {
         hover:bg-[length:200%_200%]
         hover:cursor-pointer
         hover:shadow-none
+        flex items-center gap-1
         `}
     >
       <MdPhoneInTalk />

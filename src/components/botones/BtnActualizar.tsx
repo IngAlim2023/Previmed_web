@@ -7,7 +7,6 @@ const BtnActualizar: React.FC<OpcionesBotones> = ({ verText, text }) => {
     <button
       className={`
         ${text}
-        relative overflow-hidden
         text-green-600 font-bold p-2 m-1 border-1 border-green-600 rounded-md
         shadow-[2px_2px_2px_rgba(22,163,74,0.99)]
         transition-all duration-700 ease-in-out
@@ -17,6 +16,7 @@ const BtnActualizar: React.FC<OpcionesBotones> = ({ verText, text }) => {
         hover:bg-[length:200%_100%]
         hover:cursor-pointer
         hover:shadow-none
+        flex items-center gap-1
       `}
     >
       <MdUpdate className="text-base" />
