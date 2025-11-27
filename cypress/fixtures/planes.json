@@ -1,0 +1,222 @@
+[
+  {
+    "idPlan": 3,
+    "tipoPlan": "VIP",
+    "descripcion": "Toda tu familia estará cubierta por el servicio previmed",
+    "precio": "360000",
+    "estado": true,
+    "cantidadBeneficiarios": 1,
+    "planXBeneficios": [
+      {
+        "planId": 3,
+        "beneficioId": 8,
+        "idPlanXBeneficios": 110,
+        "beneficio": {
+          "idBeneficio": 8,
+          "tipoBeneficio": "Telemedicina 24/6"
+        }
+      },
+      {
+        "planId": 3,
+        "beneficioId": 15,
+        "idPlanXBeneficios": 111,
+        "beneficio": {
+          "idBeneficio": 15,
+          "tipoBeneficio": "ASISTENCIA"
+        }
+      },
+      {
+        "planId": 3,
+        "beneficioId": 18,
+        "idPlanXBeneficios": 112,
+        "beneficio": {
+          "idBeneficio": 18,
+          "tipoBeneficio": "Ambulancia sin costo ninguno"
+        }
+      },
+      {
+        "planId": 3,
+        "beneficioId": 7,
+        "idPlanXBeneficios": 113,
+        "beneficio": {
+          "idBeneficio": 7,
+          "tipoBeneficio": "Chequeos médicos anuales"
+        }
+      }
+    ]
+  },
+  {
+    "idPlan": 18,
+    "tipoPlan": "Pro max",
+    "descripcion": "mucha gente",
+    "precio": "100000",
+    "estado": true,
+    "cantidadBeneficiarios": 9,
+    "planXBeneficios": [
+      {
+        "planId": 18,
+        "beneficioId": 6,
+        "idPlanXBeneficios": 114,
+        "beneficio": {
+          "idBeneficio": 6,
+          "tipoBeneficio": "Acceso a especialistas"
+        }
+      },
+      {
+        "planId": 18,
+        "beneficioId": 5,
+        "idPlanXBeneficios": 115,
+        "beneficio": {
+          "idBeneficio": 5,
+          "tipoBeneficio": "Hospitalización sin copago"
+        }
+      },
+      {
+        "planId": 18,
+        "beneficioId": 18,
+        "idPlanXBeneficios": 116,
+        "beneficio": {
+          "idBeneficio": 18,
+          "tipoBeneficio": "Ambulancia sin costo ninguno"
+        }
+      },
+      {
+        "planId": 18,
+        "beneficioId": 15,
+        "idPlanXBeneficios": 117,
+        "beneficio": {
+          "idBeneficio": 15,
+          "tipoBeneficio": "ASISTENCIA"
+        }
+      }
+    ]
+  },
+  {
+    "idPlan": 2,
+    "tipoPlan": "Pro",
+    "descripcion": "Soporte para 10 integrantes",
+    "precio": "260000",
+    "estado": true,
+    "cantidadBeneficiarios": 6,
+    "planXBeneficios": [
+      {
+        "planId": 2,
+        "beneficioId": 15,
+        "idPlanXBeneficios": 108,
+        "beneficio": {
+          "idBeneficio": 15,
+          "tipoBeneficio": "ASISTENCIA"
+        }
+      },
+      {
+        "planId": 2,
+        "beneficioId": 8,
+        "idPlanXBeneficios": 109,
+        "beneficio": {
+          "idBeneficio": 8,
+          "tipoBeneficio": "Telemedicina 24/6"
+        }
+      },
+      {
+        "planId": 2,
+        "beneficioId": 8,
+        "idPlanXBeneficios": 118,
+        "beneficio": {
+          "idBeneficio": 8,
+          "tipoBeneficio": "Telemedicina 24/6"
+        }
+      },
+      {
+        "planId": 2,
+        "beneficioId": 15,
+        "idPlanXBeneficios": 119,
+        "beneficio": {
+          "idBeneficio": 15,
+          "tipoBeneficio": "ASISTENCIA"
+        }
+      },
+      {
+        "planId": 2,
+        "beneficioId": 18,
+        "idPlanXBeneficios": 120,
+        "beneficio": {
+          "idBeneficio": 18,
+          "tipoBeneficio": "Ambulancia sin costo ninguno"
+        }
+      }
+    ]
+  },
+  {
+    "idPlan": 1,
+    "tipoPlan": "Familiar",
+    "descripcion": "Soporte para 6 integrantes ",
+    "precio": "152000",
+    "estado": true,
+    "cantidadBeneficiarios": 4,
+    "planXBeneficios": [
+      {
+        "planId": 1,
+        "beneficioId": 15,
+        "idPlanXBeneficios": 105,
+        "beneficio": {
+          "idBeneficio": 15,
+          "tipoBeneficio": "ASISTENCIA"
+        }
+      },
+      {
+        "planId": 1,
+        "beneficioId": 6,
+        "idPlanXBeneficios": 106,
+        "beneficio": {
+          "idBeneficio": 6,
+          "tipoBeneficio": "Acceso a especialistas"
+        }
+      },
+      {
+        "planId": 1,
+        "beneficioId": 7,
+        "idPlanXBeneficios": 107,
+        "beneficio": {
+          "idBeneficio": 7,
+          "tipoBeneficio": "Chequeos médicos anuales"
+        }
+      },
+      {
+        "planId": 1,
+        "beneficioId": 7,
+        "idPlanXBeneficios": 121,
+        "beneficio": {
+          "idBeneficio": 7,
+          "tipoBeneficio": "Chequeos médicos anuales"
+        }
+      },
+      {
+        "planId": 1,
+        "beneficioId": 6,
+        "idPlanXBeneficios": 122,
+        "beneficio": {
+          "idBeneficio": 6,
+          "tipoBeneficio": "Acceso a especialistas"
+        }
+      },
+      {
+        "planId": 1,
+        "beneficioId": 15,
+        "idPlanXBeneficios": 123,
+        "beneficio": {
+          "idBeneficio": 15,
+          "tipoBeneficio": "ASISTENCIA"
+        }
+      },
+      {
+        "planId": 1,
+        "beneficioId": 19,
+        "idPlanXBeneficios": 124,
+        "beneficio": {
+          "idBeneficio": 19,
+          "tipoBeneficio": "atención de una "
+        }
+      }
+    ]
+  }
+]

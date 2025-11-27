@@ -1,0 +1,65 @@
+[
+    {
+      "idBarrio": 38,
+      "nombreBarrio": "Modelo",
+      "latitud": 2.4395,
+      "longitud": -76.6112,
+      "estado": true
+    },
+    {
+      "idBarrio": 39,
+      "nombreBarrio": "Santa Inés",
+      "latitud": 2.441,
+      "longitud": -76.6089,
+      "estado": true
+    },
+    {
+      "idBarrio": 40,
+      "nombreBarrio": "El Recuerdo",
+      "latitud": 2.4445,
+      "longitud": -76.6172,
+      "estado": true
+    },
+    {
+      "idBarrio": 42,
+      "nombreBarrio": "Alto Cauca",
+      "latitud": 2.4475,
+      "longitud": -76.625,
+      "estado": true
+    },
+    {
+      "idBarrio": 43,
+      "nombreBarrio": "San Eduardo",
+      "latitud": 2.4492,
+      "longitud": -76.6224,
+      "estado": true
+    },
+    {
+      "idBarrio": 45,
+      "nombreBarrio": "Valle del Ortigal",
+      "latitud": 2.4312,
+      "longitud": -76.6097,
+      "estado": true
+    },
+    {
+      "idBarrio": 46,
+      "nombreBarrio": "San Camilo",
+      "latitud": 2.4338,
+      "longitud": -76.6075,
+      "estado": true
+    },
+    {
+      "idBarrio": 48,
+      "nombreBarrio": "José María Obando",
+      "latitud": 2.4385,
+      "longitud": -76.6156,
+      "estado": true
+    },
+    {
+      "idBarrio": 49,
+      "nombreBarrio": "La Pamba",
+      "latitud": 2.439,
+      "longitud": -76.62,
+      "estado": true
+    }
+  ]

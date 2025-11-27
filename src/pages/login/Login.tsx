@@ -1,12 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { login } from "../../services/autentication";
 import { getUsuarioById } from "../../services/usuarios";
 import { useAuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
-const logo = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411217/logo_mucors.png";
+const previmedImg =
+  "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761360937/PREVIMED_Full_Color_zwphjh.png";
+
 interface UsuarioCredenciales {
   numero_documento: string;
   password: string;
@@ -16,8 +19,9 @@ const Login: React.FC = () => {
   const { register, handleSubmit } = useForm<UsuarioCredenciales>();
   const navigate = useNavigate();
   const { setUser, setIsAuthenticated, isAuthenticated } = useAuthContext();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Si ya hay sesión activa, redirige una sola vez
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (isAuthenticated && storedUser) {
@@ -31,13 +35,19 @@ const Login: React.FC = () => {
       else if (rol === "asesor") navigate("/home/asesor");
       else if (rol === "administrador") navigate("/home/admin");
       else if (rol === "paciente") navigate("/home/paciente");
+      else if (rol === "superadmin") navigate("/superAdmin/home");
       else navigate("/");
     }
-  }, []); // ← solo al montar
+  }, []);
 
-  //  Enviar credenciales y procesar login
+  const handleDocumentoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "");
+    e.target.value = value;
+  };
+
   const onSubmit: SubmitHandler<UsuarioCredenciales> = async (data) => {
     try {
+      setIsLoading(true);
       toast.loading("Verificando credenciales...", { id: "login" });
 
       const res = await login(data);
@@ -49,20 +59,20 @@ const Login: React.FC = () => {
         return;
       }
 
-      // 🔹 Datos crudos del backend
       const backendUser = respu.data;
 
-      // 🔹 Aseguramos nombre y rol incluso si faltan en la respuesta
       const nombreRaw =
         backendUser?.nombre ??
         backendUser?.usuario?.nombre ??
         backendUser?.nombres ??
-        backendUser?.first_name ?? "";
+        backendUser?.first_name ??
+        "";
       const apellidoRaw =
         backendUser?.apellido ??
         backendUser?.usuario?.apellido ??
         backendUser?.apellidos ??
-        backendUser?.last_name ?? "";
+        backendUser?.last_name ??
+        "";
       let nombreCompleto = `${nombreRaw} ${apellidoRaw}`.trim();
 
       const rolNombre =
@@ -72,7 +82,6 @@ const Login: React.FC = () => {
         backendUser?.rol ??
         "Desconocido";
 
-      // 🔹 Intento extra: consultar usuario por ID si no hay nombre
       const posibleId =
         backendUser?.id ??
         backendUser?.id_usuario ??
@@ -87,11 +96,10 @@ const Login: React.FC = () => {
           const a = du?.apellido ?? du?.last_name ?? "";
           nombreCompleto = `${n} ${a}`.trim();
         } catch {
-          // Silencioso: seguimos con fallback por si falla
+          // Silencioso
         }
       }
 
-      // 🔹 Usuario normalizado para AuthContext
       const normalizedUser = {
         id: posibleId,
         documento:
@@ -103,18 +111,15 @@ const Login: React.FC = () => {
         rol: { nombreRol: rolNombre },
       };
 
-      // 🔹 Guardar datos persistentes
       localStorage.setItem("user", JSON.stringify(normalizedUser));
       localStorage.setItem("token", respu.token ?? "");
 
-      // 🔹 Actualizar contexto global
       setUser(normalizedUser);
       setIsAuthenticated(true);
 
       toast.dismiss("login");
       toast.success(`¡Bienvenido ${normalizedUser.nombre}!`);
 
-      // 🔹 Redirección según rol
       const rol = (normalizedUser.rol?.nombreRol ?? "")
         .toLowerCase()
         .normalize("NFD")
@@ -124,61 +129,136 @@ const Login: React.FC = () => {
       else if (rol === "asesor") navigate("/home/asesor");
       else if (rol === "administrador") navigate("/home/admin");
       else if (rol === "paciente") navigate("/home/paciente");
+      else if (rol === "superadmin") navigate("/superAdmin/home");
       else navigate("/");
-
     } catch (e) {
       setIsAuthenticated(false);
       toast.dismiss("login");
       toast.error("Ocurrió un error al iniciar sesión. Intenta nuevamente.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
-        {/* 🔹 Logo */}
-        <div className="flex justify-center mb-6">
-          <img src={logo} alt="Logo Previmed" className="h-22 object-contain" />
+  <div className="min-h-screen bg-gray-100 flex items-center justify-center px-6">
+    <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+
+      {/* ====================== COLUMNA IZQUIERDA ======================= */}
+      <div className="hidden md:flex flex-col justify-center p-12 bg-gray-50">
+
+        <div className="flex justify-center mb-8">
+          <img src={previmedImg} alt="Previmed" className="h-20 object-contain" />
         </div>
 
-        {/* 🔹 Encabezado */}
-        <div className="text-left mb-8">
-          <h2 className="text-2xl font-semibold text-lgreen">Hola</h2>
-          <p className="text-gray-600">Bienvenido a Previmed</p>
-        </div>
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">
+          Tu salud con nosotros esta segura
+        </h2>
 
-        {/* 🔹 Formulario */}
-        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="Número de documento"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            maxLength={15}
-            {...register("numero_documento", { required: true })}
-          />
+        <p className="text-gray-600 text-sm mb-8">
+          Ingresa a tu cuenta Previmed y obtén acceso a todas tus funcionalidades
+          desde un solo lugar.
+        </p>
 
-          <input
-            type="password"
-            placeholder="Contraseña"
-            required
-            minLength={5}
-            maxLength={15}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            {...register("password", { required: true })}
-          />
+        <ul className="space-y-4 text-gray-700 text-sm">
+          <li className="flex items-center gap-3">
+            <span className="text-blue-600 text-xl">✓</span> Gestión de tus visitas médicas
+          </li>
+          <li className="flex items-center gap-3">
+            <span className="text-blue-600 text-xl">✓</span> Información actualizada de tus médicos
+          </li>
+          <li className="flex items-center gap-3">
+            <span className="text-blue-600 text-xl">✓</span> Seguimiento rápido y seguro
+          </li>
+          <li className="flex items-center gap-3">
+            <span className="text-blue-600 text-xl">✓</span> Beneficios exclusivos
+          </li>
+        </ul>
+      </div>
 
+      {/* ====================== COLUMNA DERECHA FORM ======================= */}
+      <div className="p-10 md:p-14 flex flex-col justify-center">
+
+        
+        {/* Título */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Iniciar Sesión</h1>
+
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+
+          {/* DOCUMENTO */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Número de Documento
+            </label>
+
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="Ingresa tu número de documento"
+              maxLength={15}
+              onInput={handleDocumentoChange}
+              required
+              className="w-full p-3 border border-gray-300 rounded-lg 
+                         focus:ring-2 focus:ring-blue-500 outline-none"
+              {...register("numero_documento", {
+                required: "Este campo es obligatorio",
+                minLength: 5,
+                pattern: /^\d+$/
+              })}
+            />
+          </div>
+
+          {/* PASSWORD */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña
+            </label>
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Ingresa tu contraseña"
+                required
+                minLength={5}
+                className="w-full p-3 pr-12 border border-gray-300 rounded-lg 
+                           focus:ring-2 focus:ring-blue-500 outline-none"
+                {...register("password")}
+              />
+
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <AiOutlineEyeInvisible size={22} />
+                ) : (
+                  <AiOutlineEye size={22} />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* BOTÓN LOGIN */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-lgreen to-lblue text-white py-2 rounded-md hover:from-green-700 hover:to-blue-700 transition-all duration-200 font-medium"
+            disabled={isLoading}
+            className={`w-full py-3 bg-blue-600 text-white rounded-lg font-semibold
+                        hover:bg-blue-700 transition shadow 
+                        disabled:opacity-70`}
           >
-            INGRESAR
+            {isLoading ? "Ingresando..." : "Ingresar"}
           </button>
+
+          
+
+          
         </form>
       </div>
     </div>
-  );
-};
+  </div>
+);
+}
+
 
 export default Login;

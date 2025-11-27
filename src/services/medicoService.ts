@@ -77,13 +77,11 @@ async getUsuarios(): Promise<any[]> {
 
 async getByUsuarioId(usuarioId: string): Promise<MedicoResponse | null> {
   const full = url(`/medicos/usuario/${usuarioId}`);
-  console.log("🔗 URL usada para buscar médico:", full);
 
   const res = await fetch(full);
   if (!res.ok) throw new Error("Error al obtener médico por usuario");
 
   const json = await res.json();
-  console.log("📦 Respuesta del backend (médico):", json);
   return json.msj ?? null;
 },
 

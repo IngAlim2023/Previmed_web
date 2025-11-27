@@ -25,6 +25,11 @@ export const createPago = async (pago: any) => {
   formData.append("membresia_id", String(membresiaId));
   formData.append("forma_pago_id", String(formaPagoId));
 
+  formData.append("cobrador_id", String(pago.cobrador_id)); 
+  formData.append("numero_recibo", String(pago.numero_recibo)); 
+  formData.append("estado", String(pago.estado)); 
+
+
   const response = await fetch(url("/registro-pago"), {
     method: "POST",
     body: formData
@@ -44,6 +49,11 @@ export const updatePago = async (pago: any, id: number) => {
   formData.append("monto", String(pago.monto));
   formData.append("membresia_id", String(membresiaId));
   formData.append("forma_pago_id", String(formaPagoId));
+  formData.append("cobrador_id", String(pago.cobrador_id)); 
+  formData.append("numero_recibo", String(pago.numero_recibo)); 
+  formData.append("estado", String(pago.estado)); 
+
+
   const response = await fetch(url(`/registro-pago/${id}`), {
     method: "PUT",
     body: formData
@@ -77,4 +87,40 @@ export const getPagosMembresia = async(id:number) => {
   })
   const data = res.json()
   return data;
+}
+
+export const getPagosAsignados = async(id_usuario: string) => {
+  try {
+    const res = await fetch(url(`registros-pago/asignados/${id_usuario}`))
+    return res.json()
+  } catch (error) {
+    return {data:[], message: 'Error al cargar los pagos asignados'}
+  }
+}
+
+export const setEstadoPago = async(estado: string, id_pago: number) => {
+  try {
+    await fetch(url(`registros-pago/set/estado/${estado}/${id_pago}`), {
+      method: 'PATCH',
+      headers: { "Content-Type": "application/json" }
+    })
+    return 'Estado actualizado correctamente'
+  } catch (error) {
+    return 'Error al cambiar el estadol de pago'
+  }
+}
+
+export const subirEvidenciaPago = async(file: File, id_pago: number | string) => {
+  try {
+    const formData = new FormData();
+    formData.append('evidencia', file);
+    
+    const res = await fetch(url(`/registros-pago/subir/evidencia/${id_pago}`), {
+      method: 'PATCH',
+      body: formData
+    });
+    return await res.json();
+  } catch (error) {
+    throw error;
+  }
 }

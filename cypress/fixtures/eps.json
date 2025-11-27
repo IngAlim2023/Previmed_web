@@ -1,0 +1,32 @@
+[
+  {
+    "idEps": 25,
+    "nombreEps": "Nueva Eps",
+    "estado": true
+  },
+  {
+    "idEps": 24,
+    "nombreEps": "Comfacauca",
+    "estado": true
+  },
+  {
+    "idEps": 23,
+    "nombreEps": "Salud Vida",
+    "estado": true
+  },
+  {
+    "idEps": 7,
+    "nombreEps": "Emssanar",
+    "estado": true
+  },
+  {
+    "idEps": 6,
+    "nombreEps": "Cafesalud",
+    "estado": true
+  },
+  {
+    "idEps": 1,
+    "nombreEps": "Famisanar",
+    "estado": true
+  }
+]

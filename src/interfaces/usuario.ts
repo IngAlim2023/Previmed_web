@@ -1,3 +1,5 @@
+import { PostPaciente } from "./pacientes";
+
 // ------------------- Modelos de negocio -------------------
 export type TipoGenero = "Masculino" | "Femenino" | "Otro";
 export type TipoEstadoCivil =
@@ -26,7 +28,7 @@ export interface DataUsuario {
   password?: string;
   direccion: string;
   numeroDocumento: string;
-  fechaNacimiento: string;
+  fechaNacimiento: Date | string;
   numeroHijos?: string;
   estrato?: string;
   autorizacionDatos: boolean;
@@ -45,4 +47,29 @@ export interface UsuarioFormProps {
   onSubmit: (data: Partial<DataUsuario>) => void;
   onCancel: () => void;
   isEditing?: boolean;
+}
+
+export interface PostUsuario {
+  nombre: string;
+  segundo_nombre?: string;
+  apellido: string;
+  segundo_apellido?: string;
+  email: string;
+  password: string;
+  direccion: string;
+  numero_documento: string;
+  fecha_nacimiento: Date | string;
+  rol_id: number;
+  genero?: string;
+  tipo_documento: string;
+  estado_civil?: string;
+  numero_hijos?: string;
+  estrato?: number;
+  eps_id?: number | null;
+  autorizacion_datos: boolean;
+}
+
+export interface Persona{
+  usuario:PostUsuario;
+  paciente:PostPaciente;
 }

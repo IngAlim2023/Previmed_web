@@ -11,7 +11,11 @@ import BtnEliminar from "../../components/botones/BtnEliminar";
 import BtnEditar from "../../components/botones/BtnEditar";
 import BtnLeer from "../../components/botones/BtnLeer";
 import { useAuthContext } from "../../context/AuthContext";
-import BtnDescargarPdf from "../../components/botones/BtnDescargarPdf";
+import BtnExportarPacientes from "../../components/botones/BtnExportPacientes";
+import DetallesPaciente from "../../components/pacientes/DetallesPaciente";
+import FormPacientes from "../../components/pacientes/FormPacientes";
+import { HiOutlineUpload } from "react-icons/hi";
+import BtnTelefonos from "../../components/botones/BtnTelefonos";
 
 interface Paciente {
   id: number;
@@ -32,6 +36,10 @@ const Pacientes: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [buscar, setBuscar] = useState<string>('');
   const {user} = useAuthContext();
+  const [detalles, setDetalles] = useState<boolean>(false);
+  const [idUserSelect, setIdUserSelect] = useState<string>('');
+  const [formPacite, setFormPaciente] = useState<boolean>(false);
+  const [pacienteEdit, setPacientEdit] = useState<any>();
 
   useEffect(() => {
     const load = async () => {
@@ -39,11 +47,7 @@ const Pacientes: React.FC = () => {
       setData(dat.data || []);
     };
     load();
-  }, []);
-
-  const handleEdit = (row: Paciente) => {
-    console.log("Editar paciente", row);
-  };
+  }, [data]);
 
   const handleDelete = async (row: Paciente) => {
     setIdDelete(row.id);
@@ -78,41 +82,36 @@ const Pacientes: React.FC = () => {
     },
     {
       name: "Opciones",
-      minWidth: "310px",
+      minWidth: "220px",
       cell: (row) => (
         <div className="flex">
           <div
-            title="Descargar contrato"
-            onClick={() => handleEdit(row)}
-            >
-            <BtnDescargarPdf/>
-          </div>
-          <div
             title="Ver detalles"
-            onClick={() => handleEdit(row)}
+            onClick={()=> {setDetalles(true), setIdUserSelect(row.usuario.idUsuario)}}
             >
             <BtnLeer/>
           </div>
           {user.rol?.nombreRol == 'Administrador'? (
             <>
-              <div onClick={() => handleEdit(row)}>
+              <div onClick={() => {setFormPaciente(true), setPacientEdit(row)}}>
                 <BtnEditar/>
               </div>
               <div onClick={() => handleDelete(row)}>
                 <BtnEliminar/>
               </div>
+              <div
+              onClick={() => {
+                if (!row.usuario.idUsuario) return;
+                navigate(`/usuarios/${row.usuario.idUsuario}/telefonos`, {
+                  state: { nombre: `${row.usuario.nombre} ${row.usuario.apellido}` },
+                });
+              }}
+              title="Gestionar teléfonos">
+              <BtnTelefonos />
+            </div>
               </>
             ):
             (<></>)}
-            {
-              row.pacienteId == null? ( 
-              <button
-              onClick={() => navigate('/beneficiarios', {state: {row}})}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-2 m-1 rounded-md flex items-center transition"
-            >
-              Beneficiarios
-            </button>) : (<></>)
-            }
         </div>
       ),
     },
@@ -129,15 +128,22 @@ const Pacientes: React.FC = () => {
     return toast.success("Paciente eliminado");
   };
 
-  const pacientesFiltrados = data
-    .filter((pac) =>
-      pac.usuario.nombre?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.segundoNombre?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.apellido?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.segundoApellido?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.email?.toString().toLowerCase().includes(buscar.toLowerCase()) ||
-      pac.usuario.numeroDocumento?.toString().toLowerCase().includes(buscar.toLowerCase())
+  const pacientesFiltrados = data.filter((pac) => {
+    const fullName = [
+      pac.usuario.nombre,
+      pac.usuario.segundoNombre,
+      pac.usuario.apellido,
+      pac.usuario.segundoApellido
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    const buscarLower = buscar.toLowerCase();
+
+    return (
+      fullName.includes(buscarLower) || 
+      pac.usuario.email?.toLowerCase().includes(buscarLower) ||
+      pac.usuario.numeroDocumento?.toString().toLowerCase().includes(buscarLower)
     );
+  });
 
   return (
     <div className="py-6 px-4 bg-blue-50 min-h-screen">
@@ -155,12 +161,23 @@ const Pacientes: React.FC = () => {
             className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
           />
 
+          <div className="flex gap-2">
+          <BtnExportarPacientes/>
+
+          <button
+            onClick={() => navigate('/import/excel/pacientes')}
+            className="bg-green-500 hover:bg-green-600 text-white p- px-2 rounded-md flex items-center gap-1 transition text-base"
+            >
+            <HiOutlineUpload  /> Cargar
+          </button>
+
           <button
             onClick={() => navigate("/formularioPacientes")}
-            className="bg-green-500 hover:bg-green-600 text-white px-3 p-2 rounded-md flex items-center gap-2 transition text-lg"
-          >
-            <FaPlus /> Agregar Titular
+            className="bg-green-500 hover:bg-green-600 text-white p-1 px-2 rounded-md flex items-center gap-1 transition text-base"
+            >
+            <FaPlus /> Agregar
           </button>
+          </div>
         </div>
         <DataTable
           columns={columns}
@@ -170,6 +187,7 @@ const Pacientes: React.FC = () => {
           striped
           noDataComponent={'No hay resultados'}
           responsive
+          dense
         />
       </div>
       {open && (
@@ -212,6 +230,9 @@ const Pacientes: React.FC = () => {
           </div>
         </div>
       )}
+
+      {detalles && <DetallesPaciente setDetalles={setDetalles} idPaciente={idUserSelect}/>}
+      {formPacite && <FormPacientes paciente={pacienteEdit} setFormPaciente={setFormPaciente}/>}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-// src/components/botones/BtnEstado.tsx
 import React from "react";
 import { FiToggleLeft, FiToggleRight } from "react-icons/fi";
 

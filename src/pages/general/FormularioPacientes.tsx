@@ -14,38 +14,7 @@ import { tiposDocumento } from "../../data/tiposDocumento";
 import { generos } from "../../data/generos";
 import { estadosCiviles } from "../../data/estadosCiviles";
 import { registroCompletoTitular } from "../../services/pacientes";
-
-interface Usuario {
-  nombre: string;
-  segundo_nombre?: string;
-  apellido: string;
-  segundo_apellido?: string;
-  email: string;
-  password: string;
-  direccion: string;
-  numero_documento: string;
-  fecha_nacimiento: string;
-  rol_id: number;
-  genero?: string;
-  tipo_documento: string;
-  estado_civil?: string;
-  numero_hijos?: string;
-  estrato?: number;
-  eps_id?: number | null;
-  autorizacion_datos: boolean;
-}
-
-interface PostPaciente {
-  activo: boolean;
-  beneficiario: boolean;
-  direccion_cobro?: string;
-  ocupacion?: string;
-}
-
-interface Persona{
-  usuario:Usuario;
-  paciente:PostPaciente;
-}
+import { Persona } from "../../interfaces/usuario";
 
 interface FormData {
   titular: Persona;
@@ -201,7 +170,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
       required
       errors={errors?.usuario?.direccion}
       {...register(`${prefix}.usuario.direccion`, { required: "La dirección es requerida" })}
-      placeholder="Cra .. # ... - .. , barrio"
+      placeholder="Cra .. # ... - .. "
     />
 
     <ReactSelectComponent
@@ -273,7 +242,7 @@ const DatosPersonales = ({ register, control, selectEps, errors, prefix = "titul
   </>
 );
 
-const DatosContrato = ({ register, control, watch, selectPlanes, selectFormasContrato, errors }: any) => (
+export const DatosContrato = ({ register, control, watch, selectPlanes, selectFormasContrato, errors }: any) => (
   <>
     <h2 className="col-span-1 md:col-span-2 text-2xl font-semibold text-gray-800 mb-4">
       Datos del Contrato
@@ -322,6 +291,16 @@ const DatosContrato = ({ register, control, watch, selectPlanes, selectFormasCon
     />
 
     <ReactSelectComponent
+      name="contrato.plan_id"
+      control={control}
+      label="Plan"
+      options={selectPlanes}
+      required
+      placeholder="Selecciona el plan"
+      isClearable
+    />
+
+    <ReactSelectComponent
       name="contrato.forma_pago"
       control={control}
       label="Forma de Pago"
@@ -331,19 +310,10 @@ const DatosContrato = ({ register, control, watch, selectPlanes, selectFormasCon
       isClearable
     />
 
-    <ReactSelectComponent
-      name="contrato.plan_id"
-      control={control}
-      label="Plan"
-      options={selectPlanes}
-      required
-      placeholder="Selecciona el plan"
-      isClearable
-    />
   </>
 );
 
-const FormularioPagos = ({ register, control, watch, selectFormas, errors }: any) => (
+export const FormularioPagos = ({ register, control, watch, selectFormas, errors }: any) => (
   <>
     <h2 className="col-span-1 md:col-span-2 text-2xl font-semibold text-gray-800 mb-4">
       Detalles de pago
@@ -549,7 +519,7 @@ const FormularioPacientes = () => {
   const selectFormasContrato = (formasPago as any[])
     .filter((fp) => fp.estado === true)
     .map((fp) => ({
-      value: fp.id_forma_pago,
+      value: fp.tipo_pago,
       label: fp.tipo_pago,
     }));
 

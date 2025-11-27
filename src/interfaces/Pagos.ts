@@ -8,7 +8,10 @@ export interface PagoInterface {
   formaPagoId: number;
   fechaPago: Date;
   formaPago:object;
-  membresia:object;  
+  membresia:any;  
+  numeroRecibo: string;
+  estado: string;
+  cobradorId: string;
 }
 
 export interface ColDataTablePagos {

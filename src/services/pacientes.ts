@@ -33,6 +33,21 @@ export const createPaciente = async (data: any) => {
   }
 };
 
+export const updatePaciente = async(data:any) => {
+  try {
+    const res = await fetch(url(`/pacientes/${data.id_paciente}`), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    const resJson = await res.json()
+    console.log(resJson)
+    return {message:'Paciente actualizado corectamente', ok:true}
+  } catch (error) {
+    return {message:'Error al actualizar el paciente', ok:false}
+  }
+}
+
 export const deletePaciente = async (id: number) => {
   try {
     const info = await fetch(url(`/pacientes/${id}`), {
@@ -196,5 +211,45 @@ export const getPacientesId = async(id: string) => {
     return data
   } catch (error) {
     return 'Error al traer los usuarios'
+  }
+}
+
+// registrar pacientes por medio del excel
+export const importExcelPacientes = async (formData: FormData) => {
+  try {
+    const response = await fetch(url('/import/pacientes/excel'), {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Error en la importación');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// exportar csv con los pacientes
+export const exportPacientes = async(filtro: string) => {
+  try {
+    const response = await fetch(url(`/export/pacientes/excel/${filtro}`), {
+      method: 'GET',
+      headers: { 'Accept': 'text/csv' },
+    })
+
+    if (!response.ok) {
+      throw new Error('Error al descargar el archivo');
+    }
+
+    const blob = await response.blob();
+    return blob;
+    
+  } catch (error) {
+    throw new Error('Error al descargar el archivo');
   }
 }

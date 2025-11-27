@@ -1,10 +1,9 @@
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import InputComponent from "../../components/formulario/InputComponent";
 import ReactSelectComponent from "../../components/formulario/ReactSelectComponent";
 import { useEffect, useState } from "react";
 import { Visita } from "../../interfaces/visitas";
 import { getBarrios } from "../../services/barrios";
-import { DataBarrio } from "../../interfaces/Barrio";
 import { medicoService } from "../../services/medicoService";
 import { getPacientesId } from "../../services/pacientes";
 import { useAuthContext } from "../../context/AuthContext";
@@ -12,17 +11,36 @@ import { createVisita } from "../../services/visitasService";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
-const SolicitarVisitaPaciente: React.FC = () => {
-  const [pacientes, setpacientes] = useState([]);
-  const [medicos, setMedicos] = useState<any>([]);
-  const [barrios, setBarrios] = useState<DataBarrio[]>([]);
-  const {user} = useAuthContext();
-  const navigate = useNavigate()
+//Probar Socket.io Borrar cuando este implementado:
+import socket from "../../services/socket";
+import { createNotificacionMedico } from "../../services/notificaciones";
 
-  const { control, register, handleSubmit, formState:{errors} } = useForm<Visita>({
+const SolicitarVisitaPaciente: React.FC = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectPacientes, setSelectPacientes] = useState<any>([]);
+  const [selectMedicos, setSelectMedicos] = useState<any>([]);
+  const [selectBarrios, setSelectBarrios] = useState<any>([]);
+
+  const { user } = useAuthContext();
+  const navigate = useNavigate();
+
+  // 🔹 Obtener fecha de hoy en formato YYYY-MM-DD
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
+  const todayDate = getTodayDate();
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm<Visita>({
     defaultValues: {
-      fecha_visita: new Date().toISOString().split("T")[0],
-      estado:true,
+      fecha_visita: todayDate,
+      estado: true,
       descripcion: "",
       direccion: "",
       paciente_id: null,
@@ -32,59 +50,75 @@ const SolicitarVisitaPaciente: React.FC = () => {
     },
   });
 
-  const solicitarVisita = async(data: Visita) => {
+  const solicitarVisita = async (data: Visita) => {
     try {
-      const res = await createVisita(data)
-      if(!res){
-        toast.error('Error en la solicitud de la visita')
-        return
-      }
-      toast.success('Solicitud de visita exitosa')
-      setTimeout(()=>{
-        navigate('/home/paciente')
-      }, 500)
-    } catch (error) {
-      toast.error('Ocurrió un problema en la solicitud de la visita')
+      setIsLoading(true);
+
+      const adjustedData = {
+        ...data,
+        fecha_visita: `${data.fecha_visita}T12:00:00`,
+      };
+
+       await createVisita(adjustedData);
+
+       const notifi = {
+        paciente_id:user.id,
+        medico_id:data.medico_id
+       }
+
+       await createNotificacionMedico(notifi)
+
+      toast.success("Solicitud de visita exitosa");
+      socket.emit("solicitudVisita", user);
+      socket.emit('visitaMedico',{toUserId:data.medico_id, data:user})
+      setTimeout(() => navigate("/home/paciente"), 500);
+    } catch (error: any) {
+      toast.error(error?.message || "Ocurrió un problema");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     const getData = async () => {
-      const resBarrios = await getBarrios();
-      const resMedicos = await medicoService.getDisponibles();
-      const resPacientes = await getPacientesId(user.id? user.id : '');
-      setpacientes(resPacientes)
-      setBarrios(resBarrios)
-      setMedicos(resMedicos)
-    }
+      try {
+        const resBarrios = await getBarrios();
+        const resMedicos = await medicoService.getDisponibles();
+        const resPacientes = await getPacientesId(user.id ? user.id : "");
+
+        // Procesar pacientes
+        const pacientesOptions = (resPacientes as any[])
+          .filter((b) => b.activo === true && b.beneficiario === true)
+          .map((b) => ({
+            value: b.idPaciente ? b.idPaciente : b.pacienteId,
+            label: `${b.usuario.nombre} ${b.usuario.apellido}`,
+          }));
+        setSelectPacientes(pacientesOptions);
+
+        // Procesar médicos
+        const medicosOptions = (resMedicos as any[])
+          .filter((b) => b.estado === true)
+          .map((b) => ({
+            value: b.id_medico,
+            label: `${b.usuario.nombre} ${b.usuario.apellido}`,
+          }));
+        setSelectMedicos(medicosOptions);
+
+        // Procesar barrios
+        const barriosOptions = (resBarrios as any[])
+          .filter((b) => b.habilitar === true)
+          .map((b) => ({
+            value: b.idBarrio,
+            label: b.nombreBarrio,
+          }));
+        setSelectBarrios(barriosOptions);
+      } catch (error) {
+        console.error("Error cargando datos:", error);
+        toast.error("Error al cargar los datos");
+      }
+    };
     getData();
-  }, [])
-
-  const selectPacientes = (pacientes as any[])
-  .filter((b) => b.activo === true && b.beneficiario === true)
-  .map((b) => ({
-    value: b.idPaciente? b.idPaciente : b.pacienteId,
-    label: (
-      <div className="flex justify-between">
-        <p>{b.usuario.nombre + ' ' + b.usuario.apellido}</p>
-        {b.pacienteId == null? (<p className="text-blue-700 px-2 bg-blue-200 rounded-xl">Titular</p>) : <p className="text-gray-700 px-2 bg-gray-200 rounded-xl">Beneficiario</p>}
-      </div>
-    )
-  }));
-
-  const selectMedicos = (medicos as any[])
-  .filter((b) => b.estado === true)
-  .map((b) => ({
-    value: b.id_medico,
-    label: b.usuario.nombre + ' ' + b.usuario.apellido,
-  }));
-
-  const selectBarrios = (barrios as any[])
-  .filter((b) => b.habilitar === true)
-  .map((b) => ({
-    value: b.idBarrio,
-    label: b.nombreBarrio,
-  }));
+  }, [user.id]);
 
   return (
     <div className="min-h-screen bg-blue-50 py-12 px-4">
@@ -99,78 +133,119 @@ const SolicitarVisitaPaciente: React.FC = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(solicitarVisita)} className="px-4 py-4 space-y-4">
-              <InputComponent label="Descripción" {...register('descripcion')}/>
+          <form
+            onSubmit={handleSubmit(solicitarVisita)}
+            className="px-4 py-4 space-y-4"
+          >
+            <InputComponent label="Descripción" {...register("descripcion")} />
 
-              <ReactSelectComponent
-                label="Paciente"
-                name="paciente_id"
-                placeholder="Selecciona el paciente"
-                required
-                isClearable
-                control={control}
-                options={selectPacientes}
-              />
+            <Controller
+              name="paciente_id"
+              control={control}
+              rules={{ required: "El paciente es requerido" }}
+              render={({ field }) => (
+                <ReactSelectComponent
+                  {...field}
+                  label="Paciente"
+                  placeholder="Selecciona el paciente"
+                  required
+                  isClearable
+                  noOptionsMessage="No hay pacientes disponibles"
+                  control={control}
+                  options={selectPacientes}
+                  name="paciente_id"
+                />
+              )}
+            />
 
-              <ReactSelectComponent
-                label="Médico"
-                name="medico_id"
-                placeholder="Selecciona el médico"
-                required
-                control={control}
-                options={selectMedicos}
-                isClearable
-              />
+            <Controller
+              name="medico_id"
+              control={control}
+              rules={{ required: "El médico es requerido" }}
+              render={({ field }) => (
+                <ReactSelectComponent
+                  {...field}
+                  label="Médico"
+                  placeholder="Selecciona el médico"
+                  required
+                  noOptionsMessage="No hay médicos disponibles"
+                  control={control}
+                  options={selectMedicos}
+                  isClearable
+                  name="medico_id"
+                />
+              )}
+            />
 
-              <ReactSelectComponent
-                label="Barrio"
-                name="barrio_id"
-                placeholder="Selecciona el barrio"
-                required
-                control={control}
-                options={selectBarrios}
-                isClearable
-              />
+            <Controller
+              name="barrio_id"
+              control={control}
+              rules={{ required: "El barrio es requerido" }}
+              render={({ field }) => (
+                <ReactSelectComponent
+                  {...field}
+                  label="Barrio"
+                  placeholder="Selecciona el barrio"
+                  required
+                  noOptionsMessage="No hay barrios disponibles"
+                  control={control}
+                  options={selectBarrios}
+                  isClearable
+                  name="barrio_id"
+                />
+              )}
+            />
 
-              <InputComponent 
-                label="Dirección" 
-                required
-                errors={errors?.direccion}
-                placeholder="Cra .. # .. - .."
-                {...register('direccion', {required: "La dirección es requerida"})}
-              />
+            <InputComponent
+              label="Dirección"
+              required
+              errors={errors?.direccion}
+              placeholder="Cra .. # .. - .."
+              {...register("direccion", {
+                required: "La dirección es requerida",
+              })}
+            />
 
-              <InputComponent
-                label="Fecha de Visita"
-                required
-                type="date"
-                min={new Date().toISOString().split("T")[0]}
-                errors={errors?.fecha_visita}
-                {...register('fecha_visita', 
-                  { required: "Fecha de visita requerida",
-                      validate: (value:string) => {
-                        const fecha = new Date(value);
-                        const limite = new Date();
-                        return fecha < limite || "La fecha de la visita no puede ser inferior a hoy";
-                      }
-                  })
-                }
-              />
+            <InputComponent
+              label="Fecha de Visita"
+              required
+              type="date"
+              min={todayDate}
+              errors={errors?.fecha_visita}
+              {...register("fecha_visita", {
+                required: "Fecha de visita requerida",
+                validate: (value: string) => {
+                  if (!value) return "La fecha es requerida";
 
-              <InputComponent 
-                label="Teléfono" 
-                required
-                type="number"
-                errors={errors?.telefono}
-                {...register('telefono', {required: "El teléfono es requerido"})}
-              />
-            
-              <button
-                type="submit"
-                className="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transform hover:scale-101 transition-all"
-              >
-                Solicitar Visita
-              </button>
+                  const selectedDate = new Date(value + "T00:00:00");
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+
+                  return (
+                    selectedDate >= today ||
+                    "La fecha de la visita debe ser hoy o posterior"
+                  );
+                },
+              })}
+            />
+
+            <InputComponent
+              label="Teléfono"
+              required
+              type="number"
+              errors={errors?.telefono}
+              {...register("telefono", {
+                required: "El teléfono es requerido",
+              })}
+            />
+
+            <button
+              type="submit"
+              disabled={isLoading || !isValid}
+              className="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transform hover:scale-101 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {isLoading ? "Solicitando Visita..." : "Solicitar Visita"}
+            </button>
           </form>
         </div>
       </div>

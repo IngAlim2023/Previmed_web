@@ -11,7 +11,7 @@ import { FaTrash } from "react-icons/fa6";
 
 const Beneficiarios: React.FC = () => {
   const location = useLocation();
-  const paciente = location.state?.row;
+  const paciente = location.state
 
   const [data, setData] = useState<any[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
@@ -43,9 +43,8 @@ const Beneficiarios: React.FC = () => {
   const cargar = async () => {
     try {
       const res = await readBeneficiarios(paciente?.idPaciente);
-      setData(res.data || []);
+      setData(res.data || res || []);
     } catch (e) {
-      console.error("Error al cargar beneficiarios:", e);
       toast.error("Error al obtener los beneficiarios");
     }
   };
@@ -72,7 +71,6 @@ const Beneficiarios: React.FC = () => {
       setOpenCreate(false);
       cargar();
     } catch (error) {
-      console.error("Error al crear beneficiario:", error);
       toast.error("Error al crear beneficiario");
     }
   };
@@ -93,9 +91,9 @@ const Beneficiarios: React.FC = () => {
   return (
     <div className="p-6 md:p-10 bg-blue-50 min-h-screen">
       <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
-        <div className="p-6 bg-gradient-to-r from-emerald-200 via-emerald-300 to-teal-300 text-white">
+        <div className="p-6 bg-white text-black">
           <h2 className="text-3xl font-bold">{paciente?.idPaciente ? "Beneficiarios del paciente" : "Todos los beneficiarios"}</h2>
-          <p className="text-white/90 mt-1">Gestiona los beneficiarios de forma segura</p>
+          <p className="text-black mt-1">Gestiona los beneficiarios de forma segura</p>
         </div>
 
         <div className="p-6 border-b border-gray-200 flex gap-3">

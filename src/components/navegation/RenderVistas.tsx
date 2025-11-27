@@ -7,7 +7,7 @@ const RenderVistas: React.FC = () => {
   const [cerrado, setCerrado] = useState<boolean>(false);
 
   return (
-    <div className="flex h-screen bg-blue-50">
+    <div className="flex h-full min-h-screen bg-blue-50">
       <SideBar cerrado={cerrado} setCerrado={setCerrado} />
 
       <main

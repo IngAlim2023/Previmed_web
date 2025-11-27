@@ -1,0 +1,67 @@
+[
+    {
+      "id_medico": 22,
+      "disponibilidad": true,
+      "estado": true,
+      "usuario_id": "12029884-dbe3-4560-b9ed-f8f69a30dc11",
+      "usuario": {
+        "id_usuario": "12029884-dbe3-4560-b9ed-f8f69a30dc11",
+        "nombre": "dd",
+        "apellido": "dd",
+        "email": "dd",
+        "numero_documento": "100023932"
+      }
+    },
+    {
+      "id_medico": 19,
+      "disponibilidad": true,
+      "estado": true,
+      "usuario_id": "9fb74038-9412-426a-a235-c814aca7a24f",
+      "usuario": {
+        "id_usuario": "9fb74038-9412-426a-a235-c814aca7a24f",
+        "nombre": "Dylan",
+        "apellido": "León",
+        "email": "dylan@gmail.com",
+        "numero_documento": "1087654323"
+      }
+    },
+    {
+      "id_medico": 21,
+      "disponibilidad": true,
+      "estado": true,
+      "usuario_id": "70282732-49a3-4048-aa5a-2a7207900dc2",
+      "usuario": {
+        "id_usuario": "70282732-49a3-4048-aa5a-2a7207900dc2",
+        "nombre": "Gustavo",
+        "apellido": "Petro",
+        "email": "gus@mail.com",
+        "numero_documento": "1007656389"
+      }
+    },
+    {
+      "id_medico": 30,
+      "disponibilidad": true,
+      "estado": false,
+      "usuario_id": "eb21c573-8c43-40dd-b5fe-96a89c378928",
+      "usuario": {
+        "id_usuario": "eb21c573-8c43-40dd-b5fe-96a89c378928",
+        "nombre": "daniel",
+        "apellido": "Martinez",
+        "email": "martin25@gmail.com",
+        "numero_documento": "1013603198"
+      }
+    },
+    {
+      "id_medico": 23,
+      "disponibilidad": true,
+      "estado": true,
+      "usuario_id": "41895094-13dd-45e0-80fb-a89fa3ba2ac1",
+      "usuario": {
+        "id_usuario": "41895094-13dd-45e0-80fb-a89fa3ba2ac1",
+        "nombre": "Samanta",
+        "apellido": "Julieta",
+        "email": "samanta@example.com",
+        "numero_documento": "1061786160"
+      }
+    }
+  ]

@@ -18,7 +18,7 @@ const BtnLeer:React.FC<OpcionesBotones> = ({verText, text}) => {
         hover:shadow-none
         `}
     >
-        <MdOutlineRemoveRedEye className='mr-1'/>
+        <MdOutlineRemoveRedEye/>
       {verText && "Ver"}
     </button>
   );

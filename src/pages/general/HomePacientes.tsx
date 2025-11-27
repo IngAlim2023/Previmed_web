@@ -5,6 +5,7 @@ import DetallesPlan from "../../components/planes/DetallesPlan";
 import { getPlanBeneficioById } from "../../services/planxbeneficios";
 import { getBeneficios } from "../../services/beneficios";
 import { getVisitas } from "../../services/visitasService";
+import FloatingChatButton from "../../components/botones/FloatingChatButton";
 
 const HomePacientes: React.FC = () => {
   const API_URL = import.meta.env.VITE_URL_BACK;
@@ -23,8 +24,8 @@ const HomePacientes: React.FC = () => {
     hora >= 5 && hora < 12
       ? "Buenos días"
       : hora >= 12 && hora < 18
-      ? "Buenas tardes"
-      : "Buenas noches";
+        ? "Buenas tardes"
+        : "Buenas noches";
 
   useEffect(() => {
     const fetchPaciente = async () => {
@@ -32,26 +33,24 @@ const HomePacientes: React.FC = () => {
 
       try {
         setLoading(true);
-        console.log("🧠 Usuario del contexto:", user);
 
-        // 1️⃣ Obtener paciente
-        const resPaciente = await fetch(`${API_URL}/pacientes/por-usuario/${user.id}`);
+        // 1️ Obtener paciente
+        const resPaciente = await fetch(`${API_URL}pacientes/por-usuario/${user.id}`);
         if (!resPaciente.ok) throw new Error("No se encontró paciente");
         const pacienteData = await resPaciente.json();
-        console.log("✅ Paciente obtenido:", pacienteData);
 
         const pacienteInfo = pacienteData.data;
         setNombre(user?.nombre ?? "");
 
-        // 2️⃣ Buscar membresía del paciente (del JSON que mostraste)
-        const resMembresias = await fetch(`${API_URL}/membresiasxpacientes/read`);
+        // 2️ Buscar membresía del paciente (del JSON que mostraste)
+        const resMembresias = await fetch(`${API_URL}membresiasxpacientes/read`);
         if (!resMembresias.ok) throw new Error("No se pudieron obtener membresías");
         const membresiasRaw = await resMembresias.json();
         const membresiasArr = Array.isArray(membresiasRaw?.data)
           ? membresiasRaw.data
           : Array.isArray(membresiasRaw)
-          ? membresiasRaw
-          : [];
+            ? membresiasRaw
+            : [];
 
         // buscar el registro que coincide con este paciente
         const miembro = membresiasArr.find(
@@ -59,7 +58,6 @@ const HomePacientes: React.FC = () => {
         );
 
         if (miembro) {
-          console.log("📦 Registro membresía del paciente:", miembro);
 
           // Intentar resolver planId directamente del registro, si existe
           let resolvedPlanId = miembro.planId ?? miembro.plan_id ?? null;
@@ -67,37 +65,35 @@ const HomePacientes: React.FC = () => {
           // Si no existe, consultar la membresía para obtener el planId
           if (!resolvedPlanId && miembro.membresiaId) {
             try {
-              const resM = await fetch(`${API_URL}/membresias/${miembro.membresiaId}`);
+              const resM = await fetch(`${API_URL}membresias/${miembro.membresiaId}`);
               if (resM.ok) {
                 const mData = await resM.json();
                 const m = mData?.data ?? mData?.msj ?? mData?.msg ?? mData;
                 resolvedPlanId = m?.planId ?? m?.plan_id ?? null;
-                console.log("🔎 Detalle membresía → planId:", resolvedPlanId, m);
               }
-            } catch {}
+            } catch { }
           }
 
           if (!resolvedPlanId) {
             console.warn("⚠️ No se pudo resolver el planId de la membresía.");
           } else {
-            // 3️⃣ Obtener el plan con el planId correcto
-            const resPlan = await fetch(`${API_URL}/planes/${resolvedPlanId}`);
+            // 3️ Obtener el plan con el planId correcto
+            const resPlan = await fetch(`${API_URL}planes/${resolvedPlanId}`);
             if (resPlan.ok) {
               const planData = await resPlan.json();
               const parsedPlan = planData?.data ?? planData?.msj ?? planData?.msg ?? planData;
-              console.log("🎯 Plan del paciente:", planData);
               // Solo establecer si hay campos esperados
               if (parsedPlan && (parsedPlan.tipoPlan || parsedPlan.tipo_plan)) {
                 // Enriquecer beneficios: relaciones + catálogo con nombres
                 let relaciones: any[] = [];
                 try {
                   relaciones = await getPlanBeneficioById(Number(resolvedPlanId));
-                } catch {}
+                } catch { }
 
                 let catalogo: any[] = [];
                 try {
                   catalogo = await getBeneficios();
-                } catch {}
+                } catch { }
 
                 const mapBeneficios = new Map(
                   (catalogo || []).map((b: any) => [
@@ -141,29 +137,28 @@ const HomePacientes: React.FC = () => {
           console.warn("⚠️ Paciente sin membresía registrada.");
         }
 
-        // 4️⃣ Obtener beneficiarios del titular
+        // 4️ Obtener beneficiarios del titular
         const resBenef = await fetch(
-          `${API_URL}/pacientes/beneficiarios/${pacienteInfo.idPaciente}`
+          `${API_URL}pacientes/beneficiarios/${pacienteInfo.idPaciente}`
         );
         if (resBenef.ok) {
           const benefData = await resBenef.json();
-          console.log("👨‍👩‍👧 Beneficiarios encontrados:", benefData);
           setBeneficiarios(benefData.data || []);
         }
 
-        // 5️⃣ Obtener visitas del paciente (endpoint directo o fallback a listado general)
+        // 5️ Obtener visitas del paciente (endpoint directo o fallback a listado general)
         try {
-          const urlDir = `${API_URL}/visitas/paciente/${pacienteInfo.idPaciente}`;
+          const urlDir = `${API_URL}visitas/paciente/${pacienteInfo.idPaciente}`;
           const resVisDir = await fetch(urlDir);
           if (resVisDir.ok) {
             const j = await resVisDir.json();
             const arr = Array.isArray(j?.msj)
               ? j.msj
               : Array.isArray(j?.data)
-              ? j.data
-              : Array.isArray(j)
-              ? j
-              : [];
+                ? j.data
+                : Array.isArray(j)
+                  ? j
+                  : [];
             const norm = arr.map((v: any) => ({
               id_visita: v.id_visita ?? v.idVisita ?? v.id,
               fecha_visita: v.fecha_visita ?? v.fechaVisita ?? v.fecha,
@@ -226,7 +221,7 @@ const HomePacientes: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50 flex items-start justify-center p-6">
+    <div className="min-h-screen bg-blue-50 flex items-start justify-center p-6 relative">
       <div className="w-full max-w-3xl bg-white/90 backdrop-blur rounded-2xl shadow-xl p-8 border border-gray-100">
         {/* 🕒 Reloj */}
         <div className="flex justify-end items-center text-sm text-gray-500 mb-4">
@@ -298,8 +293,13 @@ const HomePacientes: React.FC = () => {
             ) : (
               <ul className="divide-y divide-gray-100">
                 {beneficiarios.map((b: any, i: number) => (
-                  <li key={i} className="py-2 text-sm text-gray-700 flex items-center justify-between">
-                    <span>CC {getDocumento(b.usuario)} — {nombreCompleto(b.usuario)}</span>
+                  <li
+                    key={i}
+                    className="py-2 text-sm text-gray-700 flex items-center justify-between"
+                  >
+                    <span>
+                      CC {getDocumento(b.usuario)} — {nombreCompleto(b.usuario)}
+                    </span>
                     <span className="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
                   </li>
                 ))}
@@ -307,40 +307,56 @@ const HomePacientes: React.FC = () => {
             )}
           </div>
         )}
-        {showDetalles && (
-          <DetallesPlan plan={showDetalles} setShowDetalles={setShowDetalles} />
-        )}
 
         {/* 📅 Visitas del paciente */}
         <div className="mt-6 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
-          <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2"><FaCalendarAlt className="text-blue-600" /> Visitas recientes</h3>
+          <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <FaCalendarAlt className="text-blue-600" /> Visitas recientes
+          </h3>
           {visitas.length === 0 ? (
             <p className="text-sm text-gray-500">No tienes visitas registradas.</p>
           ) : (
             <ul className="space-y-2">
-              {([...visitas]
-                .sort((a: any, b: any) => new Date(b.fecha_visita).getTime() - new Date(a.fecha_visita).getTime())
+              {[...visitas]
+                .sort(
+                  (a: any, b: any) =>
+                    new Date(b.fecha_visita).getTime() - new Date(a.fecha_visita).getTime()
+                )
                 .slice(0, 5)
-              ).map((v: any) => (
-                <li key={v.id_visita} className="border border-gray-100 rounded-xl p-4 bg-gradient-to-b from-slate-50 to-white flex flex-col gap-1 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">{formatFecha(v.fecha_visita)}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${v.estado ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                      {v.estado ? "Activa" : "Inactiva"}
-                    </span>
-                  </div>
-                  <div className="text-gray-800 text-sm">{v.descripcion || "Sin descripción"}</div>
-                  {v.direccion && (
-                    <div className="text-xs text-gray-500">{v.direccion}</div>
-                  )}
-                </li>
-              ))}
+                .map((v: any) => (
+                  <li
+                    key={v.id_visita}
+                    className="border border-gray-100 rounded-xl p-4 bg-gradient-to-b from-slate-50 to-white flex flex-col gap-1 shadow-sm"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">{formatFecha(v.fecha_visita)}</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-semibold ${v.estado
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                          }`}
+                      >
+                        {v.estado ? "Activa" : "Inactiva"}
+                      </span>
+                    </div>
+                    <div className="text-gray-800 text-sm">
+                      {v.descripcion || "Sin descripción"}
+                    </div>
+                    {v.direccion && (
+                      <div className="text-xs text-gray-500">{v.direccion}</div>
+                    )}
+                  </li>
+                ))}
             </ul>
           )}
         </div>
       </div>
+
+      {/* 💬 Botón flotante del chat */}
+      <FloatingChatButton />
+      {showDetalles && (<DetallesPlan plan={showDetalles} setShowDetalles={setShowDetalles} />)}
     </div>
   );
-};
+}
 
 export default HomePacientes;

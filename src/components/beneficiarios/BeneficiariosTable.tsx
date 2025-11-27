@@ -1,9 +1,9 @@
 // src/components/beneficiarios/BeneficiariosTable.tsx
-import React from "react";
+import React, { useState } from "react";
 import DataTable, { TableColumn } from "react-data-table-component";
-import { FaUser } from "react-icons/fa";
 import BtnEliminar from "../botones/BtnEliminar";
 import BtnLeer from "../botones/BtnLeer";
+import { useAuthContext } from "../../context/AuthContext";
 
 interface Usuario {
   idUsuario: string;
@@ -31,25 +31,19 @@ interface Props {
 }
 
 const BeneficiariosTable: React.FC<Props> = ({ data, onDelete, onRead }) => {
+  const [search, setSearch] = useState("");
+  const {user} = useAuthContext()
+
   const columns: TableColumn<Beneficiario>[] = [
     {
-      name: "Beneficiario",
-      cell: (row) => (
-        <div className="py-3 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center text-white">
-            <FaUser />
-          </div>
-          <div>
-            <p className="font-semibold text-gray-800">
-              {row.usuario.nombre} {row.usuario.apellido}
-            </p>
-            <p className="text-xs text-gray-500">
-              {row.usuario.numeroDocumento}
-            </p>
-          </div>
-        </div>
-      ),
-      width: "250px",
+      name: "Nombre",
+      selector: (row) => `${row.usuario.nombre} ${row.usuario.apellido}`,
+      sortable: true,
+    },
+    {
+      name: "Documento",
+      selector: (row) => row.usuario.numeroDocumento,
+      sortable: true,
     },
     {
       name: "Email",
@@ -57,18 +51,9 @@ const BeneficiariosTable: React.FC<Props> = ({ data, onDelete, onRead }) => {
       sortable: true,
     },
     {
-      name: "Estado",
-      cell: (row) => (
-        <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-            row.activo
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {row.activo ? "Activo" : "Inactivo"}
-        </span>
-      ),
+      name: "Habilitado",
+      selector: (row) => (row.activo ? "Sí" : "No"),
+      sortable: true,
     },
     {
       name: "Acciones",
@@ -77,49 +62,44 @@ const BeneficiariosTable: React.FC<Props> = ({ data, onDelete, onRead }) => {
           <button onClick={() => onRead(row)}>
             <BtnLeer verText={false} text="" />
           </button>
+          {user.rol?.nombreRol == 'Administrador'?
           <button onClick={() => onDelete(row.idPaciente)}>
             <BtnEliminar></BtnEliminar>
-          </button>
+          </button> : <></>
+          }
         </div>
       ),
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
     },
   ];
 
+  const filteredData = data.filter((b) => {
+    const full = `${b.usuario.nombre} ${b.usuario.segundoNombre} ${b.usuario.apellido} ${b.usuario.segundoApellido}`.toLowerCase();
+    return (
+      full.includes(search.toLowerCase()) ||
+      (b.usuario.numeroDocumento || "").toLowerCase().includes(search.toLowerCase()) ||
+      (b.usuario.email || "").toLowerCase().includes(search.toLowerCase())
+    );
+  });
+
   return (
     <div>
+      <input
+        type="text"
+        placeholder="Buscar por nombre, documento o email..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="border px-3 py-2 rounded mb-4 w-full"
+      />
       <DataTable
         columns={columns}
-        data={data}
+        data={filteredData}
         pagination
-        paginationPerPage={10}
         highlightOnHover
         striped
-        responsive
-        noDataComponent={
-          <div className="py-12 text-center">
-            <FaUser className="text-6xl text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">
-              No hay beneficiarios registrados
-            </p>
-          </div>
-        }
-        customStyles={{
-          headCells: {
-            style: {
-              fontWeight: "bold",
-              fontSize: "14px",
-              backgroundColor: "#f3f4f6",
-              borderBottom: "2px solid #e5e7eb",
-            },
-          },
-          rows: {
-            style: {
-              fontSize: "14px",
-              minHeight: "70px",
-              borderBottom: "1px solid #e5e7eb",
-            },
-          },
-        }}
+        noDataComponent="No hay beneficiarios disponibles"
       />
     </div>
   );

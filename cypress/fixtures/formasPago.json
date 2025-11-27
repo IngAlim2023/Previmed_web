@@ -1,0 +1,22 @@
+[
+  {
+    "idFormaPago": 4,
+    "tipoPago": "Nequi",
+    "estado": true
+  },
+  {
+    "idFormaPago": 3,
+    "tipoPago": "Convenio",
+    "estado": true
+  },
+  {
+    "idFormaPago": 2,
+    "tipoPago": "Debito automatico",
+    "estado": true
+  },
+  {
+    "idFormaPago": 1,
+    "tipoPago": "Domicilio",
+    "estado": true
+  }
+]

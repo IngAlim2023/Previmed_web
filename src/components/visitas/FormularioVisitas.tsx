@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
-import Select from "react-select"
 import { Visita } from "../../interfaces/visitas"
 import { createVisita, updateVisita } from "../../services/visitasService"
 import { readPacientes } from "../../services/pacientes"
@@ -12,6 +11,7 @@ import { getBarrios } from "../../services/barrios"
 import BtnAgregar from "../botones/BtnAgregar"
 import BtnActualizar from "../botones/BtnActualizar"
 import BtnCancelar from "../botones/BtnCancelar"
+import ReactSelectComponent from "../formulario/ReactSelectComponent"
 
 type Props = {
   visita?: Visita | null
@@ -25,9 +25,9 @@ type VisitaFormValues = {
   direccion: string
   estado: string
   telefono: string
-  paciente_id: number
-  medico_id: number
-  barrio_id: number
+  paciente_id: number | null
+  medico_id: number | null
+  barrio_id: number | null
 }
 
 // ✅ función para convertir fecha ISO a yyyy-mm-dd
@@ -42,18 +42,17 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
-    watch,
+    control
   } = useForm<VisitaFormValues>({
     defaultValues: {
-      fecha_visita: "",
+      fecha_visita: new Date().toISOString().split("T")[0], // fecha actual
       descripcion: "",
       direccion: "",
       estado: "true",
       telefono: "",
-      paciente_id: 0,
-      medico_id: 0,
-      barrio_id: 0,
+      paciente_id: null,
+      medico_id: null,
+      barrio_id: null,
     },
   })
 
@@ -61,7 +60,6 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
   const [medicos, setMedicos] = useState<any[]>([])
   const [barrios, setBarrios] = useState<any[]>([])
 
-  // ✅ cuando cambia la visita cargamos sus valores iniciales
   useEffect(() => {
     if (visita) {
       reset({
@@ -85,7 +83,6 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
         const res = await readPacientes()
         setPacientes(res.data || [])
       } catch (error) {
-        console.error("Error al cargar pacientes", error)
         toast.error("No se pudieron cargar los pacientes")
       }
     }
@@ -95,7 +92,6 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
         const res = await medicoService.getAll()
         setMedicos(res.data || [])
       } catch (error) {
-        console.error("Error al cargar médicos", error)
         toast.error("No se pudieron cargar los médicos")
       }
     }
@@ -105,7 +101,6 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
         const res = await getBarrios()
         setBarrios(res || [])
       } catch (error) {
-        console.error("Error al cargar barrios", error)
         toast.error("No se pudieron cargar los barrios")
       }
     }
@@ -116,19 +111,14 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
   }, [])
 
   const onSubmit = async (data: VisitaFormValues) => {
-  console.log("🚀 onSubmit ejecutado", data);
-
-  // ✅ Mostrar mensaje inmediato
   toast.success("Visita Agregada Correctamente");
-
-  // ✅ Cerrar el modal justo después del toast
   setForm(false);
 
   try {
     const payload: Visita = {
       id_visita: visita ? visita.id_visita : 0,
       fecha_visita: data.fecha_visita,
-      descripcion: data.descripcion,
+      descripcion: data.descripcion.trim() || "",
       direccion: data.direccion,
       estado: data.estado === "true",
       telefono: data.telefono,
@@ -143,38 +133,18 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
         toast.error("ID de la visita inválido");
       } else {
         await updateVisita(id, payload);
-        toast.success("Visita actualizada exitosamente ✅");
+        toast.success("Visita actualizada exitosamente");
       }
     } else {
       await createVisita(payload);
-      toast.success("Visita agregada exitosamente 🎉");
+      toast.success("Visita agregada exitosamente");
     }
 
-    // 🔄 Refrescar la lista de visitas
     onSuccess();
   } catch (error) {
-    console.error("❌ Error al guardar la visita:", error);
     toast.error("Error al guardar la visita");
   }
 };
-
-
-  // 🎨 estilos para que react-select se vea igual que los inputs
-  const customSelectStyles = {
-    control: (base: any) => ({
-      ...base,
-      borderRadius: "0.5rem",
-      borderColor: "#d1d5db",
-      padding: "2px 4px",
-      boxShadow: "none",
-      "&:hover": { borderColor: "#9ca3af" },
-    }),
-    menu: (base: any) => ({
-      ...base,
-      borderRadius: "0.5rem",
-      overflow: "hidden",
-    }),
-  }
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50">
@@ -209,19 +179,19 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
               {...register("estado")}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:border-blue-400"
             >
-              <option value="true">Activo</option>
-              <option value="false">Inactivo</option>
+              <option value="true">Activa</option>
+              <option value="false">Inactiva</option>
             </select>
           </div>
 
           {/* Descripción */}
           <div className="col-span-2">
-            <label className="block text-gray-600 text-sm mb-1">Descripción</label>
+            <label className="block text-gray-600 text-sm mb-1">Descripción <span className="text-gray-400 text-xs">(Opcional)</span></label>
             <textarea
-              {...register("descripcion", { required: true })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg h-20 focus:ring focus:ring-blue-200 focus:border-blue-400"
+              {...register("descripcion")}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg h-20 focus:ring focus:ring-blue-200 focus:border-blue-400"
+            placeholder="Ingrese una descripción (opcional)"
             />
-            {errors.descripcion && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Dirección */}
@@ -248,83 +218,52 @@ const FormularioVisitas: React.FC<Props> = ({ visita, setForm, onSuccess }) => {
 
           {/* Paciente */}
           <div className="col-span-2">
-            <label className="block text-gray-600 text-sm mb-1">Paciente</label>
-            <Select
-              styles={customSelectStyles}
-              options={pacientes.map((p: any) => ({
-                value: p.idPaciente,
-                label: `CC: ${p.usuario?.numeroDocumento} - ${p.usuario?.nombre} ${p.usuario?.segundoNombre ?? ""} ${p.usuario?.apellido} ${p.usuario?.segundoApellido ?? ""}`,
-              }))}
-              value={
-                pacientes
-                  .map((p: any) => ({
-                    value: p.idPaciente,
-                    label: `CC: ${p.usuario?.numeroDocumento} - ${p.usuario?.nombre} ${p.usuario?.segundoNombre ?? ""} ${p.usuario?.apellido} ${p.usuario?.segundoApellido ?? ""}`,
-                  }))
-                  .find((opt: any) => opt.value === watch("paciente_id")) || null
-              }
-              onChange={(option) => {
-                if (option) setValue("paciente_id", option.value)
-              }}
-              placeholder="Buscar paciente..."
-              className="text-sm"
+          <ReactSelectComponent
+            name="paciente_id"
+            control={control}
+            label="Paciente"
+            required
+            isClearable
+            placeholder="Selecciona el paciente ...."
+            options={pacientes.map((p: any) => ({
+              value: p.idPaciente,
+              label: `CC: ${p.usuario?.numeroDocumento} - ${p.usuario?.nombre} ${p.usuario?.segundoNombre ?? ""} ${p.usuario?.apellido} ${p.usuario?.segundoApellido ?? ""}`,
+            }))}
             />
-            {errors.paciente_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
           </div>
 
           {/* Médico */}
           <div className="col-span-2">
-            <label className="block text-gray-600 text-sm mb-1">Médico</label>
-            <Select
-              styles={customSelectStyles}
-              options={medicos.map((m: any) => ({
-                value: m.id_medico,
-                label: `${m.usuario?.nombre} ${m.usuario?.apellido} - CC: ${m.usuario?.numero_documento}`,
-              }))}
-              value={
-                medicos
-                  .map((m: any) => ({
-                    value: m.id_medico,
-                    label: `${m.usuario?.nombre} ${m.usuario?.apellido} - CC: ${m.usuario?.numero_documento}`,
-                  }))
-                  .find((opt: any) => opt.value === watch("medico_id")) || null
-              }
-              onChange={(option) => {
-                if (option) setValue("medico_id", option.value)
-              }}
-              placeholder="Buscar médico..."
-              className="text-sm"
-            />
-            {errors.medico_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
+          <ReactSelectComponent
+            name="medico_id"
+            control={control}
+            label="Médico"
+            required
+            options={medicos.map((p: any) => ({
+              value: p.id_medico,
+              label: `CC: ${p.usuario.numero_documento} - ${p.usuario?.nombre} ${p.usuario?.segundoNombre ?? ""} ${p.usuario?.apellido} ${p.usuario?.segundoApellido ?? ""}`,
+            }))}
+            placeholder="Selecciona el médico ...."
+            isClearable
+          />
           </div>
 
           {/* Barrio */}
           <div className="col-span-2">
-            <label className="block text-gray-600 text-sm mb-1">Barrio</label>
-            <Select
-              styles={customSelectStyles}
-              options={barrios.map((b: any) => ({
-                value: b.idBarrio,
-                label: b.nombreBarrio,
-              }))}
-              value={
-                barrios
-                  .map((b: any) => ({
-                    value: b.idBarrio,
-                    label: b.nombreBarrio,
-                  }))
-                  .find((opt: any) => opt.value === watch("barrio_id")) || null
-              }
-              onChange={(option) => {
-                if (option) setValue("barrio_id", option.value)
-              }}
-              placeholder="Buscar barrio..."
-              className="text-sm"
-            />
-            {errors.barrio_id && <p className="text-red-500 text-sm">Campo obligatorio</p>}
+          <ReactSelectComponent
+            name="barrio_id"
+            control={control}
+            label="Barrio"
+            required
+            options={barrios.map((b: any) => ({
+              value: b.idBarrio,
+              label: b.nombreBarrio,
+            }))}
+            placeholder="Selecciona el barrio ...."
+            isClearable
+          />  
           </div>
 
-          {/* ✅ Botón de enviar */}
           <div className="col-span-2 flex justify-end pt-3">
             <button type="submit" className="focus:outline-none">
               {visita ? (

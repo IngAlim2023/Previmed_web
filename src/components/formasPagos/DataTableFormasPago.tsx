@@ -1,62 +1,82 @@
 import React from "react";
 import DataTable from "react-data-table-component";
 import { FormaPago } from "../../interfaces/formaPago";
+import BtnEditar from "../../components/botones/BtnEditar";
+import BtnEstado from "../botones/BtnEstado";
 
 type Props = {
   data: FormaPago[];
   loading: boolean;
   onEdit?: (forma: FormaPago) => void;
   onDelete?: (id: number) => void;
+  onToggleState?: (id: number, estado: boolean) => void;
 };
 
-const DataTableFormasPago: React.FC<Props> = ({ data, loading, onEdit, onDelete }) => {
+
+const DataTableFormasPago: React.FC<Props> = ({ data, loading, onEdit, onToggleState }) => {
+
   const columns = [
     {
       name: "Tipo de pago",
       selector: (row: FormaPago) => row.tipo_pago,
       sortable: true,
+      wrap: true,
+      grow: 2,
     },
     {
       name: "Estado",
-      selector: (row: FormaPago) => (row.estado ? "Activa" : "Inactiva"),
-      sortable: true,
-      width: "140px",
+      selector: (row: FormaPago) => (
+        <span
+          className={`px-3 rounded-full text-xm font-semibold text-white ${
+            row.estado
+              ? "bg-green-500"
+              : "bg-red-500"
+          }`}
+        >
+          {row.estado ? "✓  Activa" : "✗ Inactiva"}
+        </span>
+      ),
+      center: true,
+      width: "130px",
     },
     {
       name: "Acciones",
+      center: true,
+      width: "130px",
       cell: (row: FormaPago) => (
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-3">
           <button
-            className="px-2 py-1 rounded bg-blue-600 text-white text-sm"
             onClick={() => onEdit?.(row)}
+            className="p-2 rounded-lg hover:bg-blue-100 transition"
           >
-            Editar
+            <BtnEditar />
           </button>
-          <button
-            className="px-2 py-1 rounded bg-red-600 text-white text-sm"
-            onClick={() => onDelete?.(row.id_forma_pago)}
-          >
-            Eliminar
-          </button>
+
+          <div>
+            <BtnEstado
+              habilitado={row.estado}
+              onClick={() => onToggleState?.(row.id_forma_pago, !row.estado)}
+            />
+          </div>
         </div>
       ),
-      width: "220px",
     },
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4 overflow-x-auto w-full max-w-4xl mx-auto">
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">Formas de pago</h2>
+    <div className="w-full overflow-x-auto">
       <DataTable
         columns={columns as any}
         data={data}
         progressPending={loading}
         pagination
         highlightOnHover
-        responsive
         striped
-        noDataComponent="No hay formas de pago registradas"
+        dense
+        responsive
+        noDataComponent={<div className="py-10 text-gray-500">No hay datos registrados</div>}
       />
+
     </div>
   );
 };

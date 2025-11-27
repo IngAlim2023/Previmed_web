@@ -1,6 +1,9 @@
 // Interfaces compartidas frontend
 // Nota: frontend usa el término "Contrato", backend expone /membresias
 
+import { PostPagoInterface } from "./Pagos"
+import { Persona } from "./usuario"
+
 export interface Usuario {
   idUsuario: string
   nombre: string
@@ -55,8 +58,8 @@ export interface Membresia {
   firma?: string
   formaPago: string
   numeroContrato: string
-  fechaInicio: string
-  fechaFin: string
+  fechaInicio: Date
+  fechaFin: Date
   planId:number
   estado: boolean
   membresiaPaciente?: MembresiaPaciente[]
@@ -67,8 +70,8 @@ export interface NuevoContratoForm {
   firma: string | undefined
   forma_pago: string
   numero_contrato: string
-  fecha_inicio: string
-  fecha_fin: string
+  fecha_inicio: Date | string
+  fecha_fin: Date | string
   plan_id: number 
   paciente_id: number 
   estado: boolean
@@ -95,4 +98,21 @@ export interface responseContratoUser {
   membresiaId: number;
   idMembresiaXPaciente: number;
   membresia: Membresia;
+}
+
+export interface PacienteRenovarContrato extends Paciente{
+  seleccionado: boolean;
+}
+
+// usada en el flujo de suscripcion
+export interface PacienteNuevoContrato extends Persona {
+  seleccionado: boolean;
+}
+
+export interface RenovarContrato {
+  contrato: NuevoContratoForm;
+  personasAsignadas: PacienteRenovarContrato[];
+  personasNuevas: PacienteNuevoContrato[];
+  pago: PostPagoInterface;
+  titularId: number;
 }

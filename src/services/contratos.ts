@@ -146,3 +146,28 @@ export const getContratoByUserId = async(id:string) => {
   if (!res.ok) throw new Error("Error al obtener el contrato")
   return res.json()
 }
+
+// generar el contrato en pdf
+export const getContratoPdf = async (idUsuario: string) => {
+  const res = await fetch(`${API_URL}membresias/pdf/${idUsuario}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!res.ok) throw new Error('Error generando el contrato');
+
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  return url;
+};
+
+// servicio para renovar un contrato
+export const renovarContrato = async(data : any) => {
+  try {
+    console.log(data)
+  } catch (error) {
+    
+  }
+}

@@ -3,6 +3,7 @@ import { FormaPago, CreateFormaPagoDto, UpdateFormaPagoDto } from "../interfaces
 const RAW_BASE = import.meta.env.VITE_URL_BACK || "";
 const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : `${RAW_BASE}/`;
 const RESOURCE = "formas_pago";
+const URL = `${import.meta.env.VITE_URL_BACK}formas_pago/`;
 
 // ---- Normalizador de un item cualquiera a FormaPago
 function normalizeFormaPago(item: any): FormaPago {
@@ -76,8 +77,6 @@ export const formasPagoService = {
 
     const payload = await res.json();
 
-    // DEBUG: mira cómo viene tu backend (borra esto cuando verifiques)
-    // eslint-disable-next-line no-console
     console.log("[formas_pago/read] payload:", payload);
 
     const list = extractList(payload);
@@ -103,24 +102,34 @@ export const formasPagoService = {
     return normalizeFormaPago(created?.data ?? created);
   },
 
-  // ID viaja en el body ojo ahi
   async update(data: UpdateFormaPagoDto): Promise<FormaPago> {
-    const res = await fetch(`${BASE}${RESOURCE}/update`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id_forma_pago: data.id_forma_pago,
-        tipo_pago: data.tipo_pago,
-        estado: data.estado,
-      }),
-    });
-    if (!res.ok) throw new Error("Error al actualizar la forma de pago");
-    const updated = await res.json();
-    return normalizeFormaPago(updated?.data ?? updated);
-  },
+  const res = await fetch(`${BASE}${RESOURCE}/update/${data.id_forma_pago}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      tipo_pago: data.tipo_pago,
+      estado: data.estado,
+    }),
+  });
+
+  if (!res.ok) throw new Error("Error al actualizar la forma de pago");
+  const updated = await res.json();
+  return normalizeFormaPago(updated?.data ?? updated);
+}
+  ,
 
   async remove(id: number): Promise<void> {
     const res = await fetch(`${BASE}${RESOURCE}/delete/${id}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Error al eliminar la forma de pago");
+  },
+
+  async cambiarEstadoFormaPago(id: number, estado: boolean): Promise<any> {
+    const response = await fetch(`${URL}change/${id}/estado`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ estado }),
+    });
+    if (!response.ok) throw new Error("Error al cambiar el estado de la forma de pago");
+    return await response.json();
   },
 };

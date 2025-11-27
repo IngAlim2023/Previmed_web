@@ -3,9 +3,7 @@ import { useForm } from "react-hook-form";
 import { DataUsuario, UsuarioFormProps } from "../../interfaces/usuario";
 import BtnCancelar from "../botones/BtnCancelar";
 import { epsService } from "../../services/epsService";
-import { getRoles } from "../../services/roles";
 import { Eps } from "../../interfaces/eps";
-import { Rol } from "../../interfaces/roles";
 import toast from "react-hot-toast";
 import BtnAgregar from "../botones/BtnAgregar";
 
@@ -18,30 +16,20 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     reset,
-    watch,
   } = useForm<DataUsuario>({
     mode: "onChange",
   });
 
-  const [roles, setRoles] = useState<Rol[]>([]);
   const [eps, setEps] = useState<Eps[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // Vigilar cambios en los selects
-  const selectedEpsId = watch("epsId");
-  const selectedRolId = watch("rolId");
 
   // Cargar roles y EPS una sola vez
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [rolesData, epsData] = await Promise.all([
-          getRoles(),
-          epsService.getAll(),
-        ]);
-        setRoles(rolesData);
+        const epsData = await epsService.getAll();
         setEps(epsData.filter((x: Eps) => x.estado));
       } catch (error) {
         toast.error("Error al cargar datos del formulario");
@@ -50,9 +38,8 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
     fetchData();
   }, []);
 
-  // Resetear formulario cuando cambien initialData, roles o eps
   useEffect(() => {
-    if (roles.length > 0 && eps.length > 0) {
+    if (eps.length > 0) {
       if (initialData) {
         const epsIdToSet = initialData.epsId || initialData.eps?.idEps;
         const rolIdToSet = initialData.rolId || initialData.rol?.idRol;
@@ -67,7 +54,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           direccion: initialData.direccion || "",
           numeroDocumento: initialData.numeroDocumento || "",
           tipoDocumento: initialData.tipoDocumento || "Cédula de Ciudadanía",
-          fechaNacimiento: initialData.fechaNacimiento || "",
+          fechaNacimiento: new Date(initialData.fechaNacimiento).toISOString().split("T")[0] || new Date(),
           numeroHijos: initialData.numeroHijos || "",
           estrato: initialData.estrato || "",
           genero: initialData.genero || "Masculino",
@@ -75,7 +62,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           autorizacionDatos: initialData.autorizacionDatos || false,
           habilitar: initialData.habilitar !== false,
           epsId: Number(epsIdToSet) || 1,
-          rolId: Number(rolIdToSet) || 1,
+          rolId: Number(rolIdToSet) || 2,
         });
       } else {
         reset({
@@ -88,7 +75,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           direccion: "",
           numeroDocumento: "",
           tipoDocumento: "Cédula de Ciudadanía",
-          fechaNacimiento: "",
+          fechaNacimiento: new Date(),
           numeroHijos: "",
           estrato: "",
           genero: "Masculino",
@@ -96,13 +83,19 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           autorizacionDatos: false,
           habilitar: true,
           epsId: 1,
-          rolId: 1,
+          rolId: 2,
         });
       }
     }
-  }, [initialData, roles, eps, reset, isEditing]);
+  }, [initialData, eps, reset, isEditing]);
 
   const onValid = (data: DataUsuario) => {
+    // Prevenir envío si hay errores
+    if (!isValid || Object.keys(errors).length > 0) {
+      toast.error("Por favor completa todos los campos requeridos");
+      return;
+    }
+
     setLoading(true);
 
     const payload: Partial<DataUsuario> = {
@@ -125,9 +118,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
       rolId: Number(data.rolId),
     };
 
-    // Solo agregar password si:
-    // 1. Es creación y hay password, O
-    // 2. Es edición y el usuario escribió un password nuevo
     if (!isEditing && data.password) {
       payload.password = data.password;
     } else if (isEditing && data.password) {
@@ -136,6 +126,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
 
     try {
       onSubmit(payload);
+      toast.success("Usuario creado correctamente");
     } catch (error) {
       toast.error("Error al guardar usuario");
     } finally {
@@ -148,9 +139,20 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
     "w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const error = "text-red-500 text-xs mt-1";
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Permitir Enter solo en el botón submit, no en inputs
+    if (e.key === "Enter" && e.currentTarget.tagName !== "BUTTON") {
+      e.preventDefault();
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl w-full">
-      <form onSubmit={handleSubmit(onValid)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(onValid)}
+        onKeyDown={handleKeyDown}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className={label}>Nombre *</label>
@@ -198,7 +200,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
                 },
               })}
               onInput={(e) => {
-                // borra todo lo que no sea número y corta a 12
                 e.currentTarget.value = e.currentTarget.value
                   .replace(/[^0-9]/g, "")
                   .slice(0, 12);
@@ -298,7 +299,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Número de Hijos */}
           <div>
             <label className={label}>Número de Hijos</label>
             <input
@@ -376,37 +376,25 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
                 <option disabled>Cargando EPS...</option>
               )}
             </select>
-            {selectedEpsId && (
-              <small className="text-gray-500">ID: {selectedEpsId}</small>
-            )}
           </div>
-        </div>
-
-        <div>
-          <label className={label}>Rol</label>
-          <select {...register("rolId")} className={input}>
-            <option value="">-- Seleccionar Rol --</option>
-            {roles.length > 0 ? (
-              roles.map((r) => (
-                <option key={r.id_rol} value={r.id_rol}>
-                  {r.nombre_rol}
-                </option>
-              ))
-            ) : (
-              <option disabled>Cargando Roles...</option>
-            )}
-          </select>
-          {selectedRolId && (
-            <small className="text-gray-500">ID: {selectedRolId}</small>
-          )}
         </div>
 
         <div className="flex gap-6">
           <label className="flex items-center gap-2">
-            <input type="checkbox" {...register("autorizacionDatos")} />
-            <span>Autorización Datos</span>
+            <input
+              type="checkbox"
+              {...register("autorizacionDatos", {
+                required: "Debes autorizar el tratamiento de datos",
+              })}
+            />
+            <span>Autorización Datos *</span>
           </label>
-          <label className="flex items-center gap-2">
+
+          {errors.autorizacionDatos && (
+            <p className={error}>{errors.autorizacionDatos.message}</p>
+          )}
+
+          <label className="flex items-center gap-2 mt-2">
             <input type="checkbox" {...register("habilitar")} />
             <span>Habilitado</span>
           </label>
@@ -416,7 +404,7 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
           <div onClick={onCancel}>
             <BtnCancelar verText />
           </div>
-          <button type="submit" disabled={loading}>
+          <button type="submit" disabled={loading || !isValid}>
             <BtnAgregar verText />
           </button>
         </div>
