@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FiMail, FiMapPin, FiFileText, FiCalendar, FiX, FiUser, FiDollarSign, FiUsers, FiBriefcase, FiHome, FiHeart, FiShield } from 'react-icons/fi';
+import { FiMail, FiMapPin, FiFileText, FiCalendar, FiX, FiUser, FiDollarSign, FiUsers, FiBriefcase, FiHome, FiHeart, FiShield, FiRefreshCw } from 'react-icons/fi';
 import { getPacientesId } from '../../services/pacientes';
 import { Membresia, Paciente } from '../../interfaces/interfaces';
 import { getContratoByUserId } from '../../services/contratos';
@@ -269,7 +269,13 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
                 <FiFileText className="text-blue-600" />
                 Información del Contrato
               </h5>
-       
+                <button onClick={()=> navigate('/renovar/contrato', {state:{
+                  contrato, usuario_id:titular?.usuarioId, titular_id:titular?.idPaciente
+                }})}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition-all active:scale-95">
+                  <FiRefreshCw className="text-lg" />
+                  <span className="text-sm font-semibold">Renovar contrato</span>
+                </button>            
                 <BtnDescargarPdf idUsuario={idPaciente||''} verText={true}/>            
             </div>
 

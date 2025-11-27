@@ -162,3 +162,12 @@ export const getContratoPdf = async (idUsuario: string) => {
   const url = window.URL.createObjectURL(blob);
   return url;
 };
+
+// servicio para renovar un contrato
+export const renovarContrato = async(data : any) => {
+  try {
+    console.log(data)
+  } catch (error) {
+    
+  }
+}

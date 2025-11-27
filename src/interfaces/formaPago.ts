@@ -4,6 +4,12 @@ export interface FormaPago {
   estado: boolean;
 }
 
+export interface DataFormaPago{
+  idFormaPago: number;
+  tipoPago: string;
+  estado: boolean;
+}
+
 export interface CreateFormaPagoDto {
   tipo_pago: string;
   estado?: boolean;
