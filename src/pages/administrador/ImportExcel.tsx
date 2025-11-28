@@ -257,7 +257,7 @@ const ImportExcel = () => {
                 {
                   name: "Fecha de Nacimiento",
                   selector: (row: FilaExcel) =>
-                    row["Fecha de Nacimiento"]?.toString() || "—",
+                    new Date(row["Fecha de Nacimiento"]).toISOString().split('T')[0] || "—",
                   sortable: true,
                 },
                 {
@@ -296,7 +296,7 @@ const ImportExcel = () => {
           <div className="mt-6 flex justify-end">
             <button
               onClick={() => setShowResultsModal(true)}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="px-4 bg-white shadow-md py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Ver ultimos resultados
             </button>
