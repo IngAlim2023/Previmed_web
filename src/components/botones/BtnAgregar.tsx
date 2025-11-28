@@ -2,9 +2,10 @@ import React from "react";
 import { MdAddCircleOutline } from "react-icons/md";
 import { OpcionesBotones } from "../../interfaces/botones";
 
-const BtnAgregar: React.FC<OpcionesBotones> = ({ verText, text }) => {
+const BtnAgregar: React.FC<OpcionesBotones> = ({ verText, text, disabled }) => {
   return (
     <button
+      disabled={disabled}
       className={`
         ${text}
         flex items-center justify-center gap-2
@@ -23,7 +24,7 @@ const BtnAgregar: React.FC<OpcionesBotones> = ({ verText, text }) => {
       `}
     >
       <MdAddCircleOutline className="text-xl" />
-      {verText && <span>Agregar</span>}
+      {verText && <span>{disabled? 'Agregando...':'Agregar'}</span>}
     </button>
   );
 };

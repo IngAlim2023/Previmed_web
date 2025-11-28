@@ -77,8 +77,6 @@ export const formasPagoService = {
 
     const payload = await res.json();
 
-    console.log("[formas_pago/read] payload:", payload);
-
     const list = extractList(payload);
     return list.map(normalizeFormaPago);
   },

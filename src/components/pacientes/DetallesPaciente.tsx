@@ -7,6 +7,7 @@ import BtnDescargarPdf from '../botones/BtnDescargarPdf';
 import ListPagosPaciente from '../pagos/ListPagosPaciente';
 import { useNavigate } from 'react-router-dom';
 import BtnBeneficiarios from '../botones/BtnBeneficiarios';
+import { epsService } from '../../services/epsService';
 
 interface Props {
   idPaciente?: string | null;
@@ -20,6 +21,7 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
   const [contrato, setContrato] = useState<Membresia>();
   const [loading, setLoading] = useState(true);
   const [pagos, setPagos] = useState<boolean>(false)
+  const [epsPacienteActual, setEpsPacienteActual] = useState<string>('No especifica');
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -43,6 +45,7 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
       }
     };
     getdata();
+    getEpsPaciente();
   }, [idPaciente]);
 
   const formatearFecha = (fecha: string) => {
@@ -68,6 +71,13 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
   };
 
   const esTitular = !pacienteActual?.pacienteId || pacienteActual?.pacienteId === null;
+
+  const getEpsPaciente = async() => {
+    const id = pacienteActual?.usuario?.epsId;
+    if(!id) return
+    const res = await epsService.getById(id);
+    setEpsPacienteActual(res.nombreEps);
+  }
 
   if (loading) {
     return (
@@ -256,7 +266,7 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
                 <FiShield className="text-gray-400" />
                 <div>
                   <p className="text-xs text-gray-500">EPS</p>
-                  <p className="text-sm text-gray-800">{pacienteActual?.usuario?.epsId || 'No registrada'}</p>
+                  <p className="text-sm text-gray-800">{epsPacienteActual || 'No registrada'}</p>
                 </div>
               </div>
             </div>

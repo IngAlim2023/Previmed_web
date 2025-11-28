@@ -1,89 +1,112 @@
 import React, { useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
-import { MdCheckCircle, MdPerson, MdAdd, MdDelete, MdClose } from "react-icons/md";
+import { MdCheckCircle, MdPerson } from "react-icons/md";
 import { FaFileContract, FaUsers, FaMoneyBillWave, FaCrown } from "react-icons/fa";
 import BtnAgregar from "../botones/BtnAgregar";
 import BtnCancelar from "../botones/BtnCancelar";
 import { DatosContrato, FormularioPagos } from "../../pages/general/FormularioPacientes";
-import InputComponent from "../formulario/InputComponent";
-import SelectComponent from "../formulario/SelectCompontent";
-import ReactSelectComponent from "../formulario/ReactSelectComponent";
-import { tiposDocumento } from "../../data/tiposDocumento";
-import { generos } from "../../data/generos";
 import { getFormasPago } from "../../services/pagosService";
 import { getPacientesId } from "../../services/pacientes";
 import { getPlanes } from "../../services/planes";
 import { Plan } from "../../interfaces/planes";
 import { DataFormaPago } from "../../interfaces/formaPago";
-import { epsService } from "../../services/epsService";
-import { Eps } from "../../interfaces/eps";
 import { toast } from "react-hot-toast";
 import { renovarContrato } from "../../services/contratos";
 import { Paciente, PacienteRenovarContrato, RenovarContrato } from "../../interfaces/interfaces";
-import { estadosCiviles } from "../../data/estadosCiviles";
+import { useAuthContext } from "../../context/AuthContext";
+
+// Utilidad para manejar fechas sin problemas de zona horaria
+const formatDateForInput = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 const FormContrato = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { contrato, usuario_id, titular_id } = location.state;
+  const { user } = useAuthContext();
   
   const [paso, setPaso] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
   const [personasActuales, setPersonasActuales] = useState<PacienteRenovarContrato[]>([]);
   const [formasPago, setFormasPago] = useState<DataFormaPago[]>([]);
   const [planes, setPlanes] = useState<Plan[]>([]);
-  const [eps, setEps] = useState<Eps[]>([]);
-  const [showModal, setShowModal] = useState(false);
   const [titularActual, setTitularActual] = useState(titular_id);
 
-  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<RenovarContrato>({
+  const { register, handleSubmit, control, watch, setValue, formState: { errors }, trigger } = useForm<RenovarContrato>({
     defaultValues: {
       contrato: {
         numero_contrato: contrato?.numeroContrato ?? `CT-${Date.now()}`,
-        fecha_inicio: new Date().toISOString().split('T')[0],
+        fecha_inicio: formatDateForInput(new Date()),
         fecha_fin: "",
         forma_pago: contrato?.formaPago ?? '',
         plan_id: contrato?.planId ?? 0
       },
       pago: {
-        fecha_inicio: new Date().toISOString().split('T')[0],
+        fecha_inicio: formatDateForInput(new Date()),
         fecha_fin: '',
         forma_pago_id: 0,
-        monto: 0
+        monto: 0,
+        cobrador_id: user.id ?? ''
       },
       titularId: titular_id
     }
   });
 
-  const { fields, append, remove } = useFieldArray({ control, name: 'personasNuevas' });
   const selectedPlan = planes.find((p: any) => p.idPlan == watch('contrato.plan_id'));
+  const fechaInicioContrato = watch('contrato.fecha_inicio');
+  const fechaFinContrato = watch('contrato.fecha_fin');
+  const fechaInicioPago = watch('pago.fecha_inicio');
 
   useEffect(() => {
     const getData = async () => {
-      const [resFormasPago, resPersonas, resPlanes, resEps] = await Promise.all([
+      const [resFormasPago, resPersonas, resPlanes] = await Promise.all([
         getFormasPago(),
         getPacientesId(usuario_id),
-        getPlanes(),
-        epsService.getAll()
+        getPlanes()
       ]);
       
       if (resFormasPago) setFormasPago(resFormasPago);
       if (resPlanes) setPlanes(resPlanes);
-      if (resEps) setEps(resEps as any);
       if (resPersonas) {
         setPersonasActuales(resPersonas.map((p: Paciente) => ({
-          ...p,
-          seleccionado: p.idPaciente === titular_id
+          ...p, seleccionado: p.idPaciente === titular_id
         })));
       }
     };
     getData();
-  }, []);
+  }, [usuario_id, titular_id]);
 
   useEffect(() => {
     if (selectedPlan) setValue("pago.monto", parseFloat(selectedPlan.precio));
   }, [selectedPlan, setValue]);
+
+  // Calcular automáticamente las fechas fin
+  useEffect(() => {
+    if (fechaInicioContrato) {
+      const inicio = new Date(fechaInicioContrato + 'T12:00:00');
+      
+      // Fecha fin del contrato: 6 meses después
+      const finContrato = new Date(inicio);
+      finContrato.setMonth(finContrato.getMonth() + 6);
+      setValue('contrato.fecha_fin', formatDateForInput(finContrato));
+    }
+  }, [fechaInicioContrato, setValue]);
+
+  useEffect(() => {
+    if (fechaInicioPago) {
+      const inicio = new Date(fechaInicioPago + 'T12:00:00');
+      
+      // Fecha fin del pago: 1 mes después
+      const finPago = new Date(inicio);
+      finPago.setMonth(finPago.getMonth() + 1);
+      setValue('pago.fecha_fin', formatDateForInput(finPago));
+    }
+  }, [fechaInicioPago, setValue]);
 
   const selectFormas = formasPago.filter(fp => fp.estado).map(fp => ({
     value: fp.idFormaPago,
@@ -95,7 +118,7 @@ const FormContrato = () => {
     label: fp.tipoPago
   }));
 
-  const selectPlanes = (planes as any[]).filter((p) => p.estado).map((p) => ({
+  const selectPlanes = planes.filter(p => p.estado).map(p => ({
     value: p.idPlan,
     label: (
       <div className="py-2">
@@ -104,23 +127,11 @@ const FormContrato = () => {
           <span className="text-blue-600 font-semibold">${p.precio}</span>
         </div>
         <p className="text-sm text-gray-600">{p.descripcion}</p>
-        {p.planXBeneficios && p.planXBeneficios.length > 0 && (
-          <ul className="list-disc pl-5 mt-1 text-xs text-gray-700">
-            {p.planXBeneficios.map((b: any, i: number) => (
-              <li key={i}>{b.beneficio?.tipoBeneficio}</li>
-            ))}
-          </ul>
-        )}
         <p className="text-xs font-semibold mt-1 text-gray-700">
           Beneficiarios: {p.cantidadBeneficiarios}
         </p>
       </div>
     ),
-  }));
-
-  const selectEps = eps.filter(e => e.estado).map(e => ({
-    value: e.idEps,
-    label: e.nombreEps
   }));
 
   const handleCambiarTitular = (newTitularId: number) => {
@@ -140,7 +151,7 @@ const FormContrato = () => {
       return;
     }
 
-    const totalSeleccionados = personasActuales.filter(p => p.seleccionado).length + fields.length;
+    const totalSeleccionados = personasActuales.filter(p => p.seleccionado).length;
     const maxBeneficiarios = selectedPlan?.cantidadBeneficiarios || 0;
     const persona = personasActuales.find(p => p.idPaciente === idPaciente);
 
@@ -154,41 +165,121 @@ const FormContrato = () => {
     );
   };
 
-  const handleAgregarNuevo = () => {
-    const totalSeleccionados = personasActuales.filter(p => p.seleccionado).length + fields.length;
-    const maxBeneficiarios = selectedPlan?.cantidadBeneficiarios || 0;
-
-    if (totalSeleccionados >= maxBeneficiarios) {
-      toast.error(`El plan permite máximo ${maxBeneficiarios} personas`);
+  const onSubmit = async (data: RenovarContrato) => {
+    // Validar antes de enviar
+    if (!validatePagoStep()) {
       return;
     }
-    setShowModal(true);
-  };
 
-  const handleGuardarNuevo = () => {
-    append({
-      usuario: {
-        nombre: "", segundo_nombre:'', apellido: "", segundo_apellido:"", email: "", password: "", direccion: "",
-        numero_documento: "", fecha_nacimiento: "", rol_id: 4, eps_id: null,
-        tipo_documento: "", autorizacion_datos: false, genero: "", estado_civil: "",
-        estrato: 0
-      },
-      paciente: { activo: true, beneficiario: true },
-      seleccionado: true
-    });
-    setShowModal(false);
-  };
-
-  const onSubmit = async (data: RenovarContrato) => {
     setIsSaving(true);
-    await renovarContrato(data);
-    setIsSaving(false);
+    try {
+      const dataToSend = {
+        ...data,
+        titularId: titularActual,
+        personasAsignadas: personasActuales.filter(p => p.seleccionado).map(p => ({
+          idPaciente: p.idPaciente,
+          usuario: p.usuario
+        })),
+      };
+         
+      const response = await renovarContrato(dataToSend);
+            
+      // Verificar diferentes formatos de respuesta exitosa
+      const isSuccess = response?.ok === true || 
+                       response?.message?.includes('exitosamente') || 
+                       response?.message?.includes('éxito') ||
+                       response?.success === true;
+      
+      if (isSuccess) {
+        toast.success(response.message || 'Contrato renovado exitosamente');
+        setTimeout(() => {
+          navigate('/pacientes');
+        }, 500);
+      } else {
+        const errorMsg = response?.error 
+          ? `${response.message}: ${response.error}` 
+          : (response?.message || 'Error al renovar el contrato');
+        toast.error(errorMsg);
+      }
+    } catch (error) {
+      toast.error('Error de conexión. Por favor intenta nuevamente.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleNext = () => { if (paso < 3) setPaso(paso + 1); };
+  const handleNext = async () => {
+    let isValid = false;
+
+    if (paso === 1) {
+      isValid = await trigger(['contrato.numero_contrato', 'contrato.fecha_inicio', 'contrato.fecha_fin', 'contrato.forma_pago', 'contrato.plan_id']);
+      
+      if (!fechaInicioContrato || !fechaFinContrato) {
+        toast.error("Debes completar todas las fechas del contrato");
+        return;
+      }
+
+      const inicio = new Date(fechaInicioContrato + 'T12:00:00');
+      const fin = new Date(fechaFinContrato + 'T12:00:00');
+      const minFin = new Date(inicio);
+      minFin.setMonth(minFin.getMonth() + 1);
+
+      if (fin < minFin) {
+        toast.error("La fecha de fin debe ser al menos 1 mes después de la fecha de inicio");
+        return;
+      }
+
+      if (!watch('contrato.plan_id')) {
+        toast.error("Debes seleccionar un plan");
+        return;
+      }
+    } else if (paso === 2) {
+      const totalSeleccionados = personasActuales.filter(p => p.seleccionado).length;
+      const maxBeneficiarios = selectedPlan?.cantidadBeneficiarios || 0;
+
+      if (totalSeleccionados === 0) {
+        toast.error("Debes seleccionar al menos una persona");
+        return;
+      }
+
+      if (totalSeleccionados > maxBeneficiarios) {
+        toast.error(`El plan permite máximo ${maxBeneficiarios} personas`);
+        return;
+      }
+
+      isValid = true;
+    }
+
+    if (isValid) setPaso(paso + 1);
+  };
+
+  const validatePagoStep = () => {
+    const formaPagoId = watch('pago.forma_pago_id');
+    const monto = watch('pago.monto');
+    const fechaInicio = watch('pago.fecha_inicio');
+    const fechaFin = watch('pago.fecha_fin');
+
+    if (!formaPagoId || formaPagoId === 0) {
+      toast.error("Debes seleccionar una forma de pago");
+      return false;
+    }
+
+    if (!monto || monto <= 0) {
+      toast.error("El monto debe ser mayor a 0");
+      return false;
+    }
+
+    if (!fechaInicio || !fechaFin) {
+      toast.error("Debes completar todas las fechas del pago");
+      return false;
+    }
+
+    return true;
+  };
+
   const handlePrev = () => { if (paso > 1) setPaso(paso - 1); };
 
-  const totalSeleccionados = personasActuales.filter(p => p.seleccionado).length + fields.length;
+  const totalSeleccionados = personasActuales.filter(p => p.seleccionado).length;
   const maxBeneficiarios = selectedPlan?.cantidadBeneficiarios || 0;
   const titularPersona = personasActuales.find(p => p.idPaciente === titularActual);
 
@@ -213,7 +304,6 @@ const FormContrato = () => {
         </div>
       </div>
 
-      {/* Selector de Titular */}
       <div className="col-span-2 bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-xl border-2 border-purple-200 mb-6">
         <div className="flex items-center gap-3 mb-4">
           <FaCrown className="w-6 h-6 text-purple-600" />
@@ -250,7 +340,6 @@ const FormContrato = () => {
         </div>
       </div>
 
-      {/* Personas Actuales */}
       <div className="col-span-2">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">Personas del Contrato Actual</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -281,9 +370,7 @@ const FormContrato = () => {
                       </h4>
                       <p className="text-sm text-gray-500">{persona.usuario?.numeroDocumento}</p>
                       <span className={`inline-block mt-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        esTitular 
-                          ? 'bg-purple-100 text-purple-700' 
-                          : 'bg-gray-100 text-gray-700'
+                        esTitular ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'
                       }`}>
                         {esTitular ? 'TITULAR' : 'Beneficiario'}
                       </span>
@@ -300,96 +387,6 @@ const FormContrato = () => {
           })}
         </div>
       </div>
-
-      {/* Nuevos Beneficiarios */}
-      {fields.length > 0 && (
-        <div className="col-span-2 mt-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Nuevos Beneficiarios</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fields.map((field, index) => (
-              <div key={field.id} className="p-4 border-2 border-green-500 bg-green-50 rounded-xl">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-                      <MdPerson className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-800">Nuevo Beneficiario #{index + 1}</h4>
-                      <p className="text-sm text-gray-500">Pendiente de registro</p>
-                      <span className="inline-block mt-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                        Nuevo
-                      </span>
-                    </div>
-                  </div>
-                  <button type="button" onClick={() => remove(index)} className="text-red-500 hover:text-red-700">
-                    <MdDelete className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Botón Agregar */}
-      <div className="col-span-2">
-        <button
-          type="button"
-          onClick={handleAgregarNuevo}
-          disabled={totalSeleccionados >= maxBeneficiarios}
-          className={`w-full py-3 border-2 border-dashed rounded-xl font-semibold transition flex items-center justify-center gap-2 ${
-            totalSeleccionados >= maxBeneficiarios
-              ? 'border-gray-300 text-gray-400 cursor-not-allowed'
-              : 'border-blue-300 text-blue-600 hover:bg-blue-50'
-          }`}
-        >
-          <MdAdd className="w-5 h-5" />
-          Agregar Nuevo Beneficiario
-        </button>
-      </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
-              <h3 className="text-2xl font-bold text-gray-800">Nuevo Beneficiario</h3>
-              <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-gray-700">
-                <MdClose className="w-6 h-6" />
-              </button>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputComponent label="Nombre" required placeholder="Ingrese el nombre" />
-                <InputComponent label="Apellido" required placeholder="Ingrese el apellido" />
-                <SelectComponent label="Tipo de Documento" required options={tiposDocumento} />
-                <InputComponent label="Número de Documento" required type="number" placeholder="123456" />
-                <InputComponent label="Fecha de Nacimiento" required type="date" max={new Date().toISOString().split("T")[0]} />
-                <InputComponent label="Correo" required type="email" placeholder="correo@ejemplo.com" />
-                <InputComponent label="Contraseña" required type="password" placeholder="********" />
-                <InputComponent label="Dirección" required placeholder="Cra .. # ..." />
-                <SelectComponent label="Género" options={generos} />
-                <SelectComponent label="Estado Civil" options={estadosCiviles} />
-                <ReactSelectComponent label="EPS" control={control} name="eps_id" isClearable options={selectEps} />
-                <div className="col-span-2">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 accent-blue-600" />
-                    <span>Autorización de datos personales *</span>
-                  </label>
-                </div>
-              </div>
-              <div className="flex gap-3 mt-6">
-                <button type="button" onClick={handleGuardarNuevo} className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700">
-                  Guardar
-                </button>
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-300">
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 
@@ -404,9 +401,7 @@ const FormContrato = () => {
       <div className="max-w-6xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-4 mb-6">
           <div className="flex justify-center items-center">
-            <div className="flex items-center justify-around w-full max-w-2xl gap-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-600">Renovación de Contrato</h2>
-            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-600">Renovación de Contrato</h2>
           </div>
 
           <div className="flex items-center justify-around gap-4 mt-8 w-full">
@@ -448,7 +443,12 @@ const FormContrato = () => {
             )}
 
             {paso === 3 ? (
-              <div onClick={!isSaving ? handleSubmit(onSubmit) : undefined}><BtnAgregar verText /></div>
+              <div 
+                onClick={!isSaving ? handleSubmit(onSubmit) : undefined}
+                className={isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+              >
+                <BtnAgregar verText disabled={isSaving} />
+              </div>
             ) : (
               <button type="button" onClick={handleNext} className="px-8 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition shadow-lg">
                 Continuar
