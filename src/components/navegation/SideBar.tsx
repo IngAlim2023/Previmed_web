@@ -63,7 +63,7 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
 
     // 🔹 ASESOR
     { path: "/home/asesor", label: "Inicio", icon: <FaHome />, roles: ["Asesor"] },
-    { path: "/pacientes/asesor", label: "Pacientes", icon: <FaUserFriends />, roles: ["Asesor"] },
+    { path: "/pacientes", label: "Pacientes", icon: <FaUserFriends />, roles: ["Asesor"] },
     /* { path: "/contratos/asesor", label: "Contratos", icon: <FaClipboardList />, roles: ["Asesor"] }, */
     { path: "/pagos/asesor", label: "Pagos", icon: <FaMoneyBill />, roles: ["Asesor"] },
     { path: "/barrios/asesor", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Asesor"] },
