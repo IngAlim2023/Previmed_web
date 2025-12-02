@@ -3,7 +3,7 @@ import DataTable, { TableColumn } from "react-data-table-component"
 import toast from "react-hot-toast"
 import { HiOutlineDocumentText } from "react-icons/hi"
 
-import { Membresia, Plan } from "../../interfaces/interfaces"
+import { Membresia } from "../../interfaces/interfaces"
 import { getContratos, deleteContrato, getPlanes } from "../../services/contratos"
 
 import BtnAgregar from "../botones/BtnAgregar"
@@ -13,7 +13,7 @@ import BtnCerrar from "../botones/BtnCerrar"
 import BtnLeer from "../botones/BtnLeer"
 import BtnCancelar from "../botones/BtnCancelar"
 
-import FormContrato from "./FormContrato"
+//import FormContrato from "./FormContrato"
 import DetallesContrato from "./DetallesContrato"
 import { useAuthContext } from "../../context/AuthContext"
 
@@ -22,7 +22,7 @@ const DataTableContratos: React.FC = () => {
     (Membresia & { planNombre?: string; titularNombre?: string })[]
   >([])
   const {user} = useAuthContext()
-  const [planes, setPlanes] = useState<Plan[]>([])
+  //const [planes, setPlanes] = useState<Plan[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Membresia | null>(null)
@@ -36,7 +36,7 @@ const DataTableContratos: React.FC = () => {
     try {
       setLoading(true)
       const [c, pl] = await Promise.all([getContratos(), getPlanes()])
-      setPlanes(pl)
+      //setPlanes(pl)
 
       // Detectar titulares en membresías
       const titularesDetectados = c.flatMap((m: any) =>
@@ -119,7 +119,7 @@ const DataTableContratos: React.FC = () => {
   }
 
   // ✅ Guardar o actualizar (refrescando data completa)
-  const handleOnSuccess = async (saved?: Membresia) => {
+/*   const handleOnSuccess = async (saved?: Membresia) => {
     if (!saved) return
     toast.dismiss()
     toast.loading("Actualizando lista...", { id: "refresh" })
@@ -131,7 +131,7 @@ const DataTableContratos: React.FC = () => {
         : "Contrato creado con éxito 🎉",
       { duration: 1000 }
     )
-  }
+  } */
 
   // ✨ Cierre modal
   const closeModal = () => {
@@ -269,7 +269,7 @@ const DataTableContratos: React.FC = () => {
             {editing ? "Editar Contrato" : "Nuevo Contrato"}
           </h2>
 
-          <FormContrato
+{/*           <FormContrato
             contrato={editing}
             setShowForm={setShowForm}
             onSuccess={async (saved) => {
@@ -277,7 +277,7 @@ const DataTableContratos: React.FC = () => {
               closeModal();
             }}
             planes={planes}
-          />
+          /> */}
         </div>
       </div>
     )}

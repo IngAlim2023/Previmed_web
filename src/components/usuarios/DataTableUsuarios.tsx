@@ -174,7 +174,7 @@ const DataTableUsuarios: React.FC = () => {
               </p>
               <p>
                 <strong>Fecha Nacimiento:</strong>{" "}
-                {modalDetalles.fechaNacimiento}
+                {new Date(modalDetalles.fechaNacimiento).toISOString().split('T')[0]}
               </p>
               <p>
                 <strong>Estado Civil:</strong> {modalDetalles.estadoCivil}
