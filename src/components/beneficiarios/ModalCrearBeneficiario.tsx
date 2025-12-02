@@ -200,6 +200,8 @@ const ModalCrearBeneficiario: React.FC<Props> = ({
                   numero_documento: e.target.value.replace(/\D/g, ""),
                 })
               }
+              maxLength={12}
+              min={6}
               className="border border-gray-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Ej: 1032456789"
               required
