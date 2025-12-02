@@ -58,8 +58,8 @@ export interface Membresia {
   firma?: string
   formaPago: string
   numeroContrato: string
-  fechaInicio: Date | string
-  fechaFin: Date | string
+  fechaInicio: Date
+  fechaFin: Date
   planId:number
   estado: boolean
   membresiaPaciente?: MembresiaPaciente[]
