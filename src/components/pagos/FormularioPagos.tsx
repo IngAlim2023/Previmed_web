@@ -111,7 +111,7 @@ const FormularioPagos: React.FC<Props> = ({
           ]);
         }
       } catch (error) {
-        console.error("❌ Error al cargar formas de pago:", error);
+        toast.error("Error al cargar formas de pago");
       }
     };
 

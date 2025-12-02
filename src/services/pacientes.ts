@@ -13,7 +13,6 @@ export const readPacientes = async () => {
     if (!info.ok) throw new Error(`HTTP ${info.status}`);
     return await info.json();
   } catch (e) {
-    console.error("Error en readPacientes:", e);
     return { data: [] };
   }
 };
@@ -35,13 +34,11 @@ export const createPaciente = async (data: any) => {
 
 export const updatePaciente = async(data:any) => {
   try {
-    const res = await fetch(url(`/pacientes/${data.id_paciente}`), {
+    await fetch(url(`/pacientes/${data.id_paciente}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     })
-    const resJson = await res.json()
-    console.log(resJson)
     return {message:'Paciente actualizado corectamente', ok:true}
   } catch (error) {
     return {message:'Error al actualizar el paciente', ok:false}
@@ -95,14 +92,12 @@ export const readBeneficiarios = async () => {
     });
     const res = await info.json();
     if (!info.ok) {
-      console.warn("readBeneficiarios:", res?.error || `HTTP ${info.status}`);
       return { data: [] };
     }
     if (Array.isArray(res)) return { data: res };
     if (Array.isArray(res?.data)) return { data: res.data };
     return { data: [] };
   } catch (e) {
-    console.error("❌ Error en readBeneficiarios:", e);
     return { data: [] };
   }
 };
@@ -118,7 +113,6 @@ export const createBeneficiario = async (data: any) => {
     if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
     return res; // { message, data }
   } catch (e: any) {
-    console.error("Error en createBeneficiario:", e);
     return { message: "Error", error: e?.message || "Network error" };
   }
 };
@@ -133,7 +127,6 @@ export const deleteBeneficiario = async (id: number) => {
     if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
     return res;
   } catch (e: any) {
-    console.error("Error en deleteBeneficiario:", e);
     return { message: "Error", error: e?.message || "Network error" };
   }
 };
@@ -149,7 +142,6 @@ export const desvincularBeneficiario = async (beneficiario_id: number, desactiva
     if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
     return res;
   } catch (e: any) {
-    console.error("Error en desvincularBeneficiario:", e);
     return { message: "Error", error: e?.message || "Network error" };
   }
 };
@@ -165,7 +157,6 @@ export const asociarBeneficiario = async (beneficiario_id: number, titular_id: n
     if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
     return res;
   } catch (e: any) {
-    console.error("Error en asociarBeneficiario:", e);
     return { message: "Error", error: e?.message || "Network error" };
   }
 };
@@ -180,7 +171,6 @@ export const getUsuarioDeBeneficiario = async (id: number) => {
     if (!info.ok) return { message: "Error", error: res?.error || `HTTP ${info.status}` };
     return res; // { data: { usuario_id, usuario }, message? }
   } catch (e: any) {
-    console.error("Error en getUsuarioDeBeneficiario:", e);
     return { message: "Error", error: e?.message || "Network error" };
   }
 };

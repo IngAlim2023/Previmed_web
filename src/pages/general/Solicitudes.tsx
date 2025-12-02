@@ -56,7 +56,6 @@ const Solicitudes: React.FC = () => {
       setSolicitudes(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
-      console.error(err);
     } finally {
       setLoading(false);
     }

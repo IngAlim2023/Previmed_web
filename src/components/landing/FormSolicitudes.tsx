@@ -20,13 +20,11 @@ const FormSolicitudes: React.FC<PropsSolicitudes> = ({}) => {
   const enviarSolicitud = async (data: PostSolicitud) => {
     setLoading(true);
     try {
-      console.log("Solicitud siendo enviada:", data);
       await crearSolicitud(data);
       toast.success("Solicitud enviada con éxito");
       reset();
       setForm(false);
     } catch (e) {
-      console.error("Error:", e);
       toast.error("No se pudo enviar la solicitud");
     } finally {
       setLoading(false);

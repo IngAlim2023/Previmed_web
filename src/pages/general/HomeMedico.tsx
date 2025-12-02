@@ -80,7 +80,6 @@ const HomeMedico: React.FC = () => {
           nombre: nombreCompleto,
         });
       } catch (error) {
-        console.error(error);
         toast.error("No se pudieron cargar los datos del médico");
       } finally {
         setLoading(false);
@@ -156,7 +155,6 @@ const HomeMedico: React.FC = () => {
           : "Has finalizado la visita médica."
       );
     } catch (error) {
-      console.error(error);
       toast.error("No se pudo actualizar el estado del médico");
     } finally {
       setUpdating(false);
@@ -236,7 +234,6 @@ const HomeMedico: React.FC = () => {
           : "Has pasado a no disponible (inactivo)"
       );
     } catch (error) {
-      console.error(error);
       toast.error("No se pudo actualizar la disponibilidad");
     } finally {
       setUpdating(false);

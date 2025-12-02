@@ -35,7 +35,6 @@ const SolicitudesDataTable: React.FC<SolicitudesDataTableProps> = ({
         onEstadoChanged(solicitud.idSolicitud, nuevoEstado);
       }
     } catch (error) {
-      console.error("Error al cambiar el estado:", error);
       alert("Error al cambiar el estado de la solicitud");
     } finally {
       setLoadingId(null);

@@ -5,7 +5,6 @@ import { useAuthContext } from "../context/AuthContext";
 
 const ProtectedPacientes:React.FC = () => {
     const {user} = useAuthContext();
-    console.log(user.rol?.nombreRol)
 
     if(user.rol?.nombreRol != 'Paciente'){
         return <Navigate to='/xyz' replace />

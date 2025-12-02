@@ -42,7 +42,6 @@ const DataTableVisitas: React.FC = () => {
       setVisitas(data)
       if (showToast) toast.success("Visitas cargadas exitosamente", { id: "visitas-toast" })
     } catch (error) {
-      console.error(error)
       toast.error("Error al cargar visitas", { id: "visitas-toast" })
     } finally {
       toast.dismiss("visitas-toast")
@@ -71,7 +70,6 @@ const DataTableVisitas: React.FC = () => {
       setMedicosTodos(todos)
       setMedicosDisp(disponibles)
     } catch (error) {
-      console.error(error)
       toast.error("Error al cargar médicos")
     } finally {
       setLoadingMedicos(false)
@@ -85,7 +83,6 @@ const DataTableVisitas: React.FC = () => {
       const res = await readPacientes()
       setPacientes(res.data)
     } catch (error) {
-      console.error(error)
       toast.error("Error al cargar pacientes")
     } finally {
       setLoadingPacientes(false)
@@ -107,7 +104,6 @@ const DataTableVisitas: React.FC = () => {
       toast.success("Estado actualizado")
       fetchVisitas()
     } catch (error) {
-      console.error(error)
       toast.error("Error al actualizar estado")
     }
   }
@@ -121,7 +117,6 @@ const DataTableVisitas: React.FC = () => {
       setCambiandoMedicoId(null)
       fetchVisitas()
     } catch (error) {
-      console.error(error)
       toast.error("Error al actualizar médico")
     }
   }
@@ -139,7 +134,6 @@ const DataTableVisitas: React.FC = () => {
       toast.success("Visita eliminada correctamente")
       fetchVisitas()
     } catch (error) {
-      console.error(error)
       toast.error("Error al eliminar visita")
     } finally {
       setShowConfirm(false)

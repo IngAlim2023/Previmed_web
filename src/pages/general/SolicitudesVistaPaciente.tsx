@@ -44,12 +44,10 @@ const SolicitudesVisitaPaciente: React.FC = () => {
       if (!user?.id) {
         delete dataToSend.idUsuario;
       }
-      console.log("Payload siendo enviado:", dataToSend);
       await crearSolicitud(dataToSend);
       toast.success("Solicitud enviada con éxito");
       reset();
     } catch (e) {
-      console.error("Error:", e);
       toast.error("No se pudo enviar la solicitud");
     } finally {
       setLoading(false);

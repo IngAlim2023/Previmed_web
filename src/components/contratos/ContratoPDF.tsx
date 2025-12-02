@@ -154,8 +154,6 @@ export const generarPDF = (usuario: Usuario): GenerarPDFResult => {
     }
     
   } catch (error: any) {
-    // Mantener el console para depuración
-    console.error('Error al generar PDF:', error)
     return {
       success: false,
       mensaje: 'Error al generar el PDF',

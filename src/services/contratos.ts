@@ -114,7 +114,6 @@ export const deleteContrato = async (id: string | number) => {
       return { ok: true }
     }
   } catch (error: any) {
-    console.error("❌ Error en deleteContrato:", error.message)
     throw new Error(error.message || "Error desconocido al eliminar contrato")
   }
 }
@@ -166,7 +165,6 @@ export const getContratoPdf = async (idUsuario: string) => {
 // servicio para renovar un contrato
 export const renovarContrato = async(data : any) => {
   try {
-    console.log(data)
     const res = await fetch(`${API_URL}membresias/renovar`, {
       method: 'POST',
       headers: {
@@ -174,8 +172,7 @@ export const renovarContrato = async(data : any) => {
       },
       body: JSON.stringify(data)
     })
-    const response = await res.json(); // ⬅️ Faltaba el await aquí
-    console.log(response)
+    const response = await res.json();
     return response;
   } catch (error) {
     return { ok: false, message: "Error al renovar el contrato" }
