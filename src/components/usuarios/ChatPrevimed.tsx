@@ -53,7 +53,6 @@ export default function ChatPrevimed() {
         }, 1500);
       }
     } catch (err) {
-      console.error("❌ Error al enviar mensaje:", err);
       setMensajes((prev) => [
         ...prev,
         { role: "assistant", text: "Error al conectar con el asistente. Intenta nuevamente." },

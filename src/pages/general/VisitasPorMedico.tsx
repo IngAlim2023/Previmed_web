@@ -66,7 +66,6 @@ const VisitasPorMedico: React.FC = () => {
         setIdMedico(medico.id_medico);
         toast.success("Médico identificado correctamente", { id: "medico" });
       } catch (error) {
-        console.error("🚨 Error en fetchMedico:", error);
         toast.error("Error al obtener información del médico", {
           id: "medico",
         });
@@ -90,7 +89,7 @@ const VisitasPorMedico: React.FC = () => {
       setVisitas(activas);
       socket.emit("register", idMedico);
     } catch (error) {
-      console.error("Error al cargar visitas:", error);
+      throw error
     } finally {
       setLoading(false);
     }
@@ -108,7 +107,6 @@ const VisitasPorMedico: React.FC = () => {
 
     // Escuchar mensajes desde móvil o web
     channel.onmessage = (event) => {
-      console.log("🔄 Mensaje recibido en BroadcastChannel:", event.data);
       if (event.data?.type === "VISITA_UPDATE") {
         setVisitaActiva(localStorage.getItem("visita_activa"));
         fetchVisitas();
@@ -192,7 +190,6 @@ const VisitasPorMedico: React.FC = () => {
       // 🔁 Refrescar la tabla después del cambio
       await fetchVisitas();
     } catch (error) {
-      console.error("Error al manejar visita:", error);
       toast.error("Error al actualizar la visita o el estado del médico");
     } finally {
       channel.close();

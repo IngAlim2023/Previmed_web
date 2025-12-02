@@ -104,9 +104,6 @@ const DataTableUsuarios: React.FC = () => {
           <div onClick={() => handleDeshabilitar(row.idUsuario!)}>
             <BtnCambiar />
           </div>
-          <div onClick={() => console.log("Cambiar estado")}>
-            <BtnCambiar />
-          </div>
         </div>
       ),
       ignoreRowClick: true,
@@ -174,7 +171,7 @@ const DataTableUsuarios: React.FC = () => {
               </p>
               <p>
                 <strong>Fecha Nacimiento:</strong>{" "}
-                {modalDetalles.fechaNacimiento}
+                {new Date(modalDetalles.fechaNacimiento).toISOString().split('T')[0]}
               </p>
               <p>
                 <strong>Estado Civil:</strong> {modalDetalles.estadoCivil}
