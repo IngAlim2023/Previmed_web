@@ -8,9 +8,9 @@ import { useAuthContext } from "../../context/AuthContext";
 interface Usuario {
   idUsuario: string;
   nombre: string;
-  segundoNombre: string;
+  segundoNombre: string | null;
   apellido: string;
-  segundoApellido: string;
+  segundoApellido: string | null;
   email: string;
   numeroDocumento: string;
 }
@@ -19,7 +19,7 @@ interface Beneficiario {
   idPaciente: number;
   usuario: Usuario;
   direccionCobro: string;
-  ocupacion: string;
+  ocupacion: string | null;
   activo: boolean;
   beneficiario: boolean;
 }
