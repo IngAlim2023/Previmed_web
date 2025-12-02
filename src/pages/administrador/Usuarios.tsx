@@ -98,9 +98,9 @@ export default function UsuariosPage() {
       {
         name: "Acciones",
         // damos espacio para que no se oculte el botón
-        minWidth: "260px",
+        minWidth: "220px",
         cell: (row) => (
-          <div className="flex gap-2 justify-center items-center">
+          <div className="flex justify-center items-center">
             <div onClick={() => setViewing(row)}>
               <BtnLeer />
             </div>
@@ -158,7 +158,7 @@ export default function UsuariosPage() {
   return (
     <div className="p-6 bg-blue-50">
       {/* Header con botón y buscador */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-md">
+      <div className="flex flex-col md:flex-row w-full max-w-6xl md:items-center md:justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-md">
           <h2 className="text-2xl font-semibold text-gray-600 flex items-center">
             <MdPeopleAlt  className="w-10 h-auto text-blue-600 mr-4" />
             Asesores
@@ -182,7 +182,7 @@ export default function UsuariosPage() {
       </div>
 
       {/* Contenedor con scroll horizontal para la tabla */}
-      <div className="w-full overflow-x-auto rounded-2xl border border-gray-200 shadow-lg bg-white">
+      <div className="w-full p-2 max-w-6xl overflow-x-auto rounded-2xl border border-gray-200 shadow-lg bg-white">
         <DataTable
           columns={columns}
           data={filteredData}

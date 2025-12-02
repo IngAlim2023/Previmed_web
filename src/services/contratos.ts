@@ -167,7 +167,17 @@ export const getContratoPdf = async (idUsuario: string) => {
 export const renovarContrato = async(data : any) => {
   try {
     console.log(data)
+    const res = await fetch(`${API_URL}membresias/renovar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type' : 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    const response = await res.json(); // ⬅️ Faltaba el await aquí
+    console.log(response)
+    return response;
   } catch (error) {
-    
+    return { ok: false, message: "Error al renovar el contrato" }
   }
 }

@@ -15,6 +15,7 @@ import { generos } from "../../data/generos";
 import { estadosCiviles } from "../../data/estadosCiviles";
 import { registroCompletoTitular } from "../../services/pacientes";
 import { Persona } from "../../interfaces/usuario";
+import { useAuthContext } from "../../context/AuthContext";
 
 interface FormData {
   titular: Persona;
@@ -362,6 +363,17 @@ export const FormularioPagos = ({ register, control, watch, selectFormas, errors
     />
 
     <InputComponent
+      label="N° de recibo"
+      required
+      type="number"
+      errors={errors?.pago?.numero_recibo}
+      placeholder="00-00-00"
+      {...register("pago.numero_recibo", { 
+        required: "El n° de recibo es requerido",
+      })}
+    />
+
+    <InputComponent
       label="Monto"
       required
       type="number"
@@ -403,7 +415,11 @@ const FormularioPacientes = () => {
         fecha_inicio: new Date().toISOString().split("T")[0]
       },
       pago: {
-        fecha_inicio: new Date().toISOString().split("T")[0]
+        fecha_inicio: new Date().toISOString().split("T")[0],
+        fecha_pago: new Date().toISOString().split("T")[0],
+        cobrador_id: '',
+        estado: 'Realizado',
+        numero_recibo: String(Math.floor(100000 + Math.random() * 900000)),
       }
     }
   });
@@ -417,6 +433,7 @@ const FormularioPacientes = () => {
   const [formasPago, setFormasPago] = useState([]);
   const [planes, setPlanes] = useState([]);
   const [eps, setEps] = useState([]);
+  const {user} = useAuthContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -429,15 +446,37 @@ const FormularioPacientes = () => {
       setEps(resEps as any);
     };
     getData();
-        
+
+    // Función para formatear fechas
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+  
+    // Fechas iniciales
+    const hoy = new Date();
+    const fechaInicioStr = formatDate(hoy);
+  
+    // Fecha fin del contrato (6 meses después)
+    const contratoFin = new Date(hoy);
+    contratoFin.setMonth(contratoFin.getMonth() + 6);
+    const fechaFinContratoStr = formatDate(contratoFin);
+  
+    // Fecha fin del pago (1 mes después)
+    const pagoFin = new Date(hoy);
+    pagoFin.setMonth(pagoFin.getMonth() + 1);
+    const fechaFinPagoStr = formatDate(pagoFin);
+  
+    // Setear todos los valores
     setValue("contrato.numero_contrato", `CT-${Date.now()}`);
-    setValue("contrato.fecha_inicio", new Date().toISOString().split("T")[0]);
-    setValue("pago.fecha_inicio", new Date().toISOString().split("T")[0]);
-    trigger('contrato.fecha_inicio')
-    trigger('contrato.fecha_fin')
-    trigger('pago.fecha_inicio')
-    trigger('pago.fecha_fin')
-  }, [setValue, watch('contrato.fecha_fin'), watch('pago.fecha_fin')]);
+    setValue("contrato.fecha_inicio", fechaInicioStr);
+    setValue("contrato.fecha_fin", fechaFinContratoStr);
+    setValue("pago.fecha_inicio", fechaInicioStr);
+    setValue("pago.fecha_fin", fechaFinPagoStr);
+    setValue("pago.cobrador_id", user.id || '');
+  }, []);
 
   const validateStep = async () => {
     let fieldsToValidate: string[] = [];
