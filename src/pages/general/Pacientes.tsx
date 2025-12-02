@@ -7,7 +7,7 @@ import DataTable, { TableColumn } from "react-data-table-component";
 import { FaPlus, FaUsers } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import BtnEliminar from "../../components/botones/BtnEliminar";
+//import BtnEliminar from "../../components/botones/BtnEliminar";
 import BtnEditar from "../../components/botones/BtnEditar";
 import BtnLeer from "../../components/botones/BtnLeer";
 import { useAuthContext } from "../../context/AuthContext";
@@ -16,6 +16,7 @@ import DetallesPaciente from "../../components/pacientes/DetallesPaciente";
 import FormPacientes from "../../components/pacientes/FormPacientes";
 import { HiOutlineUpload } from "react-icons/hi";
 import BtnTelefonos from "../../components/botones/BtnTelefonos";
+import BtnBeneficiarios from "../../components/botones/BtnBeneficiarios";
 
 interface Paciente {
   id: number;
@@ -49,10 +50,10 @@ const Pacientes: React.FC = () => {
     load();
   }, [data]);
 
-  const handleDelete = async (row: Paciente) => {
+/*   const handleDelete = async (row: Paciente) => {
     setIdDelete(row.id);
     setOpen(true);
-  };
+  }; */
 
   const columns: TableColumn<any>[] = [
     {
@@ -82,7 +83,7 @@ const Pacientes: React.FC = () => {
     },
     {
       name: "Opciones",
-      minWidth: "220px",
+      minWidth: "200px",
       cell: (row) => (
         <div className="flex">
           <div
@@ -96,8 +97,8 @@ const Pacientes: React.FC = () => {
               <div onClick={() => {setFormPaciente(true), setPacientEdit(row)}}>
                 <BtnEditar/>
               </div>
-              <div onClick={() => handleDelete(row)}>
-                <BtnEliminar/>
+              <div onClick={() => {navigate('/beneficiarios', {state: row})}} title="Beneficiarios">
+                <BtnBeneficiarios/>
               </div>
               <div
               onClick={() => {

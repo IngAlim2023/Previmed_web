@@ -34,4 +34,7 @@ export interface PostPagoInterface {
     fecha_pago: Date | string;
     membresia_id:number;
     forma_pago_id:number;
+    cobrador_id?: string;
+    estado?: string;
+    numero_recibo: string;
 }
