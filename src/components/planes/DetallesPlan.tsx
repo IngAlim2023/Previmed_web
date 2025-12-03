@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useEffect } from "react"
+=======
+import React from "react"
+>>>>>>> ed6b51aa6cbd4ea04b18cafb70c872ddf6916ebd
 import BtnCerrar from "../botones/BtnCerrar"
 import { HiOutlineClipboardList } from "react-icons/hi"
 import { Plan } from "../../interfaces/planes"
@@ -12,10 +16,17 @@ const DetallesPlan: React.FC<Props> = ({ plan, setShowDetalles }) => {
 /*   const [visible, setVisible] = useState(false)
   const [closing, setClosing] = useState(false) */
 
+<<<<<<< HEAD
   useEffect(() => {
 /*     const timeout = setTimeout(() => setVisible(true), 50)
     return () => clearTimeout(timeout) */
   }, [])
+=======
+/*   useEffect(() => {
+    const timeout = setTimeout(() => setVisible(true), 50)
+    return () => clearTimeout(timeout)
+  }, []) */
+>>>>>>> ed6b51aa6cbd4ea04b18cafb70c872ddf6916ebd
 
   if (!plan) return null
 

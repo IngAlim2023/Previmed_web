@@ -126,7 +126,6 @@ const UsuarioForm: React.FC<UsuarioFormProps> = ({
 
     try {
       onSubmit(payload);
-      toast.success("Usuario creado correctamente");
     } catch (error) {
       toast.error("Error al guardar usuario");
     } finally {

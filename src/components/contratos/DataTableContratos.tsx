@@ -131,8 +131,13 @@ const DataTableContratos: React.FC = () => {
         : "Contrato creado con éxito 🎉",
       { duration: 1000 }
     )
+<<<<<<< HEAD
   } */
 
+=======
+  }
+ */
+>>>>>>> ed6b51aa6cbd4ea04b18cafb70c872ddf6916ebd
   // ✨ Cierre modal
   const closeModal = () => {
     setClosingModal(true)

@@ -87,7 +87,11 @@ function App() {
             {/* Rutas para el Asesor */}
             <Route element={<ProtectedAsesor/>}>
               <Route path="/home/asesor" element={<HomeAsesor />} />
+<<<<<<< HEAD
               <Route path="/contratos/asesor" element={<Contratos />} />
+=======
+              {/* <Route path="/contratos/asesor" element={<Contratos />} /> */}
+>>>>>>> ed6b51aa6cbd4ea04b18cafb70c872ddf6916ebd
               <Route path="/pagos/asesor" element={<Pagos />} />
               <Route path="/barrios/asesor" element={<Barrios />} />
             </Route>

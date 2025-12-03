@@ -19,6 +19,7 @@ import {
   createPago,
   updatePago,
   getFormasPago,
+  procesarImagenOCR,
 } from "../../services/pagosService";
 import { estadosPago } from "../../data/estadosPago";
 import { getAsesores } from "../../services/usuarios";
@@ -60,6 +61,7 @@ const FormularioPagos: React.FC<Props> = ({
     watch,
     control,
     reset,
+    setValue,
     formState: { errors, isDirty },
   } = useForm<FormValues>({
     defaultValues: {
@@ -75,6 +77,7 @@ const FormularioPagos: React.FC<Props> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [asesores, setAsesores] = useState<any[]>([]);
+  const [lastProcessedFile, setLastProcessedFile] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -104,6 +107,7 @@ const FormularioPagos: React.FC<Props> = ({
             { idFormaPago: 3, tipoPago: "Convenio" },
             { idFormaPago: 4, tipoPago: "Nequi" },
             { idFormaPago: 5, tipoPago: "Nuevo Pago" },
+            { idFormaPago: 13, "tipoPago": "bancolombia" }
           ]);
         }
       } catch (error) {
@@ -159,25 +163,46 @@ const FormularioPagos: React.FC<Props> = ({
         numero_recibo: pago.numeroRecibo,
         estado: pago.estado
           ? pago.estado.charAt(0).toUpperCase() +
-            pago.estado.slice(1).toLowerCase()
+          pago.estado.slice(1).toLowerCase()
           : "",
       });
     }
-  }, [pago, reset]);
+  }, [pago, reset, user.id]);
 
   const fotoValue = watch("foto");
+  // Procesar OCR cuando se sube una imagen
   useEffect(() => {
-    const file = fotoValue?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreview(url);
-      return () => {
-        URL.revokeObjectURL(url);
-      };
-    } else {
+    const file = fotoValue?.[0] ?? null;
+    if (!file) {
       setPreview(null);
+      return;
     }
-  }, [fotoValue]);
+    // Preview INMEDIATO
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+
+    // Si ya procesamos este archivo, no repetimos
+    if (lastProcessedFile === file.name) return;
+
+    // Ejecutamos OCR en paralelo  
+    (async () => {
+      try {
+        const ocr = await procesarImagenOCR(file);
+        // Rellenamos solo cuando llegue
+        if (ocr.fecha_pago) setValue("fecha_pago", ocr.fecha_pago, { shouldDirty: true });
+        if (ocr.monto) setValue("monto", ocr.monto, { shouldDirty: true });
+        if (ocr.numero_recibo) setValue("numero_recibo", ocr.numero_recibo, { shouldDirty: true });
+        if (ocr.forma_pago_id) setValue("forma_pago_id", ocr.forma_pago_id, { shouldDirty: true });
+        setLastProcessedFile(file.name);
+      } catch {
+        toast.error("No se pudo leer la imagen");
+      }
+    })();
+
+    return () => URL.revokeObjectURL(url);
+  }, [fotoValue, lastProcessedFile, setValue]);
+
+
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -197,17 +222,17 @@ const FormularioPagos: React.FC<Props> = ({
         ? await updatePago(data, pago.idRegistro)
         : await createPago(data);
 
-      const info = {cobrador_id:user.id,registro_pago_id:response.data.idRegistro}
+      const info = { cobrador_id: user.id, registro_pago_id: response.data.idRegistro }
       await createNotificacionPago(info)
-      
+
       socket.emit('registroPago', user)
-        
+
       toast.success(response?.message || "Operación exitosa");
       setPagos((prev: any) =>
         pago
           ? prev.map((p: any) =>
-              p.idRegistro === pago.idRegistro ? response.data : p
-            )
+            p.idRegistro === pago.idRegistro ? response.data : p
+          )
           : [...prev, response.data]
       );
       setPago(null);
@@ -228,9 +253,8 @@ const FormularioPagos: React.FC<Props> = ({
       if (!membresiaPaciente || !usuario) return null;
       return {
         value: membresiaPaciente.membresiaId,
-        label: `${usuario.nombre ?? ""} ${usuario.segundoNombre ?? ""} ${
-          usuario.apellido ?? ""
-        } ${usuario.segundoApellido ?? ""} - ${usuario.numeroDocumento ?? ""}`,
+        label: `${usuario.nombre ?? ""} ${usuario.segundoNombre ?? ""} ${usuario.apellido ?? ""
+          } ${usuario.segundoApellido ?? ""} - ${usuario.numeroDocumento ?? ""}`,
       };
     })
     .filter((x): x is { value: any; label: string } => Boolean(x));
@@ -442,85 +466,85 @@ const FormularioPagos: React.FC<Props> = ({
                 </p>
               )}
             </div>
-            
+
             {
               user.rol?.nombreRol === "Administrador" &&
               <div>
-              <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
-                <FaCalendarCheck className="text-blue-900" /> Estado
-              </label>
-              <Controller
-                name="estado"
-                control={control}
-                rules={{ required: "El estado es obligatorio" }}
-                render={({ field }) => {
-                  const normalizado = field.value
-                  ? field.value.charAt(0).toUpperCase() +
-                  field.value.slice(1).toLowerCase()
-                  : "";
-                  
-                  return (
-                    <Select
-                      {...field}
-                      options={estadosPago}
-                      placeholder="Selecciona el estado"
-                      value={
-                        estadosPago.find((o) => o.value === normalizado) || null
-                      }
-                      onChange={(selected) => field.onChange(selected?.value)}
-                      isClearable
+                <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                  <FaCalendarCheck className="text-blue-900" /> Estado
+                </label>
+                <Controller
+                  name="estado"
+                  control={control}
+                  rules={{ required: "El estado es obligatorio" }}
+                  render={({ field }) => {
+                    const normalizado = field.value
+                      ? field.value.charAt(0).toUpperCase() +
+                      field.value.slice(1).toLowerCase()
+                      : "";
+
+                    return (
+                      <Select
+                        {...field}
+                        options={estadosPago}
+                        placeholder="Selecciona el estado"
+                        value={
+                          estadosPago.find((o) => o.value === normalizado) || null
+                        }
+                        onChange={(selected) => field.onChange(selected?.value)}
+                        isClearable
                       />
                     );
                   }}
-                  />
+                />
 
-              {errors.estado && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.estado.message}
-                </p>
-              )}
-            </div>
+                {errors.estado && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.estado.message}
+                  </p>
+                )}
+              </div>
             }
 
             {
               user.rol?.nombreRol === "Administrador" &&
               <div>
-              <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
-                <FaUser className="text-blue-900" /> Asesor / Cobrador
-              </label>
+                <label className="text-sm text-gray-600 font-medium flex items-center gap-2">
+                  <FaUser className="text-blue-900" /> Asesor / Cobrador
+                </label>
 
-              <div>
-                <Controller
-                  name="cobrador_id"
-                  control={control}
-                  rules={{ required: "El asesor es obligatorio" }}
-                  render={({ field }) => (
-                    <Select
-                    {...field}
-                    options={asesores.map((a: any) => ({
-                      value: a.idUsuario,
-                      label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
-                    }))}
-                    placeholder="Selecciona el asesor"
-                    value={asesores
-                      .map((a: any) => ({
-                        value: a.idUsuario,
-                        label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
-                      }))
-                      .find((o) => o.value === field.value)}
-                      onChange={(selected) => field.onChange(selected?.value)}
-                      isClearable
-                      isSearchable // 🔍 Permite buscar
+                <div>
+                  <Controller
+                    name="cobrador_id"
+                    control={control}
+                    rules={{ required: "El asesor es obligatorio" }}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        options={asesores.map((a: any) => ({
+                          value: a.idUsuario,
+                          label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
+                        }))}
+                        placeholder="Selecciona el asesor"
+                        value={asesores
+                          .map((a: any) => ({
+                            value: a.idUsuario,
+                            label: `${a.nombre ?? ""} ${a.apellido ?? ""}`.trim(),
+                          }))
+                          .find((o) => o.value === field.value)}
+                        onChange={(selected) => field.onChange(selected?.value)}
+                        isClearable
+                        isSearchable // 🔍 Permite buscar
                       />
                     )}
-                    />
-                {errors.cobrador_id && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.cobrador_id.message}
-                  </p>
-                )}
+                  />
+                  {errors.cobrador_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.cobrador_id.message}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
             }
           </div>
 
