@@ -64,7 +64,6 @@ function App() {
               <Route path="/pagos" element={<Pagos />} />
               <Route path="/planes" element={<PlanesAdmin />} />
               <Route path="/visitas" element={<Visitas />} />
-              <Route path="/pacientes" element={<Pacientes />} />
               <Route path="/contratos" element={<Contratos />} />
               <Route path="/beneficios_plan" element={<BeneficiosPlan />} />
               <Route path="/solicitudes" element={<Solicitudes />} />
@@ -88,14 +87,14 @@ function App() {
             {/* Rutas para el Asesor */}
             <Route element={<ProtectedAsesor/>}>
               <Route path="/home/asesor" element={<HomeAsesor />} />
-              <Route path="/pacientes/asesor" element={<Pacientes />} />
-              <Route path="/contratos/asesor" element={<Contratos />} />
+              {/* <Route path="/contratos/asesor" element={<Contratos />} /> */}
               <Route path="/pagos/asesor" element={<Pagos />} />
               <Route path="/barrios/asesor" element={<Barrios />} />
             </Route>
             {/**Administrador y asesor */} 
             <Route element={<ProtectedAdminAsesor/>}>
               <Route path="/renovar/contrato" element={<FormContrato/>}/>
+              <Route path="/pacientes" element={<Pacientes />} />
             </Route>
 
             {/**SuperAdmin */} 
