@@ -29,6 +29,7 @@ const PlanesCards: React.FC = () => {
 
       setPlanes(planesOrdenados)
     } catch (error) {
+      console.error("❌ Error al cargar planes:", error)
       toast.error("Error al cargar planes")
     } finally {
       setLoading(false)

@@ -57,6 +57,7 @@ const FormPlan: React.FC = () => {
           })
         }
       } catch (error) {
+        console.error("❌ Error al cargar datos:", error)
         toast.error("No se pudieron cargar los datos del plan")
         navigate("/planes")
       } finally {
@@ -129,6 +130,7 @@ const FormPlan: React.FC = () => {
 
       navigate("/planes")
     } catch (error) {
+      console.error("❌ Error al guardar plan:", error)
       toast.error("Error al guardar el plan")
     } finally {
       setIsSaving(false)

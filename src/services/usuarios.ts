@@ -80,5 +80,6 @@ export const getAsesores = async () => {
       u.rolId === 2
   );
 
+  console.log("✅ Asesores cargados:", asesores);
   return asesores;
 };

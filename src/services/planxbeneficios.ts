@@ -18,6 +18,7 @@ export const createPlanBeneficio = async (
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
     return await res.json()
   } catch (error) {
+    console.error("❌ Error al asociar plan con beneficio:", error)
     throw error
   }
 }
@@ -41,10 +42,14 @@ export const getPlanBeneficioById = async (idPlan: number): Promise<PlanXBenefic
     const lista =
       data.data ?? data.msg ?? data.msj ?? (Array.isArray(data) ? data : [])
 
+    console.log("📡 Datos crudos del backend:", lista)
+
     // Filtrar las relaciones del plan
     const relaciones = lista.filter(
       (item: any) => Number(item.planId ?? item.plan_id) === Number(idPlan)
     )
+
+    console.log(`📦 Relaciones encontradas para el plan ${idPlan}:`, relaciones)
 
     // 🔥 Mapeo limpio y completo
     const unicos: PlanXBeneficio[] = relaciones.reduce(
@@ -65,8 +70,10 @@ export const getPlanBeneficioById = async (idPlan: number): Promise<PlanXBenefic
       []
     )
 
+    console.log(`✅ Beneficios procesados del plan ${idPlan}:`, unicos)
     return unicos
   } catch (error) {
+    console.error("❌ Error al obtener beneficios del plan:", error)
     return []
   }
 }
@@ -82,6 +89,7 @@ export const updatePlanBeneficio = async (id: number, data: CrearPlanXBeneficioF
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
     return await res.json()
   } catch (error) {
+    console.error("❌ Error al actualizar planxbeneficio:", error)
     throw error
   }
 }
@@ -93,6 +101,7 @@ export const deletePlanBeneficios = async (idPlan: number) => {
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
     return await res.json()
   } catch (error) {
+    console.error("❌ Error al eliminar beneficios del plan:", error)
     throw error
   }
 }

@@ -113,6 +113,7 @@ const SolicitarVisitaPaciente: React.FC = () => {
           }));
         setSelectBarrios(barriosOptions);
       } catch (error) {
+        console.error("Error cargando datos:", error);
         toast.error("Error al cargar los datos");
       }
     };

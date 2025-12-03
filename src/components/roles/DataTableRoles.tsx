@@ -41,6 +41,7 @@ const DataTableRoles: React.FC = () => {
       if (showToast)
         toast.success("Roles cargados exitosamente", { id: "roles-toast" });
     } catch (error) {
+      console.error(error);
       toast.error("Error al cargar roles", { id: "roles-toast" });
     }
   };

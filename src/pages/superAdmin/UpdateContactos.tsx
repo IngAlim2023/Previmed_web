@@ -19,6 +19,7 @@ const UpdateContactos: React.FC<Props> = ({ evento, setEvento, setOpen }) => {
   const { register, handleSubmit } = useForm();
 
   const onSubmit = async (data: any) => {
+    console.log(data)
     
     await updateContactoInfo(data);
 

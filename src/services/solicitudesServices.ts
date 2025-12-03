@@ -8,6 +8,8 @@ export const crearSolicitud = async (payload: PostSolicitud): Promise<void> => {
     ? { ...data, idUsuario }
     : data;
 
+  console.log("Payload siendo enviado:", dataToSend);
+
   const res = await fetch(URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -16,6 +18,7 @@ export const crearSolicitud = async (payload: PostSolicitud): Promise<void> => {
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
+    console.error("Respuesta del servidor:", errorData);
     throw new Error(errorData.message || "Error al crear la solicitud");
   }
 };
@@ -25,6 +28,7 @@ export const obtenerSolicitudes = async (): Promise<any[]> => {
   
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    console.error("Respuesta del servidor:", errorData);
     throw new Error(errorData.message || "Error al obtener solicitudes");
   }
   
@@ -41,6 +45,7 @@ export const cambiarEstadoSolicitud = async (id: number, estado: boolean): Promi
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
+    console.error("Respuesta del servidor:", errorData);
     throw new Error(errorData.message || "Error al cambiar el estado");
   }
 

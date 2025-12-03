@@ -13,8 +13,11 @@ export const getBeneficios = async () => {
       id_beneficio: b.idBeneficio ?? b.id_beneficio,
       tipo_beneficio: b.tipoBeneficio ?? b.tipo_beneficio,
     }))
+
+    console.log("📦 Beneficios recibidos:", beneficios)
     return beneficios
   } catch (e) {
+    console.error("Error al obtener beneficios:", e)
     return []
   }
 }
@@ -22,6 +25,8 @@ export const getBeneficios = async () => {
 // 🔹 Crear beneficio
 export const createBeneficio = async (data: any) => {
   try {
+    console.log("📤 Enviando al backend:", data)
+
     const res = await fetch(url("beneficios/register"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -29,15 +34,19 @@ export const createBeneficio = async (data: any) => {
       body: JSON.stringify({ tipo_beneficio: data.tipo_beneficio }),
     })
 
+    console.log("📩 Status respuesta:", res.status)
+
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
 
     const created = await res.json()
+    console.log("📦 Respuesta del backend:", created)
 
     return {
       id_beneficio: created.idBeneficio ?? created.id_beneficio,
       tipo_beneficio: created.tipoBeneficio ?? created.tipo_beneficio,
     }
   } catch (error) {
+    console.error("❌ Error al crear beneficio:", error)
     throw error
   }
 }
@@ -61,6 +70,7 @@ export const updateBeneficio = async (id: number, data: any) => {
       tipo_beneficio: updated.tipoBeneficio ?? data.tipo_beneficio,
     }
   } catch (error) {
+    console.error("❌ Error al actualizar beneficio:", error)
     throw error
   }
 }
@@ -71,6 +81,7 @@ export const deleteBeneficio = async (id: number) => {
     const res = await fetch(url(`beneficios/delete/${id}`), { method: "DELETE" })
     if (!res.ok) throw new Error(`Error HTTP: ${res.status}`)
   } catch (error) {
+    console.error("❌ Error al eliminar beneficio:", error)
     throw error
   }
 }

@@ -64,6 +64,7 @@ const HistorialVisitasMedico: React.FC = () => {
 
               return { ...v, nombrePaciente: nombreCompleto.trim() };
             } catch (error) {
+              console.error("Error obteniendo paciente:", error);
               return { ...v, nombrePaciente: "Desconocido" };
             }
           })

@@ -54,6 +54,7 @@ const FormularioRoles: React.FC<Props> = ({ rol, setForm, onSuccess }) => {
       setForm(false)
       onSuccess() // 🔥 recarga los datos
     } catch (error) {
+      console.error(error)
       toast.error("Error al guardar el rol")
     }
   }

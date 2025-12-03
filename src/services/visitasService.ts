@@ -78,16 +78,22 @@ export const createVisita = async (visita: Visita): Promise<Visita> => {
     try {
       json = await res.json();
     } catch (_) {
+      const text = await res.text();
+      console.warn("⚠ Backend envió texto plano:", text);
       throw new Error("El servidor envió una respuesta inesperada (texto plano). La visita podría haberse creado.");
     }
 
+    console.log("📦 Respuesta cruda del backend:", json);
+
     // ❌ CASO 1: backend manda { error: "..."}
     if (json?.error) {
+      console.warn("⚠ Backend envió un error:", json.error);
       throw new Error(json.error);
     }
 
     // ❗ CASO 2: backend no trae "msj"
     if (!json?.msj) {
+      console.warn("⚠ Respuesta inesperada, falta 'msj':", json);
       throw new Error("La respuesta del servidor no tiene el formato esperado");
     }
 
@@ -107,6 +113,7 @@ export const createVisita = async (visita: Visita): Promise<Visita> => {
     };
 
   } catch (error: any) {
+    console.error("❌ Error final en createVisita:", error);
     throw error;
   }
 };
@@ -142,7 +149,9 @@ export const updateVisita = async (
       barrio_id: v.barrioId,
     };
   } catch (error: any) {
+    console.error("❌ Error en updateVisita:", error);
     if (error?.message?.includes("Tiempo de espera")) {
+      console.warn("⚠️ Timeout pero la visita probablemente se actualizó en el servidor");
       throw new Error("La solicitud está tomando más tiempo del esperado. Por favor espera...");
     }
     throw error;
@@ -161,6 +170,7 @@ export const deleteVisita = async (id: number): Promise<void> => {
     );
     if (!res.ok) throw new Error("Error al eliminar visita");
   } catch (error: any) {
+    console.error("❌ Error en deleteVisita:", error);
     throw error;
   }
 };
@@ -173,6 +183,7 @@ export const getVisitasPorMedico = async (
       /([^:]\/)\/+/g,
       "$1"
     );
+    console.log("🔗 URL usada para obtener visitas del médico:", url);
 
     const res = await fetchWithTimeout(
       url,
@@ -184,6 +195,7 @@ export const getVisitasPorMedico = async (
     if (!res.ok) throw new Error("Error al obtener visitas por médico");
 
     const json = await res.json();
+    console.log("📦 Respuesta del backend (visitas):", json);
 
     return (json.msj ?? []).map((v: any) => ({
       id_visita: v.idVisita,
@@ -197,6 +209,7 @@ export const getVisitasPorMedico = async (
       barrio_id: v.barrioId,
     }));
   } catch (error: any) {
+    console.error("❌ Error en getVisitasPorMedico:", error);
     throw error;
   }
 };

@@ -75,7 +75,7 @@ const HomePacientes: React.FC = () => {
           }
 
           if (!resolvedPlanId) {
-            throw "no se encontro ningun plan asociado a la membresia"
+            console.warn("⚠️ No se pudo resolver el planId de la membresía.");
           } else {
             // 3️ Obtener el plan con el planId correcto
             const resPlan = await fetch(`${API_URL}planes/${resolvedPlanId}`);
@@ -127,14 +127,14 @@ const HomePacientes: React.FC = () => {
                   planXBeneficios,
                 });
               } else {
-                throw "El backend no devolvió datos válidos del plan."
+                console.warn("⚠️ El backend no devolvió datos válidos del plan.");
               }
             } else {
-              throw "No se encontró el plan asociado."
+              console.warn("⚠️ No se encontró el plan asociado.");
             }
           }
         } else {
-          throw "Paciente sin membresía registrada."
+          console.warn("⚠️ Paciente sin membresía registrada.");
         }
 
         // 4️ Obtener beneficiarios del titular
@@ -182,7 +182,7 @@ const HomePacientes: React.FC = () => {
           setVisitas((todas || []).filter((v: any) => Number(v.paciente_id) === Number(pacienteInfo.idPaciente)));
         }
       } catch (error: any) {
-        throw "Error al obtener los datos"
+        console.error("💥 Error al obtener datos:", error.message);
       } finally {
         setLoading(false);
       }

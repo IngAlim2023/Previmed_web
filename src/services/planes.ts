@@ -31,8 +31,10 @@ const attachBeneficios = async (plan: Plan): Promise<Plan> => {
       ...r, // Conserva otros campos útiles si existen
     }))
 
+    console.log(`✅ Beneficios finales asociados al plan ${plan.idPlan}:`, planXBeneficios)
     return { ...plan, planXBeneficios }
   } catch (error) {
+    console.warn(`⚠️ No se pudieron obtener beneficios para el plan ${plan.idPlan}`)
     return { ...plan, planXBeneficios: [] }
   }
 }
@@ -74,6 +76,7 @@ export const createPlan = async (data: NuevoPlanForm): Promise<Plan> => {
 
     if (!res.ok) throw new Error("Error al crear plan")
     const planCreado = await res.json()
+    console.log("📦 Respuesta backend (crear plan):", planCreado)
 
     // 🔍 Detectar ID real del plan creado (manejo flexible según estructura)
     const idPlan =
@@ -96,9 +99,11 @@ export const createPlan = async (data: NuevoPlanForm): Promise<Plan> => {
     // Obtener plan completo con beneficios asociados
     const planBase = await getPlanById(idPlan)
     const planCompleto = await attachBeneficios(planBase)
+    console.log("✅ Plan creado con beneficios asociados:", planCompleto)
 
     return planCompleto
   } catch (error) {
+    console.error("❌ Error en createPlan:", error)
     throw error
   }
 }
@@ -132,7 +137,7 @@ export const updatePlan = async (
     //  Reasociar beneficios (deduplicando IDs)
     if (Array.isArray(data.beneficios)) {
       await deletePlanBeneficios(idPlan).catch(() =>
-        "No había beneficios previos que eliminar"
+        console.warn("⚠️ No había beneficios previos que eliminar")
       )
 
       const uniqueIds = Array.from(new Set(data.beneficios.map((x) => Number(x))))
@@ -145,6 +150,7 @@ export const updatePlan = async (
     const planBase = await getPlanById(idPlan)
     return await attachBeneficios(planBase)
   } catch (error) {
+    console.error("❌ Error en updatePlan:", error)
     throw error
   }
 }
@@ -156,6 +162,7 @@ export const deletePlan = async (idPlan: number) => {
     if (!res.ok) throw new Error("Error al eliminar plan")
     return await res.json()
   } catch (error) {
+    console.error("❌ Error en deletePlan:", error)
     throw error
   }
 }

@@ -15,6 +15,7 @@ export const updateContactoInfo = async (
     body: JSON.stringify(noti),
     credentials: "include"
   });
+  console.log(res)
   if (!res.ok) throw new Error("Error al actualizar el contacto");
   return res.json();
 };

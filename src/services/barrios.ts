@@ -61,6 +61,8 @@ export const getBarrios = async (): Promise<DataBarrio[]> => {
   const data = await res.json();
   const lista = data.msj ?? data.msg ?? data.data ?? (Array.isArray(data) ? data : []);
   const parsed = Array.isArray(lista) ? lista.map(fromDto) : []
+  console.debug("📥 getBarrios -> crudo:", data)
+  console.debug("📄 getBarrios -> lista normalizada:", parsed)
   return parsed
 };
 
@@ -78,6 +80,7 @@ export const createBarrio = async (barrio: Partial<DataBarrio>) => {
 
 export const updateBarrio = async (id: string, barrio: Partial<DataBarrio>) => {
   const dto = toDto(barrio)
+  console.debug("📤 updateBarrio -> id:", id, "payload:", dto)
   const res = await fetch(`${BASE_URL}${RUTA}/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -87,6 +90,8 @@ export const updateBarrio = async (id: string, barrio: Partial<DataBarrio>) => {
   if (!res.ok) throw new Error("Error actualizando barrio");
   const data = await res.json();
   const parsed = fromDto(data.msj ?? data.data ?? {});
+  console.debug("✅ updateBarrio -> respuesta cruda:", data)
+  console.debug("✅ updateBarrio -> normalizado:", parsed)
   return parsed;
 };
 

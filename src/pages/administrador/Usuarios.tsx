@@ -156,7 +156,7 @@ export default function UsuariosPage() {
   }, [usuarios, search]);
 
   return (
-    <div className="p-6 bg-blue-50 grid justify-center">
+    <div className="p-6 bg-blue-50">
       {/* Header con botón y buscador */}
       <div className="flex flex-col md:flex-row w-full max-w-6xl md:items-center md:justify-between gap-4 mb-6 bg-white p-4 rounded-2xl shadow-md">
           <h2 className="text-2xl font-semibold text-gray-600 flex items-center">

@@ -174,6 +174,7 @@ const ImportExcel = () => {
       setShowResultsModal(true);
     } catch (error: any) {
       toast.error("Error al importar el archivo");
+      console.error("Error en importación:", error);
     } finally {
       setUploading(false);
     }

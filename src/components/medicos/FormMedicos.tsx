@@ -92,6 +92,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
       setEpsError(null);
       try {
         const url = makeUrl(ENDPOINT_LISTA_EPS);
+        console.log("[EPS] GET", url);
         const res = await fetch(url, { headers: { Accept: "application/json" } });
 
         const status = res.status;
@@ -143,6 +144,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
         if (!alive) return;
         setEpsList(mapped);
       } catch (err: any) {
+        console.error("[EPS] Error cargando /eps/read:", err?.message || err);
         if (!alive) return;
         setEpsError(
           `No se pudo cargar la lista de EPS desde /eps/read${err?.message ? ` (${err.message})` : ""}.`
@@ -163,6 +165,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
   /** POST /medicos/usuarioM -> retorna id_usuario (UUID string) */
   const crearUsuarioMedico = async (payload: any): Promise<string> => {
     const url = makeUrl(ENDPOINT_CREAR_USUARIO_MEDICO);
+    console.log("POST ->", url);
 
     const r = await fetch(url, {
       method: "POST",
@@ -189,6 +192,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
       disponibilidad: !!data.disponibilidad,
       estado: data.estado === undefined ? true : !!data.estado,
     };
+    console.log("[POST /medicos] payload =>", body);
     await medicoService.create(body);
   };
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -273,6 +277,7 @@ const MedicoUsuarioForm: React.FC<Props> = ({ onCancel, onSuccess }) => {
       });
       onSuccess?.();
     } catch (e: any) {
+      console.error(e);
       toast.error(e?.message || "Error al crear médico");
     } finally {
       setLoading(false);
