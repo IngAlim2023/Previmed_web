@@ -46,7 +46,9 @@ export default function UsuariosPage() {
       setShowForm(false);
       setEditing(null);
       await loadUsuarios();
-    } catch (error) {}
+    } catch (error) {
+      toast.error('El usuario ya se encuentra regitrado o revisa los campos')
+    }
   };
 
   const toggleEstado = async (id: string, actual: boolean) => {
