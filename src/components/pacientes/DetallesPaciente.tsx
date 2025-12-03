@@ -30,9 +30,10 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
         const resPacientes = await getPacientesId(idPaciente ?? '');
         const resContrato = await getContratoByUserId(idPaciente ?? '');
         
-        const actual = resPacientes.find((p: Paciente) => p.usuarioId === idPaciente);
-        const titularEncontrado = resPacientes.find((p: Paciente) => !p.pacienteId || p.pacienteId === null);
-        const beneficiariosEncontrados = resPacientes.filter((p: Paciente) => p.pacienteId != null);
+        console.log(resPacientes.data)
+        const actual = resPacientes?.data.find((p: Paciente) => p.usuarioId === idPaciente);
+        const titularEncontrado = resPacientes?.data.find((p: Paciente) => !p.pacienteId || p.pacienteId === null);
+        const beneficiariosEncontrados = resPacientes?.data.filter((p: Paciente) => p.pacienteId != null);
         
         setPacienteActual(actual);
         setTitular(titularEncontrado);
