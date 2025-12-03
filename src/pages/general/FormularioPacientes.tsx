@@ -16,6 +16,7 @@ import { estadosCiviles } from "../../data/estadosCiviles";
 import { registroCompletoTitular } from "../../services/pacientes";
 import { Persona } from "../../interfaces/usuario";
 import { useAuthContext } from "../../context/AuthContext";
+import BtnAgregar from "../../components/botones/BtnAgregar";
 
 interface FormData {
   titular: Persona;
@@ -24,7 +25,7 @@ interface FormData {
   pago: PostPagoInterface;
 }
 
-const StepNavigation = ({ currentStep, totalSteps, onPrev, onNext, isLastStep, onSubmit }: any) => (
+const StepNavigation = ({ currentStep, totalSteps, onPrev, onNext, isLastStep, onSubmit, enviar }: any) => (
   <div className="col-span-1 md:col-span-2 flex justify-between items-center mt-6 pt-6 border-t">
     <button
       type="button"
@@ -43,9 +44,8 @@ const StepNavigation = ({ currentStep, totalSteps, onPrev, onNext, isLastStep, o
       <button
         type="button"
         onClick={onSubmit}
-        className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow transition"
       >
-        Enviar →
+        <BtnAgregar verText disabled={enviar}/>
       </button>
     ) : (
       <button
@@ -433,6 +433,7 @@ const FormularioPacientes = () => {
   const [formasPago, setFormasPago] = useState([]);
   const [planes, setPlanes] = useState([]);
   const [eps, setEps] = useState([]);
+  const [enviar, setEnviar] = useState<boolean>(false);
   const {user} = useAuthContext();
   const navigate = useNavigate();
 
@@ -623,11 +624,12 @@ const FormularioPacientes = () => {
       })) || [],
       pago: data.pago
     };
-
+    setEnviar(true)
     const res = await registroCompletoTitular(dataToSend);
   
     if (!res.data) {
       toast.error(res.message || "Ha ocurrido un error en el registro");
+      setEnviar(false)
       return;
     }
     toast.success("Registro exitoso");
@@ -812,6 +814,7 @@ const FormularioPacientes = () => {
             onNext={handleNext}
             isLastStep={paso === 4}
             onSubmit={handleSubmit(onSubmit)}
+            enviar={enviar}
           />
         </div>
       </div>
