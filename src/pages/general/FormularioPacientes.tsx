@@ -632,11 +632,11 @@ const FormularioPacientes = () => {
       setEnviar(false)
       return;
     }
-    toast.success("Registro exitoso");
+    toast.success(res.message || "Registro exitoso");
     
     setTimeout(() => {
       navigate("/pacientes");
-    }, 1000);
+    }, 600);
   };
 
   const handleNext = async () => {
