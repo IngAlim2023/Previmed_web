@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import BtnCerrar from "../botones/BtnCerrar"
 import { HiOutlineClipboardList } from "react-icons/hi"
 import { Plan } from "../../interfaces/planes"
@@ -9,20 +9,20 @@ interface Props {
 }
 
 const DetallesPlan: React.FC<Props> = ({ plan, setShowDetalles }) => {
-  const [visible, setVisible] = useState(false)
-  const [closing, setClosing] = useState(false)
+/*   const [visible, setVisible] = useState(false)
+  const [closing, setClosing] = useState(false) */
 
-  useEffect(() => {
+/*   useEffect(() => {
     const timeout = setTimeout(() => setVisible(true), 50)
     return () => clearTimeout(timeout)
-  }, [])
+  }, []) */
 
   if (!plan) return null
 
   // 🔹 Cerrar modal suavemente
   const handleClose = () => {
-    setClosing(true)
-    setVisible(false)
+/*     setClosing(true)
+    setVisible(false) */
     setTimeout(() => setShowDetalles(null), 250)
   }
 
