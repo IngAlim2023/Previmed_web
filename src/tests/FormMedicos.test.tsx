@@ -7,7 +7,7 @@ import type { MedicoResponse } from '../interfaces/medicoInterface';
 import "@testing-library/jest-dom/vitest"
 
 
-vi.mock('../../services/medicoService');
+vi.mock('../services/medicoService');
 
 describe('DetallesMedico', () => {
   const mockMedico: MedicoResponse = {
