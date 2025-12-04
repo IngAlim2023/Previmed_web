@@ -161,8 +161,10 @@ const Pacientes: React.FC = () => {
             onChange={(e) => setBuscar(e.target.value)}
             className="w-sm p-2 border border-gray-300 rounded-xl focus:outline-none focus:border-blue-600"
           />
-
           <div className="flex gap-2">
+          {
+            user.rol?.nombreRol != "Administrador"?<></>:
+          <>
           <BtnExportarPacientes/>
 
           <button
@@ -171,6 +173,8 @@ const Pacientes: React.FC = () => {
             >
             <HiOutlineUpload  /> Cargar
           </button>
+          </>
+          }
 
           <button
             onClick={() => navigate("/formularioPacientes")}
