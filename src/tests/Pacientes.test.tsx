@@ -7,7 +7,7 @@ import * as pacienteService from "../services/pacientes";
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
 }));
-vi.mock("../../context/AuthContext", () => ({
+vi.mock("../context/AuthContext", () => ({
   useAuthContext: () => ({ user: { rol: { nombreRol: "Administrador" } } }),
 }));
 
@@ -37,7 +37,16 @@ describe("Pacientes component", () => {
       expect(pacienteService.readPacientes).toHaveBeenCalled();
     });
 
+    //verificar que existan las columnas
+    expect(screen.getByText("Nombres")).toBeInTheDocument();
+    expect(screen.getByText("Apellidos")).toBeInTheDocument();
+    expect(screen.getByText("Correo")).toBeInTheDocument();
+    expect(screen.getByText("Documento")).toBeInTheDocument();
+
+
+    // verificar los valores de las columnas
     expect(await screen.findByText("Juan Carlos")).toBeInTheDocument();
+    expect(screen.getByText("Pérez Gómez")).toBeInTheDocument();
     expect(screen.getByText("juan@example.com")).toBeInTheDocument();
   });
 

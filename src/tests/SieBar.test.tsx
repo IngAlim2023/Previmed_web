@@ -71,9 +71,15 @@ describe('SideBar', () => {
     expect(screen.getByText('Administrador')).toBeInTheDocument();
 
     // Verificar que muestra rutas de administrador
-    expect(screen.getByText('Usuarios')).toBeInTheDocument();
+    expect(screen.getByText('Asesores')).toBeInTheDocument();
     expect(screen.getByText('Médicos')).toBeInTheDocument();
     expect(screen.getByText('Pagos')).toBeInTheDocument();
+    expect(screen.getByText('Planes')).toBeInTheDocument();
+    expect(screen.getByText('Visitas')).toBeInTheDocument();
+    expect(screen.getByText('Pacientes')).toBeInTheDocument();
+    expect(screen.getByText('Solicitudes')).toBeInTheDocument();
+    expect(screen.getByText('EPS')).toBeInTheDocument();
+    expect(screen.getByText('Barrios')).toBeInTheDocument();
 
     // Verificar que NO muestra rutas de otros roles
     expect(screen.queryByText('Solicitar Visita')).not.toBeInTheDocument();
@@ -94,7 +100,7 @@ describe('SideBar', () => {
   });
 
 
-  // TEST 3: Filtrado de rutas para rol Médico
+  // Filtrado de rutas para rol Médico
   it('debe mostrar solo las rutas del rol Médico', () => {
     const medicoContext = {
       user: {
@@ -114,7 +120,32 @@ describe('SideBar', () => {
 
     // Rutas que SÍ debe tener el médico
     expect(screen.getByText('Mis Visitas')).toBeInTheDocument();
-    expect(screen.getByText('Historial Médico')).toBeInTheDocument();
+    expect(screen.getByText('Historial')).toBeInTheDocument();
     
+  });
+
+    // Filtrado de rutas para rol paciente
+  it('debe mostrar solo las rutas del rol paciente', () => {
+    const medicoContext = {
+      user: {
+        id: 4,
+        documento: '7243589',
+        nombre: 'Juanito perez',
+        rol: { nombreRol: 'Paciente' },
+      },
+      setUser: mockSetUser,
+      setIsAuthenticated: mockSetIsAuthenticated,
+    };
+
+    renderWithContext(
+      <SideBar cerrado={false} setCerrado={mockSetCerrado} />,
+      medicoContext
+    );
+
+    // Rutas que SÍ debe tener el paciente
+    expect(screen.getByText('Solicitar Visita')).toBeInTheDocument();
+    expect(screen.getByText('Contrato')).toBeInTheDocument();
+    expect(screen.getByText('Historial de Visitas')).toBeInTheDocument();
+    expect(screen.getByText('Historial de pagos')).toBeInTheDocument();  
   });
 });

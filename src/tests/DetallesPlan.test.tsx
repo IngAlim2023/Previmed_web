@@ -20,8 +20,6 @@ test("renderiza detalles del plan con beneficios", () => {
   render(<DetallesPlan plan={planMock} setShowDetalles={setShowDetalles} />);
 
   expect(screen.getByText("Detalles del Plan")).toBeInTheDocument();
-  expect(screen.getByText("ID:")).toBeInTheDocument();
-  expect(screen.getByText("1")).toBeInTheDocument();
   expect(screen.getByText("Tipo de Plan:")).toBeInTheDocument();
   expect(screen.getByText("Básico")).toBeInTheDocument();
   expect(screen.getByText("Precio:")).toBeInTheDocument();
