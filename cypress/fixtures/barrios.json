@@ -1,5 +1,12 @@
 [
     {
+      "idBarrio": 1,
+      "nombreBarrio": "Centro",
+      "latitud": 2.4415,
+      "longitud": -76.6072,
+      "estado": true
+    },
+    {
       "idBarrio": 38,
       "nombreBarrio": "Modelo",
       "latitud": 2.4395,

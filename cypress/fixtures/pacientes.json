@@ -1,6 +1,23 @@
 [
   {
-    "idPaciente": 133,
+    "idPaciente": 1,
+    "nombreCompleto": "María García",
+    "direccionCobro": "Calle 123 #45-67",
+    "ocupacion": "Ingeniera",
+    "activo": true,
+    "beneficiario": true,
+    "usuarioId": "6dbedd17-5a75-4c6d-89c5-349645caee2e",
+    "usuario": {
+      "idUsuario": "6dbedd17-5a75-4c6d-89c5-349645caee2e",
+      "nombre": "María",
+      "segundoNombre": "",
+      "apellido": "García",
+      "segundoApellido": "López",
+      "email": "maria.garcia@ejemplo.com",
+      "numeroDocumento": "12345678"
+    }
+  },
+  {
     "direccionCobro": "dszxch 68",
     "ocupacion": "No especificada",
     "activo": true,
@@ -39,10 +56,10 @@
     "usuarioId": "6555f30c-0ac0-4570-8f55-4437a77a7fd1",
     "usuario": {
       "idUsuario": "6555f30c-0ac0-4570-8f55-4437a77a7fd1",
-      "nombre": "Octavio",
-      "segundoNombre": "Mesa",
-      "apellido": "jeje",
-      "segundoApellido": "puesiome",
+      "nombre": "María ",
+      "segundoNombre": "",
+      "apellido": "García",
+      "segundoApellido": "",
       "email": "octopus@mail.com",
       "password": "$2b$10$vs85LKy3xh5Sm2kPPhIuZu.SX8THxND98vocAwmHvVNtfgIxQhRcW",
       "direccion": "jole",
