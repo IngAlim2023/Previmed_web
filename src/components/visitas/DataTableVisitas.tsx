@@ -257,6 +257,7 @@ const DataTableVisitas: React.FC = () => {
         )
       },
       center: true,
+      minWidth: '220px'
     },
     {
       name: "Acciones",

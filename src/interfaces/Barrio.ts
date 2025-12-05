@@ -1,6 +1,6 @@
 // src/interfaces/barrios.ts
 export interface DataBarrio {
-  idBarrio?: string | number;             // id (string o number según backend)
+  idBarrio?: string;             // id (string o number según backend)
   nombreBarrio: string;          // nombre del barrio
   ciudad?: string;               // opcional
   comuna?: number | string;      // opcional

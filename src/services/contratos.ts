@@ -174,8 +174,7 @@ export const renovarContrato = async(data : any) => {
       },
       body: JSON.stringify(data)
     })
-    const response = await res.json(); // ⬅️ Faltaba el await aquí
-    console.log(response)
+    const response = await res.json();
     return response;
   } catch (error) {
     return { ok: false, message: "Error al renovar el contrato" }
