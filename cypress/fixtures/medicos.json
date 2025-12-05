@@ -1,5 +1,18 @@
 [
     {
+      "id_medico": 1,
+      "disponibilidad": true,
+      "estado": true,
+      "usuario_id": "12029884-dbe3-4560-b9ed-f8f69a30dc11",
+      "usuario": {
+        "id_usuario": "12029884-dbe3-4560-b9ed-f8f69a30dc11",
+        "nombre": "Juan",
+        "apellido": "Pérez",
+        "email": "juan.perez@ejemplo.com",
+        "numero_documento": "12345678"
+      }
+    },
+    {
       "id_medico": 22,
       "disponibilidad": true,
       "estado": true,

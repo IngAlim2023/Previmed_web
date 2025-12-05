@@ -37,7 +37,7 @@ describe('Prueba de Login', () => {
           nombre: 'Juan',
           apellido: 'Pérez',
           numero_documento: '123456',
-          rol: { nombreRol: 'paciente' },
+          rol: { nombreRol: 'Administrador' },
         },
       },
     }).as('loginSuccess');

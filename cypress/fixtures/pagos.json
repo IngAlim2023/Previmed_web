@@ -1,250 +1,41 @@
-[
-  {
-    "idRegistro": 191,
-    "monto": "36.00",
-    "foto": null,
-    "fechaInicio": "2025-11-20T00:00:00.000Z",
-    "fechaFin": "2025-11-28T00:00:00.000Z",
-    "membresiaId": 196,
-    "formaPagoId": 5,
-    "fechaPago": "2025-11-20T00:00:00.000Z",
-    "numeroRecibo": "998897497687",
-    "cobradorId": "e4389cc2-19d1-4931-994d-efabedbf52a5",
-    "estado": "Aprobado",
-    "formaPago": {
-      "tipoPago": "Efectivo",
-      "idFormaPago": 5
-    },
-    "cobrador": {
-      "idUsuario": "e4389cc2-19d1-4931-994d-efabedbf52a5",
-      "nombre": "Oscar",
-      "segundoNombre": "Sebastian",
-      "apellido": "Daza",
-      "segundoApellido": "Fernandez",
-      "email": "sebastian@gmail.com",
-      "password": "$2b$10$2vcAtgSHtKpclMtC.C3dk.RNaqRBgIH2HEw8sfq5GkE9t2k5fEQym",
-      "direccion": "Carrera 50 #20-30",
-      "numeroDocumento": "1061715858",
-      "fechaNacimiento": "2005-09-10T00:00:00.000Z",
-      "numeroHijos": "1",
-      "estrato": "3",
-      "autorizacionDatos": true,
-      "epsId": null,
-      "rolId": 2,
-      "habilitar": true,
-      "genero": "Masculino",
-      "estadoCivil": "Soltero",
-      "tipoDocumento": "Cédula de Ciudadanía"
-    },
-    "membresia": {
-      "numeroContrato": "CT-1761841140702",
-      "idMembresia": 196,
-      "membresiaPaciente": [
-        {
-          "pacienteId": 71,
-          "membresiaId": 196,
-          "idMembresiaXPaciente": 156,
-          "paciente": {
-            "direccionCobro": "asds",
-            "usuarioId": "689d0914-0b91-470b-9aac-2edb5f2db327",
-            "idPaciente": 71,
-            "usuario": {
-              "idUsuario": "689d0914-0b91-470b-9aac-2edb5f2db327",
-              "nombre": "chucho",
-              "segundoNombre": "asdas",
-              "apellido": "asdas",
-              "segundoApellido": "asdasdw",
-              "email": "asdasx"
+{
+  "data": [
+    {
+      "idRegistro": 191,
+      "monto": "36.00",
+      "foto": null,
+      "fechaInicio": "2025-11-20T00:00:00.000Z",
+      "fechaFin": "2025-11-28T00:00:00.000Z",
+      "membresiaId": 196,
+      "formaPagoId": 5,
+      "fechaPago": "2025-11-20T00:00:00.000Z",
+      "numeroRecibo": "998897497687",
+      "cobradorId": "e4389cc2-19d1-4931-994d-efabedbf52a5",
+      "estado": "Aprobado",
+      "formaPago": {
+        "tipoPago": "Efectivo",
+        "idFormaPago": 5
+      },
+      "cobrador": {
+        "idUsuario": "e4389cc2-19d1-4931-994d-efabedbf52a5",
+        "nombre": "Oscar",
+        "apellido": "Daza"
+      },
+      "membresia": {
+        "numeroContrato": "CT-1761841140702",
+        "idMembresia": 196,
+        "membresiaPaciente": [
+          {
+            "pacienteId": 71,
+            "paciente": {
+              "usuario": {
+                "nombre": "chucho",
+                "apellido": "asdas"
+              }
             }
           }
-        }
-      ]
+        ]
+      }
     }
-  },
-  {
-    "idRegistro": 192,
-    "monto": "464654.00",
-    "foto": null,
-    "fechaInicio": "2025-11-20T00:00:00.000Z",
-    "fechaFin": "2025-12-06T00:00:00.000Z",
-    "membresiaId": 38,
-    "formaPagoId": 2,
-    "fechaPago": "2025-11-20T00:00:00.000Z",
-    "numeroRecibo": "998897497687435",
-    "cobradorId": "e4389cc2-19d1-4931-994d-efabedbf52a5",
-    "estado": "Aprobado",
-    "formaPago": {
-      "tipoPago": "Debito automatico",
-      "idFormaPago": 2
-    },
-    "cobrador": {
-      "idUsuario": "e4389cc2-19d1-4931-994d-efabedbf52a5",
-      "nombre": "Oscar",
-      "segundoNombre": "Sebastian",
-      "apellido": "Daza",
-      "segundoApellido": "Fernandez",
-      "email": "sebastian@gmail.com",
-      "password": "$2b$10$2vcAtgSHtKpclMtC.C3dk.RNaqRBgIH2HEw8sfq5GkE9t2k5fEQym",
-      "direccion": "Carrera 50 #20-30",
-      "numeroDocumento": "1061715858",
-      "fechaNacimiento": "2005-09-10T00:00:00.000Z",
-      "numeroHijos": "1",
-      "estrato": "3",
-      "autorizacionDatos": true,
-      "epsId": null,
-      "rolId": 2,
-      "habilitar": true,
-      "genero": "Masculino",
-      "estadoCivil": "Soltero",
-      "tipoDocumento": "Cédula de Ciudadanía"
-    },
-    "membresia": {
-      "numeroContrato": "CT-1759949413299",
-      "idMembresia": 38,
-      "membresiaPaciente": [
-        {
-          "pacienteId": 99,
-          "membresiaId": 38,
-          "idMembresiaXPaciente": 36,
-          "paciente": {
-            "direccionCobro": "ahos",
-            "usuarioId": "8b2f16ec-93a8-4f5f-acbe-920e9cc7aecb",
-            "idPaciente": 99,
-            "usuario": {
-              "idUsuario": "8b2f16ec-93a8-4f5f-acbe-920e9cc7aecb",
-              "nombre": "ejemplocero",
-              "segundoNombre": "aksndkas",
-              "apellido": "aksndas",
-              "segundoApellido": "kjasdn",
-              "email": "aslidh1"
-            }
-          }
-        }
-      ]
-    }
-  },
-  {
-    "idRegistro": 193,
-    "monto": "464654.00",
-    "foto": null,
-    "fechaInicio": "2025-11-20T00:00:00.000Z",
-    "fechaFin": "2025-12-06T00:00:00.000Z",
-    "membresiaId": 38,
-    "formaPagoId": 2,
-    "fechaPago": "2025-11-20T00:00:00.000Z",
-    "numeroRecibo": "998897497687435654",
-    "cobradorId": "e4389cc2-19d1-4931-994d-efabedbf52a5",
-    "estado": "Aprobado",
-    "formaPago": {
-      "tipoPago": "Debito automatico",
-      "idFormaPago": 2
-    },
-    "cobrador": {
-      "idUsuario": "e4389cc2-19d1-4931-994d-efabedbf52a5",
-      "nombre": "Oscar",
-      "segundoNombre": "Sebastian",
-      "apellido": "Daza",
-      "segundoApellido": "Fernandez",
-      "email": "sebastian@gmail.com",
-      "password": "$2b$10$2vcAtgSHtKpclMtC.C3dk.RNaqRBgIH2HEw8sfq5GkE9t2k5fEQym",
-      "direccion": "Carrera 50 #20-30",
-      "numeroDocumento": "1061715858",
-      "fechaNacimiento": "2005-09-10T00:00:00.000Z",
-      "numeroHijos": "1",
-      "estrato": "3",
-      "autorizacionDatos": true,
-      "epsId": null,
-      "rolId": 2,
-      "habilitar": true,
-      "genero": "Masculino",
-      "estadoCivil": "Soltero",
-      "tipoDocumento": "Cédula de Ciudadanía"
-    },
-    "membresia": {
-      "numeroContrato": "CT-1759949413299",
-      "idMembresia": 38,
-      "membresiaPaciente": [
-        {
-          "pacienteId": 99,
-          "membresiaId": 38,
-          "idMembresiaXPaciente": 36,
-          "paciente": {
-            "direccionCobro": "ahos",
-            "usuarioId": "8b2f16ec-93a8-4f5f-acbe-920e9cc7aecb",
-            "idPaciente": 99,
-            "usuario": {
-              "idUsuario": "8b2f16ec-93a8-4f5f-acbe-920e9cc7aecb",
-              "nombre": "ejemplocero",
-              "segundoNombre": "aksndkas",
-              "apellido": "aksndas",
-              "segundoApellido": "kjasdn",
-              "email": "aslidh1"
-            }
-          }
-        }
-      ]
-    }
-  },
-  {
-    "idRegistro": 195,
-    "monto": "67687.00",
-    "foto": null,
-    "fechaInicio": "2025-11-20T00:00:00.000Z",
-    "fechaFin": "2025-11-28T00:00:00.000Z",
-    "membresiaId": 196,
-    "formaPagoId": 2,
-    "fechaPago": "2025-11-20T00:00:00.000Z",
-    "numeroRecibo": "6787321456456",
-    "cobradorId": "e4389cc2-19d1-4931-994d-efabedbf52a5",
-    "estado": "Aprobado",
-    "formaPago": {
-      "tipoPago": "Debito automatico",
-      "idFormaPago": 2
-    },
-    "cobrador": {
-      "idUsuario": "e4389cc2-19d1-4931-994d-efabedbf52a5",
-      "nombre": "Oscar",
-      "segundoNombre": "Sebastian",
-      "apellido": "Daza",
-      "segundoApellido": "Fernandez",
-      "email": "sebastian@gmail.com",
-      "password": "$2b$10$2vcAtgSHtKpclMtC.C3dk.RNaqRBgIH2HEw8sfq5GkE9t2k5fEQym",
-      "direccion": "Carrera 50 #20-30",
-      "numeroDocumento": "1061715858",
-      "fechaNacimiento": "2005-09-10T00:00:00.000Z",
-      "numeroHijos": "1",
-      "estrato": "3",
-      "autorizacionDatos": true,
-      "epsId": null,
-      "rolId": 2,
-      "habilitar": true,
-      "genero": "Masculino",
-      "estadoCivil": "Soltero",
-      "tipoDocumento": "Cédula de Ciudadanía"
-    },
-    "membresia": {
-      "numeroContrato": "CT-1761841140702",
-      "idMembresia": 196,
-      "membresiaPaciente": [
-        {
-          "pacienteId": 71,
-          "membresiaId": 196,
-          "idMembresiaXPaciente": 156,
-          "paciente": {
-            "direccionCobro": "asds",
-            "usuarioId": "689d0914-0b91-470b-9aac-2edb5f2db327",
-            "idPaciente": 71,
-            "usuario": {
-              "idUsuario": "689d0914-0b91-470b-9aac-2edb5f2db327",
-              "nombre": "chucho",
-              "segundoNombre": "asdas",
-              "apellido": "asdas",
-              "segundoApellido": "asdasdw",
-              "email": "asdasx"
-            }
-          }
-        }
-      ]
-    }
-  }
-]
+  ]
+}
