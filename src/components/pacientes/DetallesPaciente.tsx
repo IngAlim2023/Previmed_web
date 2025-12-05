@@ -278,14 +278,16 @@ const DetallesPaciente: React.FC<Props> = ({ idPaciente, setDetalles }) => {
               <h5 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                 <FiFileText className="text-blue-600" />
                 Información del Contrato
-              </h5>
+              </h5>{
+                pacienteActual?.pacienteId == null?
                 <button onClick={()=> navigate('/renovar/contrato', {state:{
                   contrato, usuario_id:titular?.usuarioId, titular_id:titular?.idPaciente
                 }})}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition-all active:scale-95">
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition-all active:scale-95">
                   <FiRefreshCw className="text-lg" />
                   <span className="text-sm font-semibold">Renovar contrato</span>
-                </button>            
+                </button>  : <></>          
+                  }
                 <BtnDescargarPdf idUsuario={idPaciente||''} verText={true}/>            
             </div>
 

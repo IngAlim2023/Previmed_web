@@ -92,14 +92,16 @@ const Pacientes: React.FC = () => {
             >
             <BtnLeer/>
           </div>
-          {user.rol?.nombreRol == 'Administrador'? (
-            <>
+          {user.rol?.nombreRol == 'Administrador'? 
               <div onClick={() => {setFormPaciente(true), setPacientEdit(row)}}>
                 <BtnEditar/>
-              </div>
+              </div>:<></>
+            }
+              { row.pacienteId == null?
               <div onClick={() => {navigate('/beneficiarios', {state: row})}} title="Beneficiarios">
                 <BtnBeneficiarios/>
-              </div>
+              </div>:<></>
+              }
               <div
               onClick={() => {
                 if (!row.usuario.idUsuario) return;
@@ -110,9 +112,6 @@ const Pacientes: React.FC = () => {
               title="Gestionar teléfonos">
               <BtnTelefonos />
             </div>
-              </>
-            ):
-            (<></>)}
         </div>
       ),
     },
