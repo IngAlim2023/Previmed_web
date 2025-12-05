@@ -44,14 +44,16 @@ const FormContrato = () => {
         fecha_inicio: formatDateForInput(new Date()),
         fecha_fin: "",
         forma_pago: contrato?.formaPago ?? '',
-        plan_id: contrato?.planId ?? 0
+        plan_id: contrato?.planId ?? 0,
+        estado: user.rol?.nombreRol == "Administrador"? true : false
       },
       pago: {
         fecha_inicio: formatDateForInput(new Date()),
         fecha_fin: '',
         forma_pago_id: 0,
         monto: 0,
-        cobrador_id: user.id ?? ''
+        cobrador_id: user.id ?? '',
+        estado: user.rol?.nombreRol == "Administrador" ? 'Aprobado':'Realizado'
       },
       titularId: titular_id
     }

@@ -111,7 +111,7 @@ const FormularioPagos: React.FC<Props> = ({
           ]);
         }
       } catch (error) {
-        console.error("❌ Error al cargar formas de pago:", error);
+        console.error("Error al cargar formas de pago");
       }
     };
 
@@ -144,7 +144,7 @@ const FormularioPagos: React.FC<Props> = ({
         membresia_id: "",
         cobrador_id: user.id,
         numero_recibo: String(Math.floor(100000 + Math.random() * 900000)),
-        estado: user.rol?.nombreRol === "Administrador" ? "Aprobado" : "Asignado",
+        estado: user.rol?.nombreRol === "Administrador" ? "Aprobado" : "Realizado",
       });
     } else {
       const formatoFecha = (fecha: string) => {
@@ -517,7 +517,6 @@ const FormularioPagos: React.FC<Props> = ({
                   <Controller
                     name="cobrador_id"
                     control={control}
-                    rules={{ required: "El asesor es obligatorio" }}
                     render={({ field }) => (
                       <Select
                         {...field}

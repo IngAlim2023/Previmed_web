@@ -59,15 +59,6 @@ const Footer: React.FC = () => {
               <strong className="px-1 font-semibold">Previmed</strong>{" "}
               <span>Todos los derechos reservados</span>
             </p>
-            <div className="mt-2">
-              Diseñada por
-              <a
-                href="https://www.sena.edu.co/es-co/Paginas/default.aspx"
-                className="text-blue-500 hover:underline"
-              >
-                Profesionales del SENA 😉
-              </a>
-            </div>
           </div>
         </div>
       </footer>
