@@ -5,7 +5,7 @@ import DetallesPlan from "../../components/planes/DetallesPlan";
 import { getPlanBeneficioById } from "../../services/planxbeneficios";
 import { getBeneficios } from "../../services/beneficios";
 import { getVisitas } from "../../services/visitasService";
-import FloatingChatButton from "../../components/botones/FloatingChatButton";
+//import FloatingChatButton from "../../components/botones/FloatingChatButton";
 
 const HomePacientes: React.FC = () => {
   const API_URL = import.meta.env.VITE_URL_BACK;
@@ -353,7 +353,7 @@ const HomePacientes: React.FC = () => {
       </div>
 
       {/* 💬 Botón flotante del chat */}
-      <FloatingChatButton />
+      {/* <FloatingChatButton /> */}
       {showDetalles && (<DetallesPlan plan={showDetalles} setShowDetalles={setShowDetalles} />)}
     </div>
   );
