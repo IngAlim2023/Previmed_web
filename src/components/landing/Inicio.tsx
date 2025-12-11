@@ -17,7 +17,7 @@ const Inicio: React.FC = () => {
               data-aos-delay="200"
             >
               <h1 className="text-6xl mb-4 text-gray-800">
-                Previmed <br />
+                MediHome <br />
                 <span className="text-blue-600">Tu médico en casa</span>
               </h1>
               <p className="text-lg text-gray-800">

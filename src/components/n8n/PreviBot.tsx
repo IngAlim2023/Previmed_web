@@ -12,11 +12,11 @@ const PreviBot: React.FC = () => {
       defaultLanguage: "en",
       showWelcomeScreen: true,
       initialMessages: [
-        "¡Hola! Soy **Previbot**, tu asistente virtual de Previmed 👋",
+        "¡Hola! Soy **MediBot**, tu asistente virtual de MediHome 👋",
       ],
       i18n: {
         en: {
-          title: "🏥 Previmed",
+          title: "🏥 MediHome",
           subtitle: "Agenda tu visita médica domiciliaria",
           footer: "",
           getStarted: "Iniciar chat",

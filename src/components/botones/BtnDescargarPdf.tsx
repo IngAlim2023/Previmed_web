@@ -19,7 +19,7 @@ const BtnDescargarPdf: React.FC<BtnDescargarPdf> = ({ verText, text, idUsuario }
       toast.success('Contrato generado correctamente.')
       const link = document.createElement("a");
       link.href = pdfUrl;
-      link.download = "contratoPrevimed.pdf";
+      link.download = "contratoMediHome.pdf";
       link.click();
       link.remove();
     } catch (err) {

@@ -21,7 +21,7 @@ const Nosotros:React.FC = () => {
                 Más sobre nosotros
               </span>
               <h2 className="text-3xl font-semibold text-gray-800 mt-2">
-                Conoce más sobre Previmed
+                Conoce más sobre MediHome
               </h2>
               <p className="text-gray-800">
                 Somos una compañia que busca el mayor reconocimiento a nivel
@@ -85,10 +85,9 @@ const Nosotros:React.FC = () => {
                 className="rounded-xl shadow-md w-full"
               />
               <div className="absolute top-16 left-0 bg-blue-600 text-white px-4 py-2 rounded-xl shadow-lg">
-                <h3 className="text-4xl font-bold leading-none">
-                  10+ <span className="text-lg font-light">Años</span>
+                <h3 className="text-2xl font-bold leading-none">
+                  24/7 <span className="text-lg font-light">A tu lado</span>
                 </h3>
-                <p className="text-lg">de experiencia a tu servicio.</p>
               </div>
             </div>
           </div>

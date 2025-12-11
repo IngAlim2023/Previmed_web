@@ -111,7 +111,7 @@ const ContratoPaciente: React.FC = () => {
           <div className="flex justify-between">
             <span className="text-gray-500">Empresa</span>
             <span className="font-medium">
-              PREVIMED TU MÉDICO EN CASA S.A.S
+              MEDIHOME TU MÉDICO EN CASA S.A.S
             </span>
           </div>
 

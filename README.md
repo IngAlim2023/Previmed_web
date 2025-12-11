@@ -1,15 +1,15 @@
-# 🚀 Bienvenido al proyecto: **Previmed** - React (Vite) + TypeScript
+# 🚀 Bienvenido al proyecto: **MediHome** - React (Vite) + TypeScript
 
 Este proyecto fue creado con dos objetivos principales:
 
 1. ✅ Cumplir con el proyecto requerido por el **SENA**.
-2. 🧠 Aplicar los conocimientos adquiridos en un proyecto real para la empresa **Previmed** (prestadora de servicios de salud).
+2. 🧠 Aplicar los conocimientos adquiridos en un proyecto real para la empresa **MediHome** (prestadora de servicios de salud).
 
 ---
 
 ## 🎯 Función principal
 
-Gestionar de forma más **efectiva** y **dinámica** los distintos tipos de movimientos internos que se generan en la empresa **Previmed**.
+Gestionar de forma más **efectiva** y **dinámica** los distintos tipos de movimientos internos que se generan en la empresa **MediHome**.
 
 ---
 
@@ -30,7 +30,7 @@ Asegúrate de tener instaladas las siguientes herramientas:
 
 ## Proceso de instalación 💥💥💥
 
-git clone https://github.com/IngAlim2023/Previmed_web.git
+git clone https://github.com/IngAlim2023/MediHome_web.git
 
 ## Instalación de dependencias 🎒🎒🎒
 
@@ -89,7 +89,7 @@ npm run dev
 Para cualquier duda o problema técnico, comunícate por el grupo de WhatsApp del equipo 👥
 
 
-# ¡Gracias por aportar al proyecto Previmed! 💚
+# ¡Gracias por aportar al proyecto MediHome! 💚
 
 🚧🚧🚧 Estructura del proyecto
 

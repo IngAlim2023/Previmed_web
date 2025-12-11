@@ -5,7 +5,7 @@ import DetallesPlan from "../../components/planes/DetallesPlan";
 import { getPlanBeneficioById } from "../../services/planxbeneficios";
 import { getBeneficios } from "../../services/beneficios";
 import { getVisitas } from "../../services/visitasService";
-//import FloatingChatButton from "../../components/botones/FloatingChatButton";
+import FloatingChatButton from "../../components/botones/FloatingChatButton";
 
 const HomePacientes: React.FC = () => {
   const API_URL = import.meta.env.VITE_URL_BACK;
@@ -311,18 +311,14 @@ const HomePacientes: React.FC = () => {
         {/* 📅 Visitas del paciente */}
         <div className="mt-6 bg-white border border-gray-100 rounded-2xl p-5 shadow-sm">
           <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-            <FaCalendarAlt className="text-blue-600" /> Visitas recientes
+            <FaCalendarAlt className="text-blue-600" /> Visitas pendientes
           </h3>
           {visitas.length === 0 ? (
-            <p className="text-sm text-gray-500">No tienes visitas registradas.</p>
+            <p className="text-sm text-gray-500">No tienes visitas pendientes.</p>
           ) : (
             <ul className="space-y-2">
-              {[...visitas]
-                .sort(
-                  (a: any, b: any) =>
-                    new Date(b.fecha_visita).getTime() - new Date(a.fecha_visita).getTime()
-                )
-                .slice(0, 5)
+              {visitas
+                .filter(v => v.estado)
                 .map((v: any) => (
                   <li
                     key={v.id_visita}
@@ -353,7 +349,7 @@ const HomePacientes: React.FC = () => {
       </div>
 
       {/* 💬 Botón flotante del chat */}
-      {/* <FloatingChatButton /> */}
+      { <FloatingChatButton /> }
       {showDetalles && (<DetallesPlan plan={showDetalles} setShowDetalles={setShowDetalles} />)}
     </div>
   );

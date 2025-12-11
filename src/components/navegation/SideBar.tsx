@@ -24,7 +24,7 @@ import type { JSX } from "react";
 import { BsClockHistory } from "react-icons/bs";
 import { IoMdHelpBuoy } from "react-icons/io";
 
-const PREVIMED_Full_Color = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761360937/PREVIMED_Full_Color_zwphjh.png";
+const MEDIHOME_Full_Color = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1765479531/logo_sencillo_medihome_sin_fondo_b6rhkh.png";
 // Tipo de dato para las rutas
 interface RouteItem {
   path: string;
@@ -46,25 +46,19 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
   const routes: RouteItem[] = [
     // 🔹 ADMINISTRADOR
     { path: "/home/admin", label: "Inicio", icon: <FaHome />, roles: ["Administrador"] },
-    { path: "/usuarios", label: "Asesores", icon: <FaUsers />, roles: ["Administrador"] },
-    { path: "/medicos", label: "Médicos", icon: <FaUserMd />, roles: ["Administrador"] },
-    { path: "/pagos", label: "Pagos", icon: <FaMoneyBill />, roles: ["Administrador"] },
-    { path: "/planes", label: "Planes", icon: <FaClipboardList />, roles: ["Administrador"] },
-    { path: "/visitas", label: "Visitas", icon: <FaCalendarAlt />, roles: ["Administrador"] },
     { path: "/pacientes", label: "Pacientes", icon: <FaUserFriends />, roles: ["Administrador"] },
-/*     { path: "/contratos", label: "Contratos", icon: <FaFileAlt />, roles: ["Administrador"] },
-    { path: "/beneficios_plan", label: "Beneficios Plan", icon: <FaGift />, roles: ["Administrador"] }, 
-    { path: "/formas_pago", label: "Formas de Pago", icon: <FaWpforms />, roles: ["Administrador"] }, */
+    { path: "/visitas", label: "Visitas", icon: <FaCalendarAlt />, roles: ["Administrador"] },
+    { path: "/pagos", label: "Pagos", icon: <FaMoneyBill />, roles: ["Administrador"] },
+    { path: "/medicos", label: "Médicos", icon: <FaUserMd />, roles: ["Administrador"] },
+    { path: "/usuarios", label: "Asesores", icon: <FaUsers />, roles: ["Administrador"] },
+    { path: "/planes", label: "Planes", icon: <FaClipboardList />, roles: ["Administrador"] },
     { path: "/solicitudes", label: "Solicitudes", icon: <FaBriefcaseMedical />, roles: ["Administrador"] },
     { path: "/eps", label: "EPS", icon: <FaHospital />, roles: ["Administrador"] },
     { path: "/barrios", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Administrador"] },
-/*     { path: "/roles", label: "Roles", icon: <FaUserShield />, roles: ["Administrador"] },
-    { path: "/panel_control", label: "Panel de Control", icon: <FaTachometerAlt />, roles: ["Administrador"] }, */
 
     // 🔹 ASESOR
     { path: "/home/asesor", label: "Inicio", icon: <FaHome />, roles: ["Asesor"] },
     { path: "/pacientes", label: "Pacientes", icon: <FaUserFriends />, roles: ["Asesor"] },
-    /* { path: "/contratos/asesor", label: "Contratos", icon: <FaClipboardList />, roles: ["Asesor"] }, */
     { path: "/pagos/asesor", label: "Pagos", icon: <FaMoneyBill />, roles: ["Asesor"] },
     { path: "/barrios/asesor", label: "Barrios", icon: <FaTachometerAlt />, roles: ["Asesor"] },
 
@@ -127,7 +121,7 @@ const SideBar: React.FC<PropsSideBar> = ({ cerrado, setCerrado }) => {
         >
           <FaBars />
         </button>
-        {!cerrado && <img src={PREVIMED_Full_Color} alt="Logo" className="px-4" />}
+        {!cerrado && <img src={MEDIHOME_Full_Color} alt="Logo" className="h-18 w-32" />}
       </div>
 
       {/* INFO DEL USUARIO */}

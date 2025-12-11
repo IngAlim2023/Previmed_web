@@ -7,7 +7,7 @@ const Servicios: React.FC = () => {
         <div className="container mx-auto mb-12 text-center" data-aos="fade-up">
           <h2 className="text-3xl font-semibold text-gray-800">Servicios</h2>
           <p className="mt-2 text-gray-600">
-            En Previmed ofrecemos una gran variedad de servicios y nos adaptamos
+            En MediHome ofrecemos una gran variedad de servicios y nos adaptamos
             a tus necesidades.
           </p>
         </div>

@@ -7,7 +7,7 @@ export default function ChatPrevimed() {
   const documento = auth?.user?.documento || "15815557";
 
   const [mensajes, setMensajes] = useState<MensajeChat[]>(() => {
-    const saved = localStorage.getItem("chatPrevimed");
+    const saved = localStorage.getItem("chatMediHome");
     return saved ? JSON.parse(saved) : [];
   });
   const [nuevoMensaje, setNuevoMensaje] = useState("");
@@ -16,7 +16,7 @@ export default function ChatPrevimed() {
   const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    localStorage.setItem("chatPrevimed", JSON.stringify(mensajes));
+    localStorage.setItem("chatMediHome", JSON.stringify(mensajes));
   }, [mensajes]);
 
   useEffect(() => {
@@ -45,15 +45,15 @@ export default function ChatPrevimed() {
       // Si la visita se completó, limpiar chat
       if (data.accion === "visita_creada") {
         setTimeout(() => {
-          localStorage.removeItem("chatPrevimed");
+          localStorage.removeItem("chatMediHome");
           setMensajes([
-            { role: "assistant", text: "✅ Visita registrada correctamente. ¡Gracias por confiar en Previmed!" },
+            { role: "assistant", text: "Visita registrada correctamente. ¡Gracias por confiar en MediHome!" },
           ]);
           setOpciones([]);
         }, 1500);
       }
     } catch (err) {
-      console.error("❌ Error al enviar mensaje:", err);
+      console.error("Error al enviar mensaje:", err);
       setMensajes((prev) => [
         ...prev,
         { role: "assistant", text: "Error al conectar con el asistente. Intenta nuevamente." },
@@ -71,7 +71,7 @@ export default function ChatPrevimed() {
   return (
     <div className="fixed bottom-6 right-6 w-96 bg-white border rounded-2xl shadow-xl flex flex-col overflow-hidden">
       <div className="bg-[#004F4F] text-white p-3 font-semibold text-sm">
-        Asistente Previmed
+        Asistente MediHome
       </div>
 
       <div ref={chatRef} className="flex-1 p-3 overflow-y-auto space-y-2">

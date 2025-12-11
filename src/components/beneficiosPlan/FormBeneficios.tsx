@@ -41,7 +41,7 @@ const FormBeneficio: React.FC<Props> = ({ beneficio, setShowForm, onSuccess }) =
       // ✅ Solo notificamos si realmente se guardó
       if (saved) onSuccess(saved)
     } catch (error) {
-      console.error("❌ Error al guardar beneficio:", error)
+      console.error("Error al guardar beneficio:", error)
     } finally {
       setIsSaving(false)
     }

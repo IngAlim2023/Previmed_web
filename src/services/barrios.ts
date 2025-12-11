@@ -61,8 +61,6 @@ export const getBarrios = async (): Promise<DataBarrio[]> => {
   const data = await res.json();
   const lista = data.msj ?? data.msg ?? data.data ?? (Array.isArray(data) ? data : []);
   const parsed = Array.isArray(lista) ? lista.map(fromDto) : []
-  console.debug("📥 getBarrios -> crudo:", data)
-  console.debug("📄 getBarrios -> lista normalizada:", parsed)
   return parsed
 };
 

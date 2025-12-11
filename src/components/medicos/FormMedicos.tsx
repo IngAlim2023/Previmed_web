@@ -6,8 +6,7 @@ import toast from "react-hot-toast";
 import { medicoService } from "../../services/medicoService";
 
 /** ========= Helper URL =========
- * VITE_URL_BACK=https://previmedbackend-q73n.onrender.com/
- * (DEBE terminar en /)
+ * (la url del back debe terminar en /)
  */
 const BASE = import.meta.env.VITE_URL_BACK || "";
 const makeUrl = (path: string) => {

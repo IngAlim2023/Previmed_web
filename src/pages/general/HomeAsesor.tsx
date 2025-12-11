@@ -1,18 +1,13 @@
 import React from 'react';
-/* import { useNavigate } from 'react-router-dom';
-
-import { IoIosDocument } from 'react-icons/io';
-import { ImLocation } from 'react-icons/im'; */
-import { FaChartLine } from 'react-icons/fa';
 import { useAuthContext } from '../../context/AuthContext';
+import PagosAsignados from '../../components/pagos/PagosAsignados';
 
 const asesor_img = 'https://res.cloudinary.com/dudqqzt1k/image/upload/v1761411224/asesor_img_nls11f.png';
 const HomeAsesor: React.FC = () => {
-  //const navigate = useNavigate();
   const {user} = useAuthContext()
 
   return (
-    <div className="min-h-screen bg-blue-50 flex justify-center items-center px-4 py-20">
+    <div className="min-h-screen bg-blue-50 grid justify-center px-4 py-12 gap-6">
       <div className="bg-white rounded-3xl shadow-xl p-8 max-w-4xl w-full flex items-center gap-2 md:gap-4">
 
         {/* Imagen del asesor */}
@@ -36,57 +31,13 @@ const HomeAsesor: React.FC = () => {
               🤝 Tu contacto de confianza para resolver dudas, trámites y afiliaciones en nuestra red de salud.
             </p>
           </div>
-
-          {/* Experiencia */}
-          <div className="flex flex-col items-center space-y-1 mt-4">
-            <div className="bg-blue-100 p-3 rounded-full shadow-sm">
-              <FaChartLine className="text-blue-600 w-5 h-5" />
-            </div>
-            <p className="text-sm font-medium text-[#003366] text-center">
-              2 años con nosotros
-            </p>
-          </div>
-
-          {/* Opciones en línea (horizontal) */}
-{/*           <div className="flex flex-row justify-center items-center gap-12 text-[#003366] text-base font-medium mt-6">
-            <OptionLink
-              icon={<IoIosDocument className="w-5 h-5" />}
-              label="Planes"
-              onClick={() => navigate('/planes')}
-            />
-            <OptionLink
-              icon={<ImLocation className="w-5 h-5" />}
-              label="Barrios"
-              onClick={() => navigate('/barrios')}
-            />
-            <OptionLink
-              icon={<FaBookOpen className="w-5 h-5" />}
-              label="Contratos"
-              onClick={() => navigate('/contratos')}
-            />
-          </div> */}
-
         </div>
       </div>
+
+      <PagosAsignados/>
     </div>
+
   );
 };
-
-// Componente de opción horizontal usando react-icons
-/* type OptionLinkProps = {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-};
-
-const OptionLink: React.FC<OptionLinkProps> = ({ icon, label, onClick }) => (
-  <div
-    onClick={onClick}
-    className="flex items-center gap-2 cursor-pointer transform transition-all duration-300 hover:scale-110 hover:text-blue-600"
-  >
-    {icon}
-    <span>{label}</span>
-  </div>
-); */
 
 export default HomeAsesor;

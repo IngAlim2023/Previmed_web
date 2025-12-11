@@ -122,15 +122,15 @@ const FormPlan: React.FC = () => {
 
       if (isEditing && idPlan) {
         await updatePlan(Number(idPlan), payload)
-        toast.success("Plan actualizado con éxito ✅")
+        toast.success("Plan actualizado con éxito")
       } else {
         await createPlan(payload)
-        toast.success("Plan creado con éxito 🎉")
+        toast.success("Plan creado con éxito")
       }
 
       navigate("/planes")
     } catch (error) {
-      console.error("❌ Error al guardar plan:", error)
+      console.error("Error al guardar plan:", error)
       toast.error("Error al guardar el plan")
     } finally {
       setIsSaving(false)
@@ -159,7 +159,7 @@ const FormPlan: React.FC = () => {
   // 🎨 Interfaz principal
   return (
     <div
-      className={`min-h-screen flex items-center justify-center bg-gray-100 p-6 transition-all duration-300 ${
+      className={`min-h-screen flex items-center justify-center bg-blue-50 p-6 transition-all duration-300 ${
         closing ? "opacity-0 scale-95" : "opacity-100 scale-100"
       }`}
     >

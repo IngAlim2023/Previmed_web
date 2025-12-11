@@ -86,9 +86,9 @@ const DataTableBeneficios: React.FC = () => {
     setShowForm(true)
   }
 
-  // ✅ Actualizar tabla tras guardar/editar
+  //  Actualizar tabla tras guardar/editar
   const handleOnSuccess = async (saved?: Beneficio) => {
-    // 🚫 No hacer nada si no hay datos guardados
+    // No hacer nada si no hay datos guardados
     if (!saved || typeof saved !== "object") return
 
     const normalized = {
@@ -106,7 +106,7 @@ const DataTableBeneficios: React.FC = () => {
     // ✅ Mostrar toast solo cuando realmente se guardó
     toast.dismiss()
     toast.success(
-      editing ? "Beneficio actualizado correctamente ✅" : "Beneficio creado exitosamente 🎉",
+      editing ? "Beneficio actualizado correctamente" : "Beneficio creado exitosamente",
       { duration: 1200 }
     )
   }

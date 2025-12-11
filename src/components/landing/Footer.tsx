@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
             <div className="lg:w-1/2">
               <p className="flex items-center mb-4">
                 <span className="text-2xl font-semibold"> 
-                  Previmed, Tu médico en casa!
+                  MediHome, Tu médico en casa!
                 </span>
               </p>
               <div className="pt-3 space-y-2">
@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
           <div className="text-center mt-10 text-sm text-gray-600">
             <p>
               © <span>Copyright</span>{" "}
-              <strong className="px-1 font-semibold">Previmed</strong>{" "}
+              <strong className="px-1 font-semibold">MediHome</strong>{" "}
               <span>Todos los derechos reservados</span>
             </p>
           </div>

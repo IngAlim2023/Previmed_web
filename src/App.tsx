@@ -63,6 +63,7 @@ function App() {
               <Route path="/medicos" element={<Medicos />} />
               <Route path="/pagos" element={<Pagos />} />
               <Route path="/planes" element={<PlanesAdmin />} />
+              <Route path="/planes/editar/:idPlan" element={<FormPlan />} />
               <Route path="/visitas" element={<Visitas />} />
               <Route path="/contratos" element={<Contratos />} />
               <Route path="/beneficios_plan" element={<BeneficiosPlan />} />
@@ -110,7 +111,6 @@ function App() {
             <Route path="/pagos" element={<Pagos />} />
             <Route path="/historial/visitas" element={<HistorialVisitas />} />
             <Route path="/planes/crear" element={<FormPlan />} />
-            <Route path="/planes/editar/:idPlan" element={<FormPlan />} />
             <Route path="/visitas" element={<Visitas />} />
             <Route path="/visitas/medico" element={<VisitasPorMedico />} />
             <Route path="/historial/medico" element={<HistorialVisitasMedico/>} /> 

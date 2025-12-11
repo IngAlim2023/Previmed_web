@@ -60,7 +60,7 @@ export const generarPDF = (usuario: Usuario): GenerarPDFResult => {
     y += 15
     
     doc.setFontSize(12)
-    doc.text('PREVIMED TU MEDICO EN CASA S.A.S', 105, y, { align: 'center' })
+    doc.text('MEDIHOME TU MEDICO EN CASA S.A.S', 105, y, { align: 'center' })
     y += 10
     
     doc.setFont('helvetica', 'normal')
@@ -92,7 +92,7 @@ export const generarPDF = (usuario: Usuario): GenerarPDFResult => {
     // Texto que se auto-llena con datos del usuario
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    const textoContrato = `Entre I.P.S. PREVIMED TU MEDICO EN CASA S.A.S. (NIT: 900707920-1) domiciliada en Popayán, Cauca, y ${usuario.nombre || '[NOMBRE DEL USUARIO]'}, identificado(a) con documento ${usuario.numeroDocumento || '[NÚMERO DE DOCUMENTO]'}, domiciliado(a) en ${usuario.direccion || '[DIRECCIÓN]'}, se celebra el presente contrato para la prestación de servicios de medicina general domiciliaria.`
+    const textoContrato = `Entre I.P.S. MEDIHOME TU MEDICO EN CASA S.A.S. (NIT: 900707920-1) domiciliada en Popayán, Cauca, y ${usuario.nombre || '[NOMBRE DEL USUARIO]'}, identificado(a) con documento ${usuario.numeroDocumento || '[NÚMERO DE DOCUMENTO]'}, domiciliado(a) en ${usuario.direccion || '[DIRECCIÓN]'}, se celebra el presente contrato para la prestación de servicios de medicina general domiciliaria.`
     
     const lineas = doc.splitTextToSize(textoContrato, 170)
     doc.text(lineas, 20, y)
@@ -134,7 +134,7 @@ export const generarPDF = (usuario: Usuario): GenerarPDFResult => {
     doc.text('Representante Legal', 130, y)
     y += 3
     doc.text(usuario.numeroDocumento || '[Documento]', 30, y)
-    doc.text('PREVIMED TU MEDICO EN CASA S.A.S', 130, y)
+    doc.text('MEDIHOME TU MEDICO EN CASA S.A.S', 130, y)
     
     // === GUARDAR PDF ===
     // Nombre de archivo seguro (sin caracteres especiales)

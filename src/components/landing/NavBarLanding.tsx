@@ -6,19 +6,18 @@ import { FaMapLocationDot } from "react-icons/fa6";
 import { IoIosDocument } from 'react-icons/io';
 import { BsTelephoneFill } from "react-icons/bs"
 
-const PREVIMED_Full_Color = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761360937/PREVIMED_Full_Color_zwphjh.png";
+const MEDIHOME_Full_Color = "https://res.cloudinary.com/dudqqzt1k/image/upload/v1765479080/logo_medihome_sin_fondo_zordag.png";
 const NavBarLanding: React.FC = () => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <header className="fixed w-full rounded-b-3xl bg-white shadow-2xl z-1">
-        <div className="container px-4 flex items-center justify-between h-18">
+      <header className="fixed justify-center w-full rounded-b-3xl bg-white shadow-2xl z-1">
+        <div className="px-4 flex items-center justify-between h-18">
           {/* Logo */}
-          <a href="/" className="flex items-center mr-auto xl:mr-0">
-            <img src={PREVIMED_Full_Color} alt="Imagen previmed" className="h-14" />
-          </a>
+          
+          <img onClick={()=> navigate('/')} src={MEDIHOME_Full_Color} alt="Imagen MediHome" className="h-24" />
 
           {/* Normal nav */}
           <nav className="hidden xl:flex space-x-4 text-sm font-medium">

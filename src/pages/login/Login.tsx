@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
-const previmedImg =
-  "https://res.cloudinary.com/dudqqzt1k/image/upload/v1761360937/PREVIMED_Full_Color_zwphjh.png";
+const medihomeImg =
+  "https://res.cloudinary.com/dudqqzt1k/image/upload/v1765479080/logo_medihome_sin_fondo_zordag.png";
 
 interface UsuarioCredenciales {
   numero_documento: string;
@@ -148,7 +148,7 @@ const Login: React.FC = () => {
       <div className="hidden md:flex flex-col justify-center p-12 bg-gray-50">
 
         <div className="flex justify-center mb-8">
-          <img src={previmedImg} alt="Previmed" className="h-20 object-contain" />
+          <img src={medihomeImg} alt="MediHome" className="h-48 object-contain" />
         </div>
 
         <h2 className="text-3xl font-bold text-gray-800 mb-4">
@@ -156,7 +156,7 @@ const Login: React.FC = () => {
         </h2>
 
         <p className="text-gray-600 text-sm mb-8">
-          Ingresa a tu cuenta Previmed y obtén acceso a todas tus funcionalidades
+          Ingresa a tu cuenta MediHome y obtén acceso a todas tus funcionalidades
           desde un solo lugar.
         </p>
 

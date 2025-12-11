@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // ✅ Leer cookies al montar la app
   useEffect(() => {
-    console.log("🧠 [AuthContext] Revisando sesión...");
+    console.log("Revisando sesión...");
     const savedAuth = Cookies.get("auth");
     const savedUser = Cookies.get("user");
 
@@ -45,21 +45,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const parsedUser: User = JSON.parse(savedUser);
         if (parsedUser?.id && parsedUser?.rol?.nombreRol) {
-          console.log("✅ [AuthContext] Sesión encontrada:", parsedUser);
           setUser(parsedUser);
           setIsAuthenticated(true);
         } else {
-          console.warn("⚠️ [AuthContext] Cookie inválida. Se limpia.");
+          console.warn("Cookie inválida.");
           Cookies.remove("auth");
           Cookies.remove("user");
         }
       } catch (err) {
-        console.error("❌ [AuthContext] Error al parsear cookie:", err);
+        console.error("Error al parsear cookie:");
         Cookies.remove("auth");
         Cookies.remove("user");
       }
     } else {
-      console.log("🚫 [AuthContext] No hay sesión activa.");
+      console.log("No hay sesión activa");
     }
 
     setIsLoading(false);

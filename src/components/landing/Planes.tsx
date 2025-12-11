@@ -18,7 +18,7 @@ const Planes: React.FC = () => {
       try {
         setLoading(true)
         const data = await getPlanes()
-        setPlanes(Array.isArray(data) ? data : [])
+        setPlanes(Array.isArray(data) ? data.filter((p) => p.estado) : [])
       } catch (e: any) {
         setError("No se pudieron cargar los planes.")
       } finally {

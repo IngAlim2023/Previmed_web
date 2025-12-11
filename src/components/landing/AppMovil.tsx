@@ -28,7 +28,7 @@ const AppMovil:React.FC = () => {
                       data-aos="fade-right"
                       data-aos-delay="200"
                     >
-                      <div className="flex items-center  gap-4">
+                      <div className="flex items-center justify-end gap-4">
                         <div>
                           <h3 className="text-3xl font-semibold text-gray-800">
                             Comodidad
@@ -159,7 +159,7 @@ const AppMovil:React.FC = () => {
                 {/* Botón */}
                 <div className="flex justify-center mt-12">
                   <a
-                    href="https://play.google.com/store/apps/details?id=com.prevemed.app&hl=es_419"
+                    href="https://mega.nz/file/1B9XHahL#ci1hcr2lVNj5m9XVw8rtF3wRLUrxmBgHzEtAha7xIvo"
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-lg font-semibold rounded-full transition"
                   >
                     Descargar
